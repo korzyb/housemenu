@@ -214,7 +214,48 @@ Jeden duży przycisk "Dodaj do planu" w kolorze Głównego Akcentu. Propozycje t
 
 ---
 
-## 10. Zdjęcia przepisów
+## 10. Szablon przepisu
+
+Każdy przepis ma ujednolicony układ niezależnie od sposobu dodania. Pola oznaczone * są wymagane.
+
+### Nagłówek
+- **Nazwa*** — duży nagłówek, zawsze na górze
+- **Zdjęcie** — pełna szerokość, format `3:2`, pod nazwą; placeholder jeśli brak (patrz sekcja 11)
+- **Krótki opis** — 1–2 zdania kursywą pod zdjęciem; opcjonalny, może być generowany przez AI przy imporcie
+
+### Chipy parametrów
+Jeden wiersz scrollowalnych chipów pod opisem:
+
+| Chip | Ikona | Przykład |
+| :--- | :---: | :--- |
+| Czas przygotowania* | ⏱ | 25 min |
+| Liczba porcji* | 👤 | 4 porcje |
+| Trudność | ⭐ | Łatwy |
+| Podawać | 🌡 | Na ciepło |
+| Tagi | — | Wegetariańskie, Dla dzieci |
+| Źródło | 🌐 | link lub "Własny przepis" |
+
+### Składniki
+- Format: ilość + jednostka + nazwa (np. `200 g mąki`, `2 jajka`, `szczypta soli`)
+- Lista wypunktowana
+- Nad listą: przelicznik porcji (np. `4 porcje ▾`) — tap otwiera pole liczbowe i przelicza wszystkie ilości
+
+### Instrukcja
+- Numerowane kroki (`1.`, `2.`, `3.` ...)
+- W trybie gotowania każdy krok zajmuje cały ekran (patrz sekcja 7)
+
+### Notatki własne
+- Opcjonalne pole tekstowe na własne modyfikacje i wskazówki użytkownika
+- Wizualnie odróżnione od instrukcji — tło w kolorze `hsla(224, 25%, 14%, 0.6)`, tekst kursywą
+
+### Stopka (automatyczna, nieedytowalna)
+- Data dodania przepisu
+- Data ostatniego zaplanowania
+- Ikona źródła importu: ✏️ ręczny / 🌐 z URL / 📷 ze zdjęcia / 🎙 głosem
+
+---
+
+## 11. Zdjęcia przepisów
 
 Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z uwagą.
 
@@ -225,7 +266,7 @@ Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z
 
 ---
 
-## 11. Przykładowa Wizualizacja Interfejsu (Mockup UI)
+## 12. Przykładowa Wizualizacja Interfejsu (Mockup UI)
 
 Mockup ekranu **Dziś** — zgodny z PRD i design guide.
 

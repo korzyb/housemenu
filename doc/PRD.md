@@ -88,7 +88,15 @@ Osoba prowadząca dom, która każdego dnia traci czas i energię na decyzję "c
 
 ### Szczegóły przepisu
 - **Cel:** zapoznanie się z przepisem i gotowanie krok po kroku
-- **Zawiera:** zdjęcie, lista składników z ilościami, instrukcja w trybie klikanych kroków, link do źródła (jeśli jest), przycisk "dodaj do planu tygodnia"
+- **Zawiera:**
+  - zdjęcie, nazwa, krótki opis (opcjonalny)
+  - chipy parametrów: czas przygotowania, liczba porcji, trudność, na ciepło/zimno, tagi, źródło
+  - przelicznik porcji — zmiana liczby porcji automatycznie przelicza ilości składników
+  - lista składników z ilościami (ilość + jednostka + nazwa)
+  - instrukcja krok po kroku (klikalna w trybie gotowania)
+  - notatki własne (opcjonalne pole na własne modyfikacje i wskazówki)
+  - stopka: data dodania i data ostatniego zaplanowania
+  - przycisk "Dodaj do planu tygodnia"
 
 ### Lista zakupów
 - **Cel:** zakupy na podstawie zaplanowanego tygodnia
