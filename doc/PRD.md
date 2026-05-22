@@ -51,6 +51,19 @@ Osoba prowadząca dom, która każdego dnia traci czas i energię na decyzję "c
 5. **Podgląd dnia na ekranie startowym**
    Ekran główny pokazuje co jest zaplanowane na dziś. Użytkownik od razu widzi co gotuje — bez szukania i przeglądania.
 
+6. **Asystent planowania (AI)**
+   Wbudowany asystent AI pomaga zaplanować posiłki — od pojedynczej sugestii po cały tydzień. Priorytetem są przepisy z własnej bazy użytkownika; jeśli baza nie zawiera odpowiednich dopasowań, asystent proponuje przepisy z internetu i może od razu przetworzyć je do formatu aplikacji.
+
+   **Tryb błyskawiczny** — dostępny bezpośrednio z pustego kafelka posiłku (przycisk ✨) lub jako floating button na ekranie Planu. Otwiera bottom sheet z 2–3 propozycjami dopasowanymi do pory dnia, historii ostatnio gotowanych posiłków i aktualnego planu tygodnia (żeby unikać powtórzeń). Kliknięcie propozycji dodaje ją do planu.
+
+   **Tryb planowania** — uruchamiany przyciskiem "Zaplanuj z AI" na ekranie Planu. Prowadzony krok po kroku:
+
+   - **Krok 1 — Co masz w domu?** *(opcjonalnie)* — użytkownik wpisuje lub dyktuje składniki, które chce wykorzystać. Można pominąć.
+   - **Krok 2 — Preferencje** *(opcjonalnie)* — wybór z gotowych opcji (wielokrotny wybór) i/lub wpisanie własnych wymagań w polu tekstowym.
+   - **Krok 3 — Zakres** — jeden posiłek / cały dzień / cały tydzień.
+   - **Krok 4 — Propozycje** — asystent prezentuje plan w postaci kart. Każdy slot zawiera mini-karuzelę 2–3 alternatyw — użytkownik swipuje między nimi i może wrócić do poprzedniej propozycji. Przy zakresie "Cały tydzień" domyślnie widoczna jest jedna propozycja na slot, a mała ikonka sygnalizuje że są alternatywy do przeswipowania. Asystent może dopytać lub zasugerować uzupełnienie ("jeśli masz jeszcze śmietanę, możesz zrobić zupę zamiast sałatki"). Użytkownik może też wpisać lub powiedzieć korektę ("zamień środę na coś bez mięsa").
+   - **Krok 5 — Zatwierdź** — jednym przyciskiem cały zaproponowany plan trafia do kalendarza tygodnia.
+
 ---
 
 ## 4. Widoki / ekrany

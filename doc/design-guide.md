@@ -155,7 +155,66 @@ Uruchamiany z trybu edycji. Priorytet: czytelność jedną ręką przy koszyku, 
 
 ---
 
-## 9. Zdjęcia przepisów
+## 9. Asystent planowania (AI)
+
+### Tryb błyskawiczny
+
+Bottom sheet z 2–3 kartami propozycji. Każda karta zawiera: zdjęcie (miniatura), nazwę przepisu, czas przygotowania i źródło (własna baza lub internet). Karty z własnej bazy oznaczone subtelną ikonką "z Twoich przepisów". Na dole bottom sheetu przycisk "Pokaż więcej" i link "Przejdź do trybu planowania".
+
+### Tryb planowania — flow ekranów
+
+Ekran otwierany przyciskiem "Zaplanuj z AI ✨" widocznym na ekranie Planu — w prawej części linii z nagłówkiem zakresu dat tygodnia (np. "18–24 maja" po lewej, przycisk po prawej).
+
+**Krok 1 — Składniki** *(opcjonalny)*
+- Duże pole tekstowe z podpowiedzią "np. jajka, makaron, pomidory..."
+- Przycisk mikrofonu do dyktowania
+- Przycisk "Pomiń" zawsze widoczny
+
+**Krok 2 — Preferencje** *(opcjonalny)*
+Chipy do wielokrotnego wyboru, pogrupowane:
+
+| Grupa | Opcje |
+| :--- | :--- |
+| Dieta | Wegetariańskie, Wegańskie, Bez glutenu, Bez laktozy, Bez mięsa czerwonego, Bez ryb |
+| Czas | Błyskawiczne (do 15 min), Szybkie (15–30 min), Spokojne (ponad 30 min), Bez gotowania |
+| Charakter | Na ciepło, Na zimno, Lekkie, Syte, Zupa, Sałatka, Jednogarnkowe, Coś słodkiego |
+| Dla kogo | Dla dzieci, Dla całej rodziny |
+| Kuchnia | Polska, Włoska, Azjatycka, Meksykańska, Śródziemnomorska |
+| Inne | Coś nowego (nie gotowałem ostatnio), Sezonowe, Z resztek |
+
+Pod chipami: otwarte pole tekstowe "Coś jeszcze? Wpisz własne wymagania..." — użytkownik może wpisać dowolne dodatkowe oczekiwania.
+
+**Krok 3 — Zakres**
+Trzy duże przyciski do wyboru: *Jeden posiłek* / *Cały dzień* / *Cały tydzień*
+
+**Krok 4 — Propozycje asystenta**
+
+Każdy slot posiłku zawiera mini-karuzelę 2–3 alternatyw:
+
+```
+┌─────────────────────────┐
+│  Obiad — środa          │
+│ ╔═══════════════════╗   │
+│ ║  Makaron z pesto  ║   │
+│ ║  [zdjęcie]  25min ║   │
+│ ╚═══════════════════╝   │
+│         ● ○ ○           │  ← dots: jesteś na 1 z 3
+│    ← swipe żeby zmienić │
+└─────────────────────────┘
+```
+
+- Swipe w lewo/prawo na karcie przełącza między alternatywami — można wracać do poprzednich
+- Dots indicator pokazuje pozycję w karuzeli (np. ● ○ ○)
+- **Widok "Cały tydzień":** domyślnie jedna propozycja na slot; mała ikonka `⟳` w rogu karty sygnalizuje dostępne alternatywy — tap lub swipe na tej karcie rozwija mini-karuzelę tylko dla wybranego slotu
+- Karty przepisów z internetu oznaczone ikoną globusa `🌐`; kliknięcie pozwala podejrzeć przepis i zdecydować czy zapisać do własnej bazy
+- Pole konwersacyjne na dole ekranu: użytkownik może wpisać lub powiedzieć korektę ("zamień środę na coś bez mięsa")
+
+**Krok 5 — Zatwierdzenie**
+Jeden duży przycisk "Dodaj do planu" w kolorze Głównego Akcentu. Propozycje trafiają do kalendarza tygodnia.
+
+---
+
+## 10. Zdjęcia przepisów
 
 Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z uwagą.
 
@@ -166,7 +225,7 @@ Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z
 
 ---
 
-## 10. Przykładowa Wizualizacja Interfejsu (Mockup UI)
+## 11. Przykładowa Wizualizacja Interfejsu (Mockup UI)
 
 Mockup ekranu **Dziś** — zgodny z PRD i design guide.
 
