@@ -77,7 +77,7 @@ Aplikacja składa się z pięciu głównych ekranów. Każdy ma odrębny cel i s
 | Ekran | Cel | Dominujący element |
 | :--- | :--- | :--- |
 | **Dziś** (Dashboard) | Szybki podgląd dnia | 4 kafelki w kolejności: Śniadanie → Przekąska → Obiad → Kolacja |
-| **Plan tygodnia** | Planowanie i przeglądanie tygodni | Siatka: **dni jako wiersze** (Pn–Nd), **posiłki jako kolumny** (Śn/Prz/Ob/Ko) — cały tydzień widoczny bez scrollowania | ⚠️ mockup `plan_page_mockup.png` wymaga aktualizacji: układ odwrócony + "Drugie Śniadanie" → **Przekąska** |
+| **Plan tygodnia** | Planowanie i przeglądanie tygodni | Siatka: **dni jako wiersze** (Pn–Nd), **posiłki jako kolumny** (Śn/Prz/Ob/Ko) — cały tydzień widoczny bez scrollowania |
 | **Baza przepisów** | Przeglądanie i zarządzanie | Karty z miniaturami zdjęć |
 | **Szczegóły przepisu** | Czytanie i gotowanie | Duże zdjęcie hero, kroki na dole |
 | **Lista zakupów** | Zakupy w sklepie | Czysta lista, duże checkboxy |
