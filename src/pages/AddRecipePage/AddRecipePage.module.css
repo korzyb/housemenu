@@ -1,0 +1,376 @@
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-glass-bg);
+  color: var(--color-text);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.saveBtn {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.form {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 84px;
+}
+
+.nameInput {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.nameInput::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.nameInput:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.textarea:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.numInput {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.numInput:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.chipGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chipLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-glass-bg);
+  color: var(--color-text);
+  font-size: 13px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.chipActive {
+  background: hsla(263, 70%, 50%, 0.25);
+  border-color: hsla(263, 70%, 50%, 0.6);
+  color: hsl(263, 70%, 80%);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tagRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tagInput {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.tagInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tagInput:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.tagAddBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-glass-bg);
+  color: var(--color-text);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: hsla(263, 70%, 50%, 0.15);
+  border: 1px solid hsla(263, 70%, 50%, 0.3);
+  border-radius: 20px;
+  color: hsl(263, 70%, 78%);
+  font-size: 13px;
+}
+
+.tagBadge button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.ingRow {
+  display: grid;
+  grid-template-columns: 60px 58px 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.ingAmount,
+.ingUnit,
+.ingName {
+  padding: 10px 8px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.ingAmount:focus,
+.ingUnit:focus,
+.ingName:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.ingAmount::placeholder,
+.ingUnit::placeholder,
+.ingName::placeholder {
+  color: var(--color-text-muted);
+}
+
+.stepRow {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.stepNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: hsla(263, 70%, 50%, 0.2);
+  color: hsl(263, 70%, 78%);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 10px;
+}
+
+.stepText {
+  padding: 10px 12px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.stepText::placeholder {
+  color: var(--color-text-muted);
+}
+
+.stepText:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.removeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.15);
+  color: rgb(239, 68, 68);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 10px;
+}
+
+.addRowBtn {
+  align-self: flex-start;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px dashed var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.addRowBtn:hover {
+  color: var(--color-text);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.spacer {
+  height: 32px;
+}

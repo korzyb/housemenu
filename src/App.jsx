@@ -4,6 +4,7 @@ import TodayPage from './pages/TodayPage/TodayPage'
 import PlanPage from './pages/PlanPage/PlanPage'
 import RecipesPage from './pages/RecipesPage/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage/RecipeDetailPage'
+import AddRecipePage from './pages/AddRecipePage/AddRecipePage'
 import ShoppingPage from './pages/ShoppingPage/ShoppingPage'
 import styles from './App.module.css'
 
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/today" element={<TodayPage />} />
             <Route path="/plan" element={<PlanPage />} />
             <Route path="/recipes" element={<RecipesPage />} />
+            <Route path="/recipes/new" element={<AddRecipePage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/shopping" element={<ShoppingPage />} />
           </Routes>
