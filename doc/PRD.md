@@ -75,7 +75,7 @@ Osoba prowadząca dom, która każdego dnia traci czas i energię na decyzję "c
 
 ### Plan tygodnia
 - **Cel:** zaplanowanie posiłków na cały tydzień jednorazowo i przeglądanie historii
-- **Zawiera:** nagłówek z zakresem dat (np. "18–24 maja"), siatka 7 dni × 4 pory posiłku (śniadanie, przekąska, obiad, kolacja), każda komórka pokazuje zaplanowany posiłek lub jest pusta do wypełnienia
+- **Zawiera:** nagłówek z zakresem dat (np. "18–24 maja"), siatka z **dniami tygodnia jako wierszami** (7 wierszy: Pn–Nd) i **porami posiłku jako kolumnami** (4 kolumny: Śn / Prz / Ob / Ko) — cały tydzień widoczny na jednym ekranie bez scrollowania, każda komórka pokazuje zaplanowany posiłek lub jest pusta do wypełnienia
 - **Nawigacja między tygodniami** — karuzela 4 tygodni obsługiwana gestem przesunięcia (swipe):
   - przesunięcie w lewo → następny tydzień (do zaplanowania)
   - przesunięcie w lewo ponownie → tydzień za następnym (do zaplanowania)

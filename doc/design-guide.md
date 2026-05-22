@@ -77,7 +77,7 @@ Aplikacja składa się z pięciu głównych ekranów. Każdy ma odrębny cel i s
 | Ekran | Cel | Dominujący element |
 | :--- | :--- | :--- |
 | **Dziś** (Dashboard) | Szybki podgląd dnia | 4 kafelki w kolejności: Śniadanie → Przekąska → Obiad → Kolacja |
-| **Plan tygodnia** | Planowanie i przeglądanie tygodni | Siatka (grid) z nagłówkiem zakresu dat, swipe między tygodniami |
+| **Plan tygodnia** | Planowanie i przeglądanie tygodni | Siatka: **dni jako wiersze** (Pn–Nd), **posiłki jako kolumny** (Śn/Prz/Ob/Ko) — cały tydzień widoczny bez scrollowania | ⚠️ mockup `plan_page_mockup.png` wymaga aktualizacji: układ odwrócony + "Drugie Śniadanie" → **Przekąska** |
 | **Baza przepisów** | Przeglądanie i zarządzanie | Karty z miniaturami zdjęć |
 | **Szczegóły przepisu** | Czytanie i gotowanie | Duże zdjęcie hero, kroki na dole |
 | **Lista zakupów** | Zakupy w sklepie | Czysta lista, duże checkboxy |
@@ -107,19 +107,39 @@ Stały pasek na dole ekranu z czterema zakładkami: **Dziś**, **Plan**, **Przep
 - Nieaktywna zakładka: Tekst Pomocniczy `hsl(215, 20%, 65%)` + ikona bez etykiety
 - Tło paska: efekt glass (jak `.glass-card`), lekko oddzielony od treści
 
+### Układ siatki tygodnia
+
+Dni tygodnia jako **wiersze** (Pn–Nd), pory posiłku jako **kolumny** (4 kolumny). Cały tydzień widoczny na jednym ekranie bez scrollowania.
+
+```
+18–24 maja              [Zaplanuj z AI ✨]
+        Śn      Prz     Ob      Ko
+Pn    [🍳]    [   ]   [🍝]   [🥗]
+Wt    [🥞]    [🥗]    [🍲]   [   ]
+Śr    [🍳]    [   ]   [🍝]   [🐟]
+Czw   [   ]   [   ]   [   ]   [   ]
+Pt    [🍳]    [   ]   [🍲]   [   ]
+Sob   [🥞]    [   ]   [🥗]   [   ]
+Nd    [🍳]    [   ]   [🍝]   [🥗]
+```
+
+- Nagłówki kolumn: skróty z ikonami — **Śn** (Śniadanie), **Prz** (Przekąska), **Ob** (Obiad), **Ko** (Kolacja)
+- Nagłówki wierszy: skróty dni — **Pn, Wt, Śr, Czw, Pt, Sob, Nd**
+- Bieżący dzień: wiersz wyróżniony subtelnym akcentem (np. jaśniejsza ramka lub kolor tła nagłówka)
+
 ### Nawigacja między tygodniami (swipe)
 
-Ekran Planu tygodnia obsługuje gest przesunięcia poziomego. Karuzela 4 tygodni:
+Karuzela 4 tygodni obsługiwana gestem przesunięcia poziomego na całej siatce:
 
 ```
 ← [poprzedni tydzień]  [bieżący tydzień]  [następny tydzień]  [tydzień +2] →
       (tylko podgląd)      (domyślny)          (edytowalny)      (edytowalny)
 ```
 
-- Nagłówek tygodnia zawsze pokazuje zakres dat, np. **"18–24 maja"**
-- Przejście między tygodniami animowane — nowy tydzień wsuwa się z bocznej krawędzi
-- Poprzedni tydzień (historia): subtelne przyciemnienie lub oznaczenie "archiwum" — wizualnie odróżniony od edytowalnych tygodni
-- Poza karuzelą (dalej niż 4 tygodnie) swipe nie działa — brak efektu "gumki"
+- Nagłówek zawsze pokazuje zakres dat bieżącego widoku, np. **"18–24 maja"**
+- Przejście animowane — nowa siatka wsuwa się z bocznej krawędzi
+- Poprzedni tydzień (historia): subtelne przyciemnienie siatki — wizualnie odróżniony od edytowalnych
+- Poza karuzelą swipe nie działa — brak efektu "gumki"
 
 ---
 
