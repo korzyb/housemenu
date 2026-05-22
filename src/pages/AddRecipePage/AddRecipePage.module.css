@@ -64,6 +64,58 @@
   padding-bottom: 84px;
 }
 
+.importSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.importRow {
+  display: flex;
+  gap: 8px;
+}
+
+.importInput {
+  flex: 1;
+  padding: 11px 14px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.importInput::placeholder { color: var(--color-text-muted); }
+.importInput:focus { border-color: hsla(263, 70%, 50%, 0.5); }
+
+.importBtn {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.importBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.importErr {
+  font-size: 13px;
+  color: hsl(0, 70%, 65%);
+  padding: 0 4px;
+}
+
 .nameInput {
   width: 100%;
   padding: 14px 16px;

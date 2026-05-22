@@ -1,6 +1,6 @@
 import styles from './MealTile.module.css'
 
-export default function MealTile({ mealType, meal, onAdd, onOptions, onOpenRecipe }) {
+export default function MealTile({ mealType, meal, onAdd, onSuggest, onOptions, onOpenRecipe }) {
   const name = meal?.recipe?.name || meal?.custom_name
   const photo = meal?.recipe?.photo_url
   const prepTime = meal?.recipe?.prep_time
@@ -14,7 +14,17 @@ export default function MealTile({ mealType, meal, onAdd, onOptions, onOpenRecip
           <span className={styles.emptyLabel}>{mealType.label}</span>
           <span className={styles.emptyHint}>Dotknij, żeby dodać</span>
         </div>
-        <span className={styles.addIcon}>+</span>
+        <div className={styles.emptyActions}>
+          {onSuggest && (
+            <button
+              className={styles.aiBtn}
+              onClick={e => { e.stopPropagation(); onSuggest() }}
+              type="button"
+              aria-label="Sugestie AI"
+            >✨</button>
+          )}
+          <span className={styles.addIcon}>+</span>
+        </div>
       </div>
     )
   }

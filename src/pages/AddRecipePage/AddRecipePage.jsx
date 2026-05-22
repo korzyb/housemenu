@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecipes } from '../../hooks/useRecipes'
+import { supabase } from '../../lib/supabase'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -23,7 +24,10 @@ export default function AddRecipePage() {
     ingredients: [{ ...EMPTY_INGREDIENT }],
     steps: [{ ...EMPTY_STEP }],
   })
-  const [tagInput, setTagInput] = useState('')
+  const [tagInput,   setTagInput]   = useState('')
+  const [importUrl,  setImportUrl]  = useState('')
+  const [importing,  setImporting]  = useState(false)
+  const [importErr,  setImportErr]  = useState(null)
 
   function set(field, value) {
     setForm(f => ({ ...f, [field]: value }))
@@ -46,6 +50,38 @@ export default function AddRecipePage() {
   }
   const addStep    = () => set('steps', [...form.steps, { ...EMPTY_STEP }])
   const removeStep = i => set('steps', form.steps.filter((_, j) => j !== i))
+
+  // ─── Import z URL ──────────────────────────────────────
+  async function handleImport() {
+    if (!importUrl.trim()) return
+    setImporting(true)
+    setImportErr(null)
+    const { data, error } = await supabase.functions.invoke('import-recipe', {
+      body: { url: importUrl.trim() },
+    })
+    setImporting(false)
+    if (error || data?.error) {
+      setImportErr(data?.error ?? error?.message ?? 'Błąd importu')
+      return
+    }
+    setForm(f => ({
+      ...f,
+      name:        data.name        ?? f.name,
+      description: data.description ?? f.description,
+      prep_time:   data.prep_time   ? String(data.prep_time) : f.prep_time,
+      servings:    data.servings    ?? f.servings,
+      difficulty:  data.difficulty  ?? f.difficulty,
+      temperature: data.temperature ?? f.temperature,
+      tags:        data.tags?.length ? data.tags : f.tags,
+      ingredients: data.ingredients?.length
+        ? data.ingredients.map(i => ({ amount: i.amount ?? '', unit: i.unit ?? '', name: i.name ?? '' }))
+        : f.ingredients,
+      steps: data.steps?.length
+        ? data.steps.map(s => ({ text: s.text ?? '' }))
+        : f.steps,
+    }))
+    setImportUrl('')
+  }
 
   // ─── Tags ──────────────────────────────────────────────
   function addTag() {
@@ -92,6 +128,27 @@ export default function AddRecipePage() {
       </header>
 
       <div className={styles.form}>
+
+        {/* Import z URL */}
+        <div className={styles.importSection}>
+          <div className={styles.importRow}>
+            <input
+              className={styles.importInput}
+              type="url"
+              placeholder="Wklej link do przepisu…"
+              value={importUrl}
+              onChange={e => { setImportUrl(e.target.value); setImportErr(null) }}
+              onKeyDown={e => e.key === 'Enter' && handleImport()}
+            />
+            <button
+              className={styles.importBtn}
+              onClick={handleImport}
+              disabled={!importUrl.trim() || importing}
+              type="button"
+            >{importing ? '…' : '✨ Importuj'}</button>
+          </div>
+          {importErr && <p className={styles.importErr}>{importErr}</p>}
+        </div>
 
         {/* Nazwa */}
         <input

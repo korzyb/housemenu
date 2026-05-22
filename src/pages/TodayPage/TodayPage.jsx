@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
+import AISuggestSheet from '../../components/AISuggestSheet/AISuggestSheet'
 import MealTile from './MealTile'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import { MEAL_TYPES } from '../../lib/meals'
@@ -14,9 +15,10 @@ export default function TodayPage() {
   const navigate = useNavigate()
   const { meals, loading, addMeal, removeMeal } = useMealPlan(weekStart)
 
-  const [addSheet, setAddSheet] = useState(null)    // { mealTypeId: string } | null
+  const [addSheet,     setAddSheet]     = useState(null) // { mealTypeId } | null
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, mealType } | null
-  const [inputValue, setInputValue] = useState('')
+  const [suggestSheet, setSuggestSheet] = useState(null) // { mealTypeId } | null
+  const [inputValue,   setInputValue]   = useState('')
 
   const mealMap = Object.fromEntries(
     meals.filter(m => m.date === todayStr).map(m => [m.meal_type, m])
@@ -69,6 +71,7 @@ export default function TodayPage() {
               mealType={mealType}
               meal={mealMap[mealType.id] ?? null}
               onAdd={() => openAdd(mealType.id)}
+              onSuggest={() => setSuggestSheet({ mealTypeId: mealType.id })}
               onOptions={() => setOptionsSheet({ meal: mealMap[mealType.id], mealType })}
               onOpenRecipe={() => {
                 const m = mealMap[mealType.id]
@@ -109,6 +112,21 @@ export default function TodayPage() {
           </button>
         </div>
       </BottomSheet>
+
+      {/* Bottom sheet: sugestie AI */}
+      {suggestSheet && (
+        <AISuggestSheet
+          isOpen={!!suggestSheet}
+          onClose={() => setSuggestSheet(null)}
+          mealType={suggestSheet.mealTypeId}
+          mealTypeLabel={MEAL_TYPES.find(t => t.id === suggestSheet.mealTypeId)?.label ?? ''}
+          plannedToday={meals.filter(m => m.date === todayStr).map(m => m.recipe?.name || m.custom_name).filter(Boolean)}
+          onSelect={async (name) => {
+            await addMeal({ date: todayStr, mealType: suggestSheet.mealTypeId, customName: name })
+            setSuggestSheet(null)
+          }}
+        />
+      )}
 
       {/* Bottom sheet: opcje wypełnionego kafelka */}
       <BottomSheet isOpen={!!optionsSheet} onClose={() => setOptionsSheet(null)}>

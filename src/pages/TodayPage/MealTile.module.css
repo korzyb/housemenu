@@ -45,6 +45,32 @@
   color: var(--color-text-muted);
 }
 
+.emptyActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.aiBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.aiBtn:hover {
+  border-color: hsla(263, 70%, 50%, 0.6);
+  background: hsla(263, 70%, 50%, 0.12);
+}
+
 .addIcon {
   width: 34px;
   height: 34px;
