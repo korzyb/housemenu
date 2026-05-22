@@ -45,14 +45,16 @@ Stosujemy nowoczesne, geometryczne fonty bezszeryfowe pobierane z Google Fonts:
 ### Szklany panel (Glass Card)
 ```css
 .glass-card {
-  background: rgba(30, 41, 59, 0.45);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.82);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 16px;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 ```
+
+> Opacity `0.82` zamiast `0.45` — karty są wyraźnie bardziej nieprzezroczyste, tekst i zdjęcia czytelne niezależnie od tła. Efekt szkła pozostaje (blur), ale tło nie przebija przez treść. Blur zmniejszony z `16px` do `12px` — subtelniejszy efekt przy wyższej opacity.
 
 ### Efekty Hover na przyciskach i kartach
 Wszystkie elementy interaktywne muszą posiadać płynne przejścia (`transition`). Na przykład przy najechaniu na kartę:
@@ -84,7 +86,7 @@ Aplikacja składa się z pięciu głównych ekranów. Każdy ma odrębny cel i s
 
 Kafelek może być **pusty** (pora niezaplanowana) lub **wypełniony** (przepis lub ręczna nazwa).
 
-**Pusty kafelek** — kliknięcie otwiera widok dodawania posiłku (wybór przepisu lub wpisanie nazwy).
+**Pusty kafelek** — przerywana ramka (`border: 2px dashed rgba(255,255,255,0.2)`), wyśrodkowany symbol `+` w kolorze Tekstu Pomocniczego. Kliknięcie otwiera widok dodawania posiłku (wybór przepisu lub wpisanie nazwy).
 
 **Wypełniony kafelek — ekran Dziś** (duże kafelki):
 - Ikonka `⋯` w prawym górnym rogu, zawsze widoczna jako subtelna nakładka na zdjęcie
@@ -138,9 +140,10 @@ Ekran uruchamiany ze Szczegółów przepisu. Priorytet: czytelność i skupienie
 ### Tryb edycji
 Standardowy widok listy — użytkownik przygotowuje zakupy przed wyjściem.
 
-- Pozycje z możliwością usunięcia (przycisk × po prawej)
-- Drag handle do przeciągania i grupowania pozycji
-- Pole tekstowe + przycisk mikrofonu do głosowego dodawania/usuwania ("dodaj mleko", "usuń makaron")
+- Składniki pogrupowane w kategorie (np. Owoce i Warzywa, Nabiał, Mięso) — nagłówek kategorii z emoji i strzałką zwijania `▾`
+- Każda pozycja: kółko-checkbox po lewej, nazwa + ilość, drag handle (⠿) po prawej
+- Pozycje z możliwością usunięcia (swipe w lewo lub przycisk ×)
+- Pole tekstowe "Dodaj produkt..." + przycisk mikrofonu — przypięte na dole ekranu
 - Przycisk "Tryb sklepowy" widoczny na górze ekranu
 
 ### Tryb sklepowy
