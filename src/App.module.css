@@ -1,0 +1,33 @@
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+.bgBlobs {
+  position: fixed;
+  inset: 0;
+  max-width: 430px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 15%, hsla(263, 70%, 50%, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 75%, hsla(320, 80%, 60%, 0.14) 0%, transparent 60%);
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 72px;
+}

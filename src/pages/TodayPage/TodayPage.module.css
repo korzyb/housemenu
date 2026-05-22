@@ -1,0 +1,80 @@
+.page {
+  min-height: 100%;
+  padding: 24px 16px 16px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.date {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mealCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  min-height: 88px;
+  transition: border-color 0.2s ease;
+}
+
+.mealCard:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.mealEmoji {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mealLabel {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.addBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.addBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: hsla(263, 70%, 50%, 0.1);
+}

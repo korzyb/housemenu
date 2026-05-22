@@ -1,0 +1,88 @@
+.page {
+  min-height: 100%;
+  padding: 24px 16px 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.weekRange {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.aiBtn {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aiBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.5);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.headerRow,
+.row {
+  display: grid;
+  grid-template-columns: 36px repeat(4, 1fr);
+  gap: 4px;
+}
+
+.cornerCell {}
+
+.colHeader {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 4px 0;
+  letter-spacing: 0.04em;
+}
+
+.rowHeader {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.todayRow .rowHeader {
+  color: var(--color-accent);
+}
+
+.cell {
+  background: rgba(30, 41, 59, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  min-height: 52px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.cell:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.80);
+}
+
+.todayRow .cell {
+  border-color: hsla(263, 70%, 50%, 0.25);
+}

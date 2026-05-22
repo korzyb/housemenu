@@ -1,0 +1,87 @@
+.page {
+  min-height: 100%;
+  padding: 24px 16px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.shopModeBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-text-muted);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+}
+
+.shopModeBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.list {
+  flex: 1;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 48px 0;
+  font-size: 15px;
+}
+
+.addBar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.addInput {
+  flex: 1;
+  padding: 12px 16px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.addInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.addInput:focus {
+  border-color: hsla(263, 70%, 50%, 0.5);
+}
+
+.micBtn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-glass-bg);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
