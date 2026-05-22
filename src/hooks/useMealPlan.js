@@ -1,36 +1,34 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-
-function toDateString(date) {
-  return date instanceof Date
-    ? date.toISOString().split('T')[0]
-    : date
-}
+import { toDateString } from '../lib/dates'
 
 export function useMealPlan(weekStart) {
+  const weekStartStr = toDateString(weekStart)
+
   const [meals, setMeals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const fetchMeals = useCallback(async () => {
-    if (!weekStart) return
+    if (!weekStartStr) return
     setLoading(true)
     setError(null)
 
-    const start = toDateString(weekStart)
-    const end = toDateString(new Date(new Date(weekStart).setDate(new Date(weekStart).getDate() + 6)))
+    const endDate = new Date(weekStartStr)
+    endDate.setDate(endDate.getDate() + 6)
+    const end = toDateString(endDate)
 
     const { data, error } = await supabase
       .from('meal_plans')
       .select('*, recipe:recipes(*)')
-      .gte('date', start)
+      .gte('date', weekStartStr)
       .lte('date', end)
       .order('date')
 
     if (error) setError(error)
     else setMeals(data || [])
     setLoading(false)
-  }, [weekStart])
+  }, [weekStartStr])
 
   useEffect(() => {
     fetchMeals()
