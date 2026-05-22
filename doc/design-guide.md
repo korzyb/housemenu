@@ -74,11 +74,28 @@ Aplikacja składa się z pięciu głównych ekranów. Każdy ma odrębny cel i s
 
 | Ekran | Cel | Dominujący element |
 | :--- | :--- | :--- |
-| **Dziś** (Dashboard) | Szybki podgląd dnia | Duże kafelki posiłków ze zdjęciem |
-| **Plan tygodnia** | Planowanie 7 dni × 4 pory | Siatka (grid) — kompaktowa, przejrzysta |
+| **Dziś** (Dashboard) | Szybki podgląd dnia | 4 kafelki w kolejności: Śniadanie → Przekąska → Obiad → Kolacja |
+| **Plan tygodnia** | Planowanie i przeglądanie tygodni | Siatka (grid) z nagłówkiem zakresu dat, swipe między tygodniami |
 | **Baza przepisów** | Przeglądanie i zarządzanie | Karty z miniaturami zdjęć |
 | **Szczegóły przepisu** | Czytanie i gotowanie | Duże zdjęcie hero, kroki na dole |
 | **Lista zakupów** | Zakupy w sklepie | Czysta lista, duże checkboxy |
+
+### Interakcja z kafelkiem posiłku
+
+Kafelek może być **pusty** (pora niezaplanowana) lub **wypełniony** (przepis lub ręczna nazwa).
+
+**Pusty kafelek** — kliknięcie otwiera widok dodawania posiłku (wybór przepisu lub wpisanie nazwy).
+
+**Wypełniony kafelek — ekran Dziś** (duże kafelki):
+- Ikonka `⋯` w prawym górnym rogu, zawsze widoczna jako subtelna nakładka na zdjęcie
+- Tap w ikonkę → bottom sheet z opcjami: *Otwórz przepis* / *Zmień posiłek* / *Usuń z planu*
+- Tap w pozostałą część kafelka → przejście do przepisu
+
+**Wypełniony kafelek — ekran Tygodnia** (małe komórki siatki):
+- Komórki są za małe na stałą ikonkę `⋯` — tap w komórkę otwiera bottom sheet z tymi samymi opcjami: *Otwórz przepis* / *Zmień posiłek* / *Usuń z planu*
+- Użytkownik zawsze może wybrać otwarcie przepisu z tego menu
+
+---
 
 ### Nawigacja dolna (Bottom Navigation Bar)
 
@@ -87,6 +104,20 @@ Stały pasek na dole ekranu z czterema zakładkami: **Dziś**, **Plan**, **Przep
 - Aktywna zakładka: kolor Głównego Akcentu `hsl(263, 70%, 50%)` + etykieta widoczna
 - Nieaktywna zakładka: Tekst Pomocniczy `hsl(215, 20%, 65%)` + ikona bez etykiety
 - Tło paska: efekt glass (jak `.glass-card`), lekko oddzielony od treści
+
+### Nawigacja między tygodniami (swipe)
+
+Ekran Planu tygodnia obsługuje gest przesunięcia poziomego. Karuzela 4 tygodni:
+
+```
+← [poprzedni tydzień]  [bieżący tydzień]  [następny tydzień]  [tydzień +2] →
+      (tylko podgląd)      (domyślny)          (edytowalny)      (edytowalny)
+```
+
+- Nagłówek tygodnia zawsze pokazuje zakres dat, np. **"18–24 maja"**
+- Przejście między tygodniami animowane — nowy tydzień wsuwa się z bocznej krawędzi
+- Poprzedni tydzień (historia): subtelne przyciemnienie lub oznaczenie "archiwum" — wizualnie odróżniony od edytowalnych tygodni
+- Poza karuzelą (dalej niż 4 tygodnie) swipe nie działa — brak efektu "gumki"
 
 ---
 
@@ -102,7 +133,29 @@ Ekran uruchamiany ze Szczegółów przepisu. Priorytet: czytelność i skupienie
 
 ---
 
-## 8. Zdjęcia przepisów
+## 8. Lista zakupów — dwa tryby
+
+### Tryb edycji
+Standardowy widok listy — użytkownik przygotowuje zakupy przed wyjściem.
+
+- Pozycje z możliwością usunięcia (przycisk × po prawej)
+- Drag handle do przeciągania i grupowania pozycji
+- Pole tekstowe + przycisk mikrofonu do głosowego dodawania/usuwania ("dodaj mleko", "usuń makaron")
+- Przycisk "Tryb sklepowy" widoczny na górze ekranu
+
+### Tryb sklepowy
+Uruchamiany z trybu edycji. Priorytet: czytelność jedną ręką przy koszyku, zero rozpraszaczy.
+
+- Pełny ekran — chowany pasek nawigacji i wszystkie kontrolki edycji
+- Pozycje listy duże, wysokość wiersza min. `56px`
+- Brak checkboxów — kliknięcie w tekst pozycji powoduje jej przekreślenie i wyszarzenie (`hsl(215, 20%, 40%)`)
+- Ponowne kliknięcie cofa zaznaczenie
+- Brak możliwości edycji głosowej w tym trybie
+- Przycisk powrotu do trybu edycji (np. w lewym górnym rogu)
+
+---
+
+## 9. Zdjęcia przepisów
 
 Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z uwagą.
 
@@ -113,7 +166,7 @@ Zdjęcia są kluczowym elementem estetyki aplikacji — muszą być traktowane z
 
 ---
 
-## 9. Przykładowa Wizualizacja Interfejsu (Mockup UI)
+## 10. Przykładowa Wizualizacja Interfejsu (Mockup UI)
 
 Mockup ekranu **Dziś** — zgodny z PRD i design guide.
 
