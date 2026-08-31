@@ -4,7 +4,7 @@
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  height: 68px;
+  height: 76px;
   background: rgba(30, 41, 59, 0.92);
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
@@ -12,18 +12,56 @@
 }
 
 .tab {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 5px;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
   padding: 8px 0;
 }
 
-.tab.active {
-  color: var(--color-accent);
+/* Wskaźnik aktywnej zakładki — świecąca kreska u góry paska */
+.tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px hsla(263, 75%, 58%, 0.9);
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Aktywna ikona — świecące fioletowe kółko */
+.tab.active .iconWrap {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  box-shadow:
+    0 0 18px hsla(263, 75%, 58%, 0.75),
+    0 4px 12px hsla(263, 70%, 50%, 0.5);
+  transform: translateY(-2px);
+}
+
+.tab.active .icon {
+  color: #fff;
+}
+
+.tab.active .label {
+  color: hsl(263, 70%, 78%);
 }
 
 .icon {
@@ -41,4 +79,5 @@
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
+  transition: color 0.2s ease;
 }

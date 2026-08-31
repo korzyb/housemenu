@@ -6,6 +6,9 @@ import RecipesPage from './pages/RecipesPage/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage/RecipeDetailPage'
 import AddRecipePage from './pages/AddRecipePage/AddRecipePage'
 import ShoppingPage from './pages/ShoppingPage/ShoppingPage'
+import SettingsPage from './pages/SettingsPage/SettingsPage'
+import HouseholdPage from './pages/HouseholdPage/HouseholdPage'
+import MemberWizard from './pages/MemberWizard/MemberWizard'
 import styles from './App.module.css'
 
 export default function App() {
@@ -22,6 +25,10 @@ export default function App() {
             <Route path="/recipes/new" element={<AddRecipePage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/shopping" element={<ShoppingPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/household" element={<HouseholdPage />} />
+            <Route path="/settings/household/new" element={<MemberWizard />} />
+            <Route path="/settings/household/:id" element={<MemberWizard />} />
           </Routes>
         </main>
         <BottomNav />

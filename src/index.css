@@ -18,6 +18,7 @@
   --radius-sm: 8px;
 
   --font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
 
   font-family: var(--font-family);
   font-size: 16px;

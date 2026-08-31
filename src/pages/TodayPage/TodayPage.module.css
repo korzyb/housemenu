@@ -5,19 +5,55 @@
 
 .header {
   margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settingsBtn {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  margin-top: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  background: hsla(224, 25%, 15%, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.settingsBtn svg {
+  width: 21px;
+  height: 21px;
+}
+
+.settingsBtn:hover {
+  color: var(--color-text);
+  border-color: hsla(263, 70%, 60%, 0.55);
+  background: hsla(258, 28%, 16%, 0.7);
 }
 
 .date {
   color: var(--color-text-muted);
   font-size: 14px;
-  text-transform: capitalize;
   margin-bottom: 4px;
 }
 
+.date::first-letter {
+  text-transform: uppercase;
+}
+
 .title {
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
 }
 
 /* ── Tile list ─────────────────────────────── */
@@ -25,7 +61,7 @@
 .slots {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* ── Skeleton loader ─────────────────────────── */
@@ -33,12 +69,12 @@
 .skeletons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .skeleton {
-  height: 88px;
-  border-radius: var(--radius-lg);
+  height: 158px;
+  border-radius: 24px;
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.04) 0%,

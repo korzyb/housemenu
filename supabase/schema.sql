@@ -79,7 +79,57 @@ CREATE POLICY "anon full access on shopping_list"
   USING (true) WITH CHECK (true);
 
 -- ─────────────────────────────────────────
+-- TABELA: households  (V1: jedno wspólne gospodarstwo)
+-- Architektura gotowa na przyszłe konta i podział na gospodarstwa.
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS households (
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  name       TEXT        NOT NULL DEFAULT 'Mój dom',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Seed: jedno gospodarstwo, jeśli tabela jest pusta
+INSERT INTO households (name)
+SELECT 'Mój dom'
+WHERE NOT EXISTS (SELECT 1 FROM households);
+
+-- ─────────────────────────────────────────
+-- TABELA: household_members  (domownicy + profil żywieniowy)
+-- profile = 5 filarów wg doc/profil_zywieniowy_kontekst.md
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS household_members (
+  id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  household_id    UUID        REFERENCES households(id) ON DELETE CASCADE,
+  name            TEXT        NOT NULL,
+  emoji           TEXT,                       -- awatar na karcie (np. 👩 👨 🧒)
+  profile         JSONB       DEFAULT '{}'::jsonb,
+  -- struktura: { base:{}, red_flags:{}, daily_rhythm:{}, taste_profile:{}, kitchen_resources:{} }
+  -- każde pole listowe = tablica, każdy filar ma pole notes (waga równa wyborom)
+  ai_profile_card TEXT,                        -- cache karty wygenerowanej przez AI
+  card_stale      BOOLEAN     DEFAULT true,    -- czy karta wymaga regeneracji po edycji profilu
+  is_active       BOOLEAN     DEFAULT true,    -- domyślnie uwzględniaj w generowaniu AI
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ─────────────────────────────────────────
+-- ROW LEVEL SECURITY — households / household_members
+-- V1: brak logowania — dostęp dla roli anon
+-- ─────────────────────────────────────────
+ALTER TABLE households        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE household_members ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon full access on households"
+  ON households FOR ALL TO anon
+  USING (true) WITH CHECK (true);
+
+CREATE POLICY "anon full access on household_members"
+  ON household_members FOR ALL TO anon
+  USING (true) WITH CHECK (true);
+
+-- ─────────────────────────────────────────
 -- INDEKSY
 -- ─────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS meal_plans_date_idx ON meal_plans (date);
 CREATE INDEX IF NOT EXISTS shopping_list_sort_idx ON shopping_list (sort_order);
+CREATE INDEX IF NOT EXISTS household_members_household_idx ON household_members (household_id);
