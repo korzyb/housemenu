@@ -5,7 +5,7 @@ export default function RecipeCard({ recipe }) {
   const navigate = useNavigate()
 
   return (
-    <div className={styles.card} onClick={() => navigate(`/recipes/${recipe.id}`)}>
+    <div className={`glass glow ${styles.card}`} onClick={() => navigate(`/recipes/${recipe.id}`)}>
       <div className={styles.thumb}>
         {recipe.photo_url
           ? <img src={recipe.photo_url} alt="" className={styles.img} />

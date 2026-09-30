@@ -103,9 +103,9 @@ Kafelek może być **pusty** (pora niezaplanowana) lub **wypełniony** (przepis 
 
 Stały pasek na dole ekranu z czterema zakładkami: **Dziś**, **Plan**, **Przepisy**, **Zakupy**.
 
-- Aktywna zakładka: kolor Głównego Akcentu `hsl(263, 70%, 50%)` + etykieta widoczna
-- Nieaktywna zakładka: Tekst Pomocniczy `hsl(215, 20%, 65%)` + ikona bez etykiety
-- Tło paska: efekt glass (jak `.glass-card`), lekko oddzielony od treści
+- Aktywna zakładka: ikona + etykieta w jasnym fiolecie (`--color-accent-light`) z poświatą, krótka świecąca kreska przy górnej krawędzi paska
+- Nieaktywna zakładka: ikona + etykieta w kolorze Tekstu Pomocniczego (etykiety zawsze widoczne — jak w mockupach)
+- Tło paska: efekt glass, zaokrąglone górne rogi, pasek unosi się nad treścią (treść przewija się pod nim)
 
 ### Układ siatki tygodnia
 
@@ -305,3 +305,20 @@ Mockup ekranu **Dziś** — zgodny z PRD i design guide.
 > **Do dopracowania przy implementacji:**
 > - Nazwy potraw na kartach po angielsku — zastąpić polskimi przy docelowych danych
 > - Brak kafelka `Przekąska` — zdecydować czy pojawia się zawsze czy tylko gdy zaplanowana
+
+---
+
+## 13. Implementacja — wspólne klasy (src/index.css)
+
+Wygląd odwzorowuje mockupy z `doc/mockups/`. Zamiast powielać style w każdym module, ekrany używają globalnych klas obok CSS Modules (`className={`glass glow ${styles.card}`}`):
+
+| Klasa | Zastosowanie |
+| :--- | :--- |
+| `.page-title` | Nagłówek ekranu — Playfair Display, 2.4rem ("Dziś", "Zakupy") |
+| `.glass` | Szklana karta: półprzezroczysty granat + `backdrop-filter` |
+| `.glow` | Dodatek do `.glass`: świecąca gradientowa ramka (niebieski → fiolet → róż) + poświata |
+| `.btn-primary` | Główny przycisk z gradientem akcentów |
+| `.btn-glow` | Szklana pigułka ze świecącą ramką (np. "Zaplanuj z AI ✨") |
+| `.glass-input` | Szklane pole tekstowe |
+
+Typografia: **Inter** (tekst) + **Playfair Display** (nagłówki, nazwy pór posiłków, kategorii i produktów). Tło: głęboki granat `--color-bg` z dużymi rozmytymi plamami magenty/fioletu (`App.module.css → .bgBlobs`). Zdjęcia potraw na kafelkach — okrągłe „talerze”.

@@ -5,19 +5,43 @@
 }
 
 :root {
-  --color-bg: hsl(224, 25%, 8%);
-  --color-glass-bg: rgba(30, 41, 59, 0.82);
+  /* Tło — głęboki granat (mockupy), nie czysta czerń */
+  --color-bg: hsl(236, 40%, 10%);
+  --color-bg-deep: hsl(237, 42%, 7%);
+
+  /* Szkło */
+  --color-glass-bg: hsla(234, 38%, 20%, 0.42);
+  --color-glass-bg-strong: hsla(236, 38%, 14%, 0.78);
+  --glass-blur: blur(18px) saturate(150%);
+
   --color-accent: hsl(263, 70%, 50%);
+  --color-accent-light: hsl(265, 90%, 76%);
   --color-accent-2: hsl(320, 80%, 60%);
+  --color-accent-2-light: hsl(318, 90%, 72%);
   --color-text: hsl(210, 40%, 98%);
-  --color-text-muted: hsl(215, 20%, 65%);
+  --color-text-muted: hsl(225, 18%, 70%);
   --color-success: hsl(142, 70%, 45%);
   --color-border: rgba(255, 255, 255, 0.10);
 
+  /* Świecąca ramka kart: niebieski → fiolet → róż */
+  --glow-border: linear-gradient(135deg,
+    hsla(222, 100%, 76%, 0.95) 0%,
+    hsla(265, 100%, 76%, 0.95) 50%,
+    hsla(305, 100%, 74%, 0.90) 100%);
+  --glow-shadow:
+    0 0 20px hsla(265, 95%, 65%, 0.42),
+    inset 0 0 16px hsla(265, 95%, 75%, 0.14),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+
+  --radius-xl: 22px;
   --radius-lg: 16px;
   --radius-sm: 8px;
 
-  --font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  --nav-height: 78px;
+
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
 
   font-family: var(--font-family);
@@ -35,11 +59,15 @@ html, body, #root {
 }
 
 body {
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-deep);
 }
 
 button {
   cursor: pointer;
+  font-family: var(--font-family);
+}
+
+input, textarea, select {
   font-family: var(--font-family);
 }
 
@@ -55,4 +83,110 @@ ul {
 img {
   max-width: 100%;
   display: block;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Wspólne klasy wizualne (globalne — używane w JSX obok CSS Modules)
+   ═══════════════════════════════════════════════════════ */
+
+/* Nagłówek ekranu — szeryfowy, jak w mockupach ("Dziś", "Zakupy") */
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+/* Szklana karta — półprzezroczysta z rozmyciem tła */
+.glass {
+  position: relative;
+  background: linear-gradient(160deg, hsla(232, 40%, 26%, 0.40), hsla(238, 40%, 14%, 0.50));
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: var(--radius-lg);
+}
+
+/* Świecąca gradientowa ramka (niebieski → fiolet → róż) + poświata */
+.glow {
+  border-color: transparent;
+  box-shadow: var(--glow-shadow);
+}
+
+.glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--glow-border);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Główny przycisk — gradient akcentów */
+.btn-primary {
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--gradient-accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px hsla(275, 85%, 55%, 0.45);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+}
+
+/* Szklana pigułka ze świecącą ramką — np. "Zaplanuj z AI ✨" */
+.btn-glow {
+  position: relative;
+  border: 1.5px solid hsla(268, 90%, 72%, 0.75);
+  border-radius: 999px;
+  background: hsla(262, 60%, 30%, 0.35);
+  color: var(--color-text);
+  font-weight: 500;
+  box-shadow:
+    0 0 16px hsla(268, 95%, 65%, 0.45),
+    inset 0 0 10px hsla(268, 95%, 70%, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-glow:hover {
+  background: hsla(262, 60%, 36%, 0.45);
+  box-shadow:
+    0 0 22px hsla(268, 95%, 65%, 0.6),
+    inset 0 0 12px hsla(268, 95%, 70%, 0.25);
+}
+
+/* Szklane pole tekstowe */
+.glass-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: hsla(234, 38%, 20%, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: var(--color-text);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.glass-input:focus {
+  border-color: hsla(268, 90%, 72%, 0.7);
+  box-shadow: 0 0 14px hsla(268, 95%, 65%, 0.3);
 }

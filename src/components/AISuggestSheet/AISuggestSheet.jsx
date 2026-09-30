@@ -56,7 +56,7 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
         {!loading && !error && suggestions.map((s, i) => (
           <button
             key={i}
-            className={styles.card}
+            className={`glass glow ${styles.card}`}
             onClick={() => onSelect(s.name)}
             type="button"
           >

@@ -16,7 +16,7 @@ export default function RecipesPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Przepisy</h1>
+        <h1 className="page-title">Przepisy</h1>
         <button
           className={styles.addBtn}
           onClick={() => navigate('/recipes/new')}
@@ -28,7 +28,7 @@ export default function RecipesPage() {
         <input
           type="search"
           placeholder="Szukaj przepisów…"
-          className={styles.searchInput}
+          className={`glass-input ${styles.searchInput}`}
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
@@ -37,7 +37,7 @@ export default function RecipesPage() {
       <div className={styles.list}>
         {loading && (
           <>
-            {[0, 1, 2].map(i => <div key={i} className={styles.skeleton} />)}
+            {[0, 1, 2].map(i => <div key={i} className={`glass ${styles.skeleton}`} />)}
           </>
         )}
         {!loading && filtered.length === 0 && (

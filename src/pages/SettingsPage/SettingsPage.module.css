@@ -15,8 +15,6 @@
   height: 40px;
   margin-left: -8px;
   border-radius: 50%;
-  border: none;
-  background: transparent;
   color: var(--color-text);
   display: flex;
   align-items: center;
@@ -33,10 +31,7 @@
 }
 
 .title {
-  font-family: var(--font-display);
   font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
 }
 
 .sectionLabel {
@@ -53,16 +48,11 @@
   gap: 14px;
   padding: 16px 18px;
   border-radius: 18px;
-  background: hsla(224, 25%, 13%, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .row:hover {
-  border-color: hsla(263, 70%, 60%, 0.5);
-  background: hsla(258, 28%, 15%, 0.6);
+  transform: translateY(-2px);
 }
 
 .rowIcon {

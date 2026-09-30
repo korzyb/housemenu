@@ -18,10 +18,10 @@ export default function HouseholdPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate('/settings')} aria-label="Wstecz">
+        <button className={`glass ${styles.backBtn}`} onClick={() => navigate('/settings')} aria-label="Wstecz">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
-        <h1 className={styles.title}>Gospodarstwo</h1>
+        <h1 className={`page-title ${styles.title}`}>Gospodarstwo</h1>
       </header>
 
       {loading ? (
@@ -42,7 +42,7 @@ export default function HouseholdPage() {
               return (
                 <button
                   key={member.id}
-                  className={styles.card}
+                  className={`glass glow ${styles.card}`}
                   onClick={() => navigate(`/settings/household/${member.id}`)}
                 >
                   <span className={styles.avatar}>{member.emoji || '🙂'}</span>

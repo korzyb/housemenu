@@ -28,11 +28,6 @@ export default function TodayPage() {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 
-  // Przekąska pojawia się tylko gdy jest zaplanowana; pozostałe pory zawsze widoczne
-  const visibleMealTypes = MEAL_TYPES.filter(
-    t => t.id !== 'snack' || mealMap['snack']
-  )
-
   function openAdd(mealTypeId, prefill = '') {
     setInputValue(prefill)
     setAddSheet({ mealTypeId })
@@ -62,9 +57,9 @@ export default function TodayPage() {
       <header className={styles.header}>
         <div>
           <p className={styles.date}>{dateLabel}</p>
-          <h1 className={styles.title}>Dziś</h1>
+          <h1 className="page-title">Dziś</h1>
         </div>
-        <Link to="/settings" className={styles.settingsBtn} aria-label="Ustawienia">
+        <Link to="/settings" className={`glass ${styles.settingsBtn}`} aria-label="Ustawienia">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -74,11 +69,11 @@ export default function TodayPage() {
 
       {loading ? (
         <div className={styles.skeletons}>
-          {[0, 1, 2].map(i => <div key={i} className={styles.skeleton} />)}
+          {[0, 1, 2, 3].map(i => <div key={i} className={`glass ${styles.skeleton}`} />)}
         </div>
       ) : (
         <div className={styles.slots}>
-          {visibleMealTypes.map(mealType => (
+          {MEAL_TYPES.map(mealType => (
             <MealTile
               key={mealType.id}
               mealType={mealType}
@@ -103,7 +98,7 @@ export default function TodayPage() {
       >
         <div className={styles.addForm}>
           <input
-            className={styles.addInput}
+            className="glass-input"
             placeholder="Nazwa posiłku, np. Kanapki…"
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
@@ -111,7 +106,7 @@ export default function TodayPage() {
             autoFocus
           />
           <button
-            className={styles.addSubmitBtn}
+            className="btn-primary"
             onClick={handleAddMeal}
             disabled={!inputValue.trim()}
           >

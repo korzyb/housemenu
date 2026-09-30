@@ -10,7 +10,6 @@ import styles from './PlanPage.module.css'
 const BASE_WEEK_START = getWeekStart()
 const TODAY_STR = toDateString(new Date())
 const DAY_LABELS = ['Pn', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd']
-const MEAL_COL_LABELS = ['Śn', 'Prz', 'Ob', 'Ko']
 
 function getWeekDays(weekStart) {
   return Array.from({ length: 7 }, (_, i) => {
@@ -93,7 +92,7 @@ export default function PlanPage() {
             aria-label="Następny tydzień"
           >›</button>
         </div>
-        <button className={styles.aiBtn}>Zaplanuj z AI ✨</button>
+        <button className={`btn-glow ${styles.aiBtn}`}>Zaplanuj z AI ✨</button>
       </header>
 
       <div
@@ -104,8 +103,8 @@ export default function PlanPage() {
         {/* Nagłówki kolumn — statyczne */}
         <div className={styles.headerRow}>
           <div className={styles.cornerCell} />
-          {MEAL_COL_LABELS.map(label => (
-            <div key={label} className={styles.colHeader}>{label}</div>
+          {MEAL_TYPES.map(mt => (
+            <div key={mt.id} className={styles.colHeader}>{mt.label}</div>
           ))}
         </div>
 
@@ -131,6 +130,7 @@ export default function PlanPage() {
                     <PlanCell
                       key={mealType.id}
                       meal={meal}
+                      mealType={mealType}
                       isToday={isToday}
                       isPast={isPast}
                       onClick={() => {
@@ -157,7 +157,7 @@ export default function PlanPage() {
       >
         <div className={styles.addForm}>
           <input
-            className={styles.addInput}
+            className="glass-input"
             placeholder="Nazwa posiłku, np. Kanapki…"
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
@@ -165,7 +165,7 @@ export default function PlanPage() {
             autoFocus
           />
           <button
-            className={styles.addSubmitBtn}
+            className="btn-primary"
             onClick={handleAddMeal}
             disabled={!inputValue.trim()}
           >

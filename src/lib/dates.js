@@ -19,7 +19,11 @@ export function getWeekRange(weekStart) {
   const end = new Date(weekStart)
   end.setDate(end.getDate() + 6)
 
-  const startDay = start.getDate()
-  const endFormatted = end.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })
-  return `${startDay}–${endFormatted}`
+  // Ten sam miesiąc: "18–24 maja"; przełom miesięcy: "28 wrz – 4 paź"
+  if (start.getMonth() === end.getMonth()) {
+    const endFormatted = end.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })
+    return `${start.getDate()}–${endFormatted}`
+  }
+  const short = d => d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }).replace('.', '')
+  return `${short(start)} – ${short(end)}`
 }

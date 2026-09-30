@@ -1,41 +1,33 @@
-/* ── Filled tile ─────────────────────────────── */
+/* ── Wspólne ─────────────────────────────── */
+
+.typeLabel {
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+/* ── Wypełniony kafelek ───────────────────── */
 
 .filled {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 162px;
-  padding: 18px 18px 18px 26px;
-  border-radius: 24px;
+  min-height: 150px;
+  padding: 20px 0 20px 22px;
+  border-radius: var(--radius-xl);
   cursor: pointer;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, hsla(224, 30%, 15%, 0.92) 0%, hsla(258, 32%, 18%, 0.88) 100%);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1.5px solid hsla(263, 80%, 68%, 0.65);
-  box-shadow:
-    0 0 22px hsla(263, 75%, 55%, 0.38),
-    0 0 1px hsla(263, 90%, 75%, 0.9) inset,
-    0 12px 34px rgba(0, 0, 0, 0.45);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s ease,
-              border-color 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .filled:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: hsla(263, 85%, 72%, 0.85);
-  box-shadow:
-    0 0 30px hsla(263, 80%, 58%, 0.55),
-    0 0 1px hsla(263, 90%, 80%, 1) inset,
-    0 16px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px);
 }
 
 .filled:focus-visible {
   outline: none;
-  border-color: hsla(263, 90%, 75%, 0.95);
+  box-shadow: var(--glow-shadow), 0 0 0 2px hsla(265, 95%, 75%, 0.6);
 }
 
 .content {
@@ -43,36 +35,38 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.typeLabel {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-text);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  gap: 10px;
+  padding-right: 10px;
+  z-index: 1;
 }
 
 .dishName {
   font-size: 15px;
-  font-weight: 400;
   color: var(--color-text-muted);
-  line-height: 1.35;
+  line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.photoWrap {
+/* Okrągły „talerz” wychodzący za prawą krawędź kafelka */
+.plate {
   flex-shrink: 0;
-  width: 142px;
-  height: 126px;
-  border-radius: 20px;
+  width: 150px;
+  height: 150px;
+  margin: -12px -22px -12px 0;
+  border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 50%, hsla(0, 0%, 100%, 0.10) 0 52%, transparent 53%),
+    radial-gradient(circle at 35% 30%, hsla(265, 50%, 40%, 0.9), hsla(240, 40%, 18%, 0.95));
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 4px hsla(0, 0%, 100%, 0.10);
 }
 
 .photo {
@@ -81,26 +75,22 @@
   object-fit: cover;
 }
 
-.photoPlaceholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 46px;
-  background: hsla(224, 25%, 22%, 0.9);
+.plateEmoji {
+  font-size: 56px;
+  margin-right: 10px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
 }
 
 .optionsBtn {
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 10px;
+  right: 12px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 10, 30, 0.45);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -109,100 +99,76 @@
   -webkit-backdrop-filter: blur(6px);
   z-index: 10;
   line-height: 1;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .optionsBtn:hover {
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  background: rgba(10, 10, 30, 0.7);
 }
 
-/* ── Empty tile ─────────────────────────────── */
+/* ── Pusty kafelek ─────────────────────────── */
 
 .empty {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 158px;
-  padding: 22px 26px;
-  background: hsla(224, 25%, 13%, 0.5);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  border: 2px dashed rgba(255, 255, 255, 0.16);
-  border-radius: 24px;
+  padding: 10px;
+  border-radius: var(--radius-xl);
   cursor: pointer;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
-.empty:hover,
+.dashed {
+  position: relative;
+  min-height: 130px;
+  padding: 16px 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  transition: border-color 0.25s ease;
+}
+
+.plus {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.empty:hover .dashed,
+.empty:focus-visible .dashed {
+  border-color: hsla(268, 90%, 72%, 0.65);
+}
+
+.empty:hover .plus,
+.empty:focus-visible .plus {
+  color: var(--color-accent-light);
+  text-shadow: 0 0 14px hsla(265, 95%, 70%, 0.8);
+}
+
 .empty:focus-visible {
-  border-color: hsla(263, 70%, 60%, 0.55);
-  background: hsla(258, 28%, 15%, 0.5);
   outline: none;
 }
 
-.emptyText {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.emptyLabel {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--color-text);
-  line-height: 1.1;
-}
-
-.emptyHint {
-  font-size: 14px;
-  color: var(--color-text-muted);
-}
-
-.emptyActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
 .aiBtn {
-  width: 38px;
-  height: 38px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  font-size: 17px;
+  border: 1px solid hsla(268, 90%, 72%, 0.45);
+  background: hsla(262, 60%, 30%, 0.35);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  box-shadow: 0 0 10px hsla(268, 95%, 65%, 0.3);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .aiBtn:hover {
-  border-color: hsla(263, 70%, 50%, 0.6);
-  background: hsla(263, 70%, 50%, 0.12);
-}
-
-.addIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  color: var(--color-text-muted);
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.empty:hover .addIcon,
-.empty:focus-visible .addIcon {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  background: hsla(262, 60%, 38%, 0.5);
+  box-shadow: 0 0 16px hsla(268, 95%, 65%, 0.55);
 }

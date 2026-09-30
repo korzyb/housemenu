@@ -2,18 +2,15 @@ import styles from './MealTile.module.css'
 
 export default function MealTile({ mealType, meal, onAdd, onSuggest, onOptions, onOpenRecipe }) {
   const dishName = meal?.recipe?.name || meal?.custom_name
-  const description = meal?.recipe?.description
   const photo = meal?.recipe?.photo_url
 
   if (!meal) {
     return (
-      <div className={styles.empty} onClick={onAdd} role="button" tabIndex={0}
+      <div className={`glass ${styles.empty}`} onClick={onAdd} role="button" tabIndex={0}
         onKeyDown={e => e.key === 'Enter' && onAdd()}>
-        <div className={styles.emptyText}>
-          <span className={styles.emptyLabel}>{mealType.label}</span>
-          <span className={styles.emptyHint}>Dotknij, żeby dodać</span>
-        </div>
-        <div className={styles.emptyActions}>
+        <div className={styles.dashed}>
+          <span className={styles.typeLabel}>{mealType.label}</span>
+          <span className={styles.plus} aria-hidden="true">+</span>
           {onSuggest && (
             <button
               className={styles.aiBtn}
@@ -22,23 +19,22 @@ export default function MealTile({ mealType, meal, onAdd, onSuggest, onOptions, 
               aria-label="Sugestie AI"
             >✨</button>
           )}
-          <span className={styles.addIcon}>+</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={styles.filled} onClick={onOpenRecipe} role="button" tabIndex={0}
+    <div className={`glass glow ${styles.filled}`} onClick={onOpenRecipe} role="button" tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onOpenRecipe()}>
       <div className={styles.content}>
         <span className={styles.typeLabel}>{mealType.label}</span>
-        <span className={styles.dishName}>{description || dishName}</span>
+        <span className={styles.dishName}>{dishName}</span>
       </div>
-      <div className={styles.photoWrap}>
+      <div className={styles.plate}>
         {photo
           ? <img src={photo} alt="" className={styles.photo} />
-          : <div className={styles.photoPlaceholder}>{mealType.emoji}</div>
+          : <span className={styles.plateEmoji}>{mealType.emoji}</span>
         }
       </div>
       <button

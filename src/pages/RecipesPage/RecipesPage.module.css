@@ -1,60 +1,51 @@
 .page {
   min-height: 100%;
-  padding: 24px 16px 16px;
+  padding: 28px 16px 16px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
+
 
 .addBtn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  background: var(--gradient-accent);
   color: white;
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 300;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 16px hsla(285, 90%, 60%, 0.55);
   transition: transform 0.2s ease;
 }
 
 .addBtn:hover { transform: scale(1.05); }
 
-.searchBar { margin-bottom: 16px; }
-
-.searchInput {
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  color: var(--color-text);
-  font-family: var(--font-family);
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s ease;
+.searchBar {
+  margin-bottom: 18px;
 }
 
-.searchInput::placeholder { color: var(--color-text-muted); }
-.searchInput:focus { border-color: hsla(263, 70%, 50%, 0.5); }
+.searchInput {
+  border-radius: 999px;
+  padding: 13px 20px;
+}
+
+
+
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .empty {
@@ -65,16 +56,8 @@
 }
 
 .skeleton {
-  height: 92px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0.04) 0%,
-    rgba(255,255,255,0.09) 50%,
-    rgba(255,255,255,0.04) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  height: 104px;
+  border-radius: 20px;
 }
 
 @keyframes shimmer {
