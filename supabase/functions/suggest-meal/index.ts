@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { mealType, recipes = [], plannedToday = [] } = await req.json()
+    const { mealType, recipes = [], plannedToday = [], household = [] } = await req.json()
 
     const geminiKey = Deno.env.get('GEMINI_API_KEY')
     if (!geminiKey) throw new Error('GEMINI_API_KEY nie jest skonfigurowany w Supabase secrets')
@@ -25,13 +25,28 @@ Deno.serve(async (req) => {
     const recipeNames = (recipes as { name: string }[]).slice(0, 30).map(r => r.name).join(', ') || 'brak przepisów'
     const plannedNames = (plannedToday as string[]).join(', ') || 'nic'
 
+    // Streszczenia profili aktywnych domowników (planner_brief z karty profilu)
+    const householdLines = (household as { name: string; brief: string }[])
+      .filter(m => m?.brief)
+      .slice(0, 10)
+      .map(m => `- ${m.name}: ${m.brief}`)
+      .join('\n')
+    const householdSection = householdLines
+      ? `\nDomownicy, dla których gotujemy (profile żywieniowe):\n${householdLines}\n`
+      : ''
+    const householdRules = householdLines
+      ? `- Alergie, nietolerancje i wykluczenia dietetyczne domowników to TWARDE WETO — żadna propozycja nie może ich łamać
+- Uwzględnij preferencje smakowe, pewniaki i dostępny czas/sprzęt domowników; danie ma pasować całej rodzinie
+`
+      : ''
+
     const prompt = `Zaproponuj 3 pomysły na ${mealLabel} po polsku.
 
 Przepisy w bazie użytkownika: ${recipeNames}
 Już zaplanowane dzisiaj: ${plannedNames}
-
+${householdSection}
 Zasady:
-- Preferuj przepisy z bazy (użyj dokładnej nazwy, "from_db": true)
+${householdRules}- Preferuj przepisy z bazy (użyj dokładnej nazwy, "from_db": true), ale tylko jeśli pasują do domowników
 - Jeśli proponujesz coś nowego: "from_db": false
 - Unikaj powtórzeń z "już zaplanowane"
 - Odpowiedz TYLKO tablicą JSON (bez markdown, bez wyjaśnień):

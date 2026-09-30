@@ -9,6 +9,7 @@ import ShoppingPage from './pages/ShoppingPage/ShoppingPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
 import HouseholdPage from './pages/HouseholdPage/HouseholdPage'
 import MemberWizard from './pages/MemberWizard/MemberWizard'
+import MemberProfilePage from './pages/MemberProfilePage/MemberProfilePage'
 import styles from './App.module.css'
 
 export default function App() {
@@ -28,7 +29,8 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/household" element={<HouseholdPage />} />
             <Route path="/settings/household/new" element={<MemberWizard />} />
-            <Route path="/settings/household/:id" element={<MemberWizard />} />
+            <Route path="/settings/household/:id" element={<MemberProfilePage />} />
+            <Route path="/settings/household/:id/edit" element={<MemberWizard />} />
           </Routes>
         </main>
         <BottomNav />

@@ -335,3 +335,53 @@ export function profileCompleteness(profile = {}) {
   }
   return total ? Math.round((filled / total) * 100) : 0
 }
+
+// Profil jako czytelny tekst do promptu AI — etykiety zamiast identyfikatorów.
+// Pola `notes` idą jako pełnoprawna część filaru (waga równa wyborom z listy).
+export function profileToPromptText(member) {
+  const profile = mergeProfile(member.profile)
+  const lines = [`Imię / rola: ${member.name}`]
+
+  for (const pillar of PROFILE_PILLARS) {
+    const section = profile[pillar.key]
+    const pillarLines = []
+    for (const field of pillar.fields) {
+      const value = section[field.id]
+      if (field.type === 'text') {
+        if (value?.trim()) {
+          pillarLines.push(`- Informacje od rodziny (traktuj z taką samą wagą jak odpowiedzi powyżej): ${value.trim()}`)
+        }
+        continue
+      }
+      const ids = field.type === 'multi' ? (value || []) : (value ? [value] : [])
+      if (!ids.length) continue
+      const labels = ids.map(id => field.options.find(o => o.id === id)?.label ?? id)
+      pillarLines.push(`- ${field.label}: ${labels.join(', ')}`)
+    }
+    if (pillarLines.length) {
+      lines.push('', `## ${pillar.title} — ${pillar.subtitle}`, ...pillarLines)
+    }
+  }
+  return lines.join('\n')
+}
+
+// Karta profilu z AI jest trzymana w ai_profile_card jako tekst JSON.
+// Zwraca obiekt karty albo null (brak / stary format → do ponownego wygenerowania).
+export function parseProfileCard(raw) {
+  if (!raw) return null
+  try {
+    const card = JSON.parse(raw)
+    return card && typeof card === 'object' && card.goal ? card : null
+  } catch {
+    return null
+  }
+}
+
+// Odmiana: 1 domownik, 2–4 domownicy, 5+ domowników (12–14 → domowników)
+export function membersLabel(n) {
+  if (n === 1) return '1 domownik'
+  const lastDigit = n % 10
+  const lastTwo = n % 100
+  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} domownicy`
+  return `${n} domowników`
+}

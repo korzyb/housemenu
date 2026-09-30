@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { parseProfileCard } from '../../lib/profile'
 import BottomSheet from '../BottomSheet/BottomSheet'
 import styles from './AISuggestSheet.module.css'
 
@@ -17,14 +18,18 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
     setError(null)
     setSuggestions([])
 
-    const { data: recipesData } = await supabase
-      .from('recipes')
-      .select('name')
-      .order('name')
-      .limit(30)
+    const [{ data: recipesData }, { data: membersData }] = await Promise.all([
+      supabase.from('recipes').select('name').order('name').limit(30),
+      supabase.from('household_members').select('name, ai_profile_card').eq('is_active', true),
+    ])
+
+    // Tylko domownicy z wygenerowaną kartą — do AI idzie krótkie streszczenie (planner_brief)
+    const household = (membersData || [])
+      .map(m => ({ name: m.name, brief: parseProfileCard(m.ai_profile_card)?.planner_brief }))
+      .filter(m => m.brief)
 
     const { data, error: fnError } = await supabase.functions.invoke('suggest-meal', {
-      body: { mealType, recipes: recipesData || [], plannedToday },
+      body: { mealType, recipes: recipesData || [], plannedToday, household },
     })
 
     if (fnError || data?.error) {

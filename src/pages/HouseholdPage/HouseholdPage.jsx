@@ -47,7 +47,10 @@ export default function HouseholdPage() {
                 >
                   <span className={styles.avatar}>{member.emoji || '🙂'}</span>
                   <span className={styles.info}>
-                    <span className={styles.name}>{member.name}</span>
+                    <span className={styles.name}>
+                      {member.name}
+                      {!member.is_active && <span className={styles.inactiveBadge}>AI pomija</span>}
+                    </span>
                     <span className={styles.role}>{roleLabel(member)}</span>
                     <span className={styles.meter}>
                       <span className={styles.meterFill} style={{ width: `${pct}%` }} />

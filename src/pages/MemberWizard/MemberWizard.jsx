@@ -62,13 +62,14 @@ export default function MemberWizard() {
     const payload = { name: name.trim(), emoji, profile, card_stale: true }
     const res = isEdit ? await updateMember(id, payload) : await addMember(payload)
     setSaving(false)
-    if (!res.error) navigate('/settings/household')
+    // Profil domownika — tam karta AI wygeneruje się sama (card_stale: true)
+    if (!res.error) navigate(`/settings/household/${res.data.id}`, { replace: true })
   }
 
   async function handleDelete() {
     if (!window.confirm(`Usunąć domownika „${name}"?`)) return
     await deleteMember(id)
-    navigate('/settings/household')
+    navigate('/settings/household', { replace: true })
   }
 
   if (isEdit && !hydrated) {
@@ -139,7 +140,7 @@ export default function MemberWizard() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate('/settings/household')} aria-label="Anuluj">
+        <button className={styles.backBtn} onClick={() => navigate(isEdit ? `/settings/household/${id}` : '/settings/household')} aria-label="Anuluj">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
         <h1 className={styles.title}>{isEdit ? 'Edytuj domownika' : 'Nowy domownik'}</h1>

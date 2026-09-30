@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useMembers } from '../../hooks/useMembers'
+import { membersLabel } from '../../lib/profile'
 import styles from './SettingsPage.module.css'
 
 export default function SettingsPage() {
@@ -22,7 +23,7 @@ export default function SettingsPage() {
           <span className={styles.rowTitle}>Gospodarstwo domowe</span>
           <span className={styles.rowSub}>
             {members.length
-              ? `${members.length} ${members.length === 1 ? 'domownik' : 'domowników'}`
+              ? membersLabel(members.length)
               : 'Dodaj domowników i ich profile'}
           </span>
         </span>
