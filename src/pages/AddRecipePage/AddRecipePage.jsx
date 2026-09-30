@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecipes } from '../../hooks/useRecipes'
-import { supabase } from '../../lib/supabase'
+import { invokeAi } from '../../lib/ai'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -56,12 +56,10 @@ export default function AddRecipePage() {
     if (!importUrl.trim()) return
     setImporting(true)
     setImportErr(null)
-    const { data, error } = await supabase.functions.invoke('import-recipe', {
-      body: { url: importUrl.trim() },
-    })
+    const { data, error } = await invokeAi('import-recipe', { url: importUrl.trim() })
     setImporting(false)
-    if (error || data?.error) {
-      setImportErr(data?.error ?? error?.message ?? 'Błąd importu')
+    if (error) {
+      setImportErr(error)
       return
     }
     setForm(f => ({

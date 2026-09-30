@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+import { invokeAi } from '../../lib/ai'
 import { useMember } from '../../hooks/useMembers'
 import {
   LIFE_PHASES, profileCompleteness, profileToPromptText, parseProfileCard,
@@ -31,10 +31,10 @@ export default function MemberProfilePage() {
     if (inFlight.current) return
     inFlight.current = true
     try {
-      const { data, error } = await supabase.functions.invoke('generate-profile-card', {
-        body: { profileText: profileToPromptText(member) },
+      const { data, error } = await invokeAi('generate-profile-card', {
+        profileText: profileToPromptText(member),
       })
-      if (error || data?.error) throw new Error(data?.error ?? error.message)
+      if (error) throw new Error(error)
       const res = await updateMember({ ai_profile_card: JSON.stringify(data.card), card_stale: false })
       if (res.error) throw res.error
       setGenError(null)

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { parseProfileCard } from '../../lib/profile'
+import { invokeAi } from '../../lib/ai'
 import BottomSheet from '../BottomSheet/BottomSheet'
 import styles from './AISuggestSheet.module.css'
 
@@ -28,12 +29,12 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
       .map(m => ({ name: m.name, brief: parseProfileCard(m.ai_profile_card)?.planner_brief }))
       .filter(m => m.brief)
 
-    const { data, error: fnError } = await supabase.functions.invoke('suggest-meal', {
-      body: { mealType, recipes: recipesData || [], plannedToday, household },
+    const { data, error: aiError } = await invokeAi('suggest-meal', {
+      mealType, recipes: recipesData || [], plannedToday, household,
     })
 
-    if (fnError || data?.error) {
-      setError(data?.error ?? fnError?.message ?? 'Nieznany błąd')
+    if (aiError) {
+      setError(aiError)
     } else {
       setSuggestions(data?.suggestions ?? [])
     }

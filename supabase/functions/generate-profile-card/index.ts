@@ -2,10 +2,7 @@
 // Wejście: { profileText } — profil jako czytelny tekst (src/lib/profile.js → profileToPromptText).
 // Wyjście: { card } — obiekt karty; zapis do household_members.ai_profile_card robi frontend.
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { AiError, callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
 
 const SYSTEM_PROMPT = `Występujesz w roli doświadczonego dietetyka rodzinnego oraz eksperta ds. logistyki kuchennej.
 Twoim zadaniem jest zarządzenie "mikroklimatem żywieniowym rodziny" poprzez stworzenie
@@ -43,61 +40,26 @@ Deno.serve(async (req) => {
   try {
     const { profileText } = await req.json()
     if (!profileText?.trim()) {
-      return new Response(JSON.stringify({ error: 'Brakuje danych profilu' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      return jsonResponse({ error: 'Brakuje danych profilu' }, 400)
     }
 
-    const geminiKey = Deno.env.get('GEMINI_API_KEY')
-    if (!geminiKey) throw new Error('GEMINI_API_KEY nie jest skonfigurowany w Supabase secrets')
-
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{
-            parts: [{ text: `${OUTPUT_FORMAT}\n\n---\nOto dane wejściowe domownika:\n${profileText}` }],
-          }],
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 8192,
-            responseMimeType: 'application/json',
-            thinkingConfig: { thinkingBudget: 1024 },
-          },
-        }),
-        signal: AbortSignal.timeout(60000),
-      }
-    )
-
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text()
-      throw new Error(`Gemini API error ${geminiRes.status}: ${errText.slice(0, 200)}`)
-    }
-
-    const geminiData = await geminiRes.json()
-    const raw = (geminiData.candidates?.[0]?.content?.parts ?? [])
-      .filter((p: { thought?: boolean }) => !p.thought)
-      .map((p: { text?: string }) => p.text ?? '')
-      .join('')
-      .replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
+    const raw = await callGemini({
+      systemInstruction: SYSTEM_PROMPT,
+      prompt: `${OUTPUT_FORMAT}\n\n---\nOto dane wejściowe domownika:\n${profileText}`,
+      temperature: 0.5,
+      maxOutputTokens: 8192,
+      thinkingBudget: 1024,
+      json: true,
+      timeoutMs: 60000,
+    })
 
     const card = JSON.parse(raw)
     if (!card?.goal || !Array.isArray(card.tips)) {
-      throw new Error('AI zwróciło kartę w nieoczekiwanym formacie')
+      throw new AiError('AI zwróciło kartę w nieoczekiwanym formacie — spróbuj ponownie', 502)
     }
 
-    return new Response(JSON.stringify({ card }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ card })
   } catch (err) {
-    console.error('generate-profile-card error:', err)
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return errorResponse(err, 'generate-profile-card')
   }
 })
