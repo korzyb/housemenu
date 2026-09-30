@@ -235,6 +235,8 @@ Każdy slot posiłku zawiera mini-karuzelę 2–3 alternatyw:
 **Krok 5 — Zatwierdzenie**
 Jeden duży przycisk "Dodaj do planu" w kolorze Głównego Akcentu. Propozycje trafiają do kalendarza tygodnia.
 
+> **Implementacja (sesja 10):** zgodnie z mockupem `ai_wizard_mockup.png` kreator ma 4 kroki — zatwierdzenie to przycisk „Dodaj do planu” na dole kroku 4 (nad polem korekty). Propozycje pogrupowane w karty dni; każdy slot ma 3 alternatywy przełączane strzałkami ‹ › / swipe, z kropkami. Domyślnie AI planuje tylko puste pory (przełącznik „Zastąp już zaplanowane”), pomija dni, które minęły. Całość = 1 wywołanie AI (`plan-meals`), korekta = kolejne 1 wywołanie.
+
 ---
 
 ## 10. Szablon przepisu

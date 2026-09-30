@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import BottomNav from './components/BottomNav/BottomNav'
 import TodayPage from './pages/TodayPage/TodayPage'
 import PlanPage from './pages/PlanPage/PlanPage'
+import PlanWizardPage from './pages/PlanWizardPage/PlanWizardPage'
 import RecipesPage from './pages/RecipesPage/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage/RecipeDetailPage'
 import AddRecipePage from './pages/AddRecipePage/AddRecipePage'
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/today" replace />} />
             <Route path="/today" element={<TodayPage />} />
             <Route path="/plan" element={<PlanPage />} />
+            <Route path="/plan/ai" element={<PlanWizardPage />} />
             <Route path="/recipes" element={<RecipesPage />} />
             <Route path="/recipes/new" element={<AddRecipePage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import PlanCell from './PlanCell'
@@ -19,9 +19,18 @@ function getWeekDays(weekStart) {
   })
 }
 
+// Tydzień z ?week=RRRR-MM-DD (np. powrót z kreatora AI) → przesunięcie względem bieżącego, -1 … +2
+function initialOffset(param) {
+  if (!param) return 0
+  const start = getWeekStart(new Date(`${param}T00:00:00`))
+  const weeks = Math.round((start - BASE_WEEK_START) / (7 * 24 * 60 * 60 * 1000))
+  return Math.min(2, Math.max(-1, weeks))
+}
+
 export default function PlanPage() {
   const navigate = useNavigate()
-  const [weekOffset, setWeekOffset] = useState(0)   // -1 … +2
+  const [params] = useSearchParams()
+  const [weekOffset, setWeekOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
   const [addSheet, setAddSheet]       = useState(null) // { date, mealTypeId }
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, date, mealTypeId }
   const [inputValue, setInputValue]   = useState('')
@@ -92,7 +101,12 @@ export default function PlanPage() {
             aria-label="Następny tydzień"
           >›</button>
         </div>
-        <button className={`btn-glow ${styles.aiBtn}`}>Zaplanuj z AI ✨</button>
+        <button
+          className={`btn-glow ${styles.aiBtn}`}
+          onClick={() => navigate(`/plan/ai?week=${toDateString(displayWeekStart)}`)}
+          disabled={isPast}
+          type="button"
+        >Zaplanuj z AI ✨</button>
       </header>
 
       <div

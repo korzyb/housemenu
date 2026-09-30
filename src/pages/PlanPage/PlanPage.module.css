@@ -190,3 +190,9 @@
 .optionItem:active { background: rgba(255, 255, 255, 0.05); }
 
 .optionDanger { color: hsl(350, 85%, 70%); }
+
+.aiBtn:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+  cursor: default;
+}

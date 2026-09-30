@@ -48,6 +48,36 @@ export function useMealPlan(weekStart) {
     return { data, error }
   }
 
+  // Zapis wielu pór naraz (kreator AI). rows: [{ date, mealType, recipeId?, customName? }]
+  async function addMeals(rows) {
+    const { error } = await supabase
+      .from('meal_plans')
+      .upsert(
+        rows.map(r => ({
+          date: toDateString(r.date),
+          meal_type: r.mealType,
+          recipe_id: r.recipeId ?? null,
+          custom_name: r.customName ?? null,
+        })),
+        { onConflict: 'date,meal_type' }
+      )
+    if (error) return { error }
+
+    // Data ostatniego zaplanowania na przepisach (najpóźniejsza data dla każdego przepisu)
+    const lastByRecipe = {}
+    for (const r of rows) {
+      if (!r.recipeId) continue
+      const d = toDateString(r.date)
+      if (!lastByRecipe[r.recipeId] || d > lastByRecipe[r.recipeId]) lastByRecipe[r.recipeId] = d
+    }
+    await Promise.all(Object.entries(lastByRecipe).map(([id, d]) =>
+      supabase.from('recipes').update({ last_planned_at: d }).eq('id', id)
+    ))
+
+    fetchMeals()
+    return { error: null }
+  }
+
   async function removeMeal(id) {
     const { error } = await supabase
       .from('meal_plans')
@@ -58,5 +88,5 @@ export function useMealPlan(weekStart) {
     return { error }
   }
 
-  return { meals, loading, error, addMeal, removeMeal, refetch: fetchMeals }
+  return { meals, loading, error, addMeal, addMeals, removeMeal, refetch: fetchMeals }
 }

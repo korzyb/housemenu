@@ -1,0 +1,525 @@
+.page {
+  min-height: 100%;
+  padding: 18px 16px 24px;
+}
+
+/* ── Pasek górny: ‹ Powrót · Zaplanuj z AI · Krok n/4 ── */
+
+.topBar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.backLink {
+  justify-self: start;
+  background: none;
+  border: none;
+  color: var(--color-accent-light);
+  font-size: 16px;
+  padding: 6px 0;
+}
+
+.topTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stepCount {
+  justify-self: end;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.center {
+  text-align: center;
+  text-shadow: 0 0 24px hsla(275, 95%, 70%, 0.45);
+}
+
+.stepSub {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.bigInput {
+  resize: vertical;
+  min-height: 140px;
+  line-height: 1.5;
+}
+
+.notesInput {
+  resize: vertical;
+  margin-top: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.primary {
+  flex: 1;
+}
+
+.secondary {
+  padding: 14px 22px;
+  font-size: 16px;
+}
+
+/* ── Chipy ─────────────────────────────── */
+
+.prefGroup {
+  margin-bottom: 16px;
+}
+
+.groupLabel {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin: 4px 2px 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.prefGroup .chips {
+  margin-bottom: 0;
+}
+
+.chip {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: hsla(234, 38%, 20%, 0.4);
+  color: var(--color-text);
+  font-size: 14px;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chipOn {
+  background: hsla(265, 70%, 45%, 0.45);
+  border-color: hsla(268, 90%, 75%, 0.85);
+  box-shadow: 0 0 12px hsla(268, 95%, 65%, 0.4);
+}
+
+/* ── Krok 3: zakres ─────────────────────── */
+
+.scopes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.scopeBtn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.scopeEmoji {
+  font-size: 26px;
+}
+
+.scopeOn {
+  background: linear-gradient(160deg, hsla(270, 60%, 35%, 0.55), hsla(250, 50%, 20%, 0.6));
+}
+
+.dayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.dayBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: hsla(234, 38%, 20%, 0.4);
+  color: var(--color-text);
+}
+
+.dayBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.dayOn {
+  background: hsla(265, 70%, 45%, 0.5);
+  border-color: hsla(268, 90%, 75%, 0.9);
+  box-shadow: 0 0 12px hsla(268, 95%, 65%, 0.45);
+}
+
+.dayShort {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.dayOn .dayShort {
+  color: var(--color-text);
+}
+
+.dayNum {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.toggleRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.toggleText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.toggleSub {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.switch {
+  flex-shrink: 0;
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 0.2s ease;
+}
+
+.switchOn {
+  background: var(--gradient-accent);
+  box-shadow: 0 0 12px hsla(285, 90%, 60%, 0.5);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.switchOn .knob {
+  transform: translateX(20px);
+}
+
+.warn {
+  margin-top: 14px;
+  font-size: 14px;
+  color: hsl(38, 95%, 72%);
+}
+
+/* ── Krok 4: propozycje ─────────────────── */
+
+.proposalBody {
+  padding-bottom: 150px; /* miejsce na przyklejony pasek korekty + przycisk */
+}
+
+.generating,
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px;
+  border-radius: 22px;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.spark {
+  font-size: 34px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 10px;
+  transition: opacity 0.2s ease;
+}
+
+.dimmed {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.dayCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 12px 12px;
+  border-radius: 22px;
+}
+
+.dayCardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 6px;
+}
+
+.dayCardTitle {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  min-height: 108px;
+  padding: 12px 0 12px 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.slotText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 8px;
+  z-index: 1;
+}
+
+.slotMeal {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.slotDish {
+  font-size: 14px;
+  color: hsl(225, 25%, 85%);
+  line-height: 1.35;
+}
+
+.slotMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.badge {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: hsla(142, 60%, 40%, 0.18);
+  border: 1px solid hsla(142, 60%, 55%, 0.4);
+  color: hsl(142, 60%, 75%);
+}
+
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.switcher button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid hsla(268, 90%, 75%, 0.5);
+  background: hsla(262, 60%, 35%, 0.45);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px hsla(268, 95%, 65%, 0.35);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dotOn {
+  background: #fff;
+}
+
+.plate {
+  flex-shrink: 0;
+  width: 108px;
+  height: 108px;
+  margin: -6px -14px -6px 0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 35% 30%, hsla(265, 45%, 42%, 0.95), hsla(240, 40%, 18%, 0.95));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 0 0 3px hsla(0, 0%, 100%, 0.12);
+}
+
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plateEmoji {
+  font-size: 44px;
+  margin-right: 10px;
+}
+
+.tip {
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Przyklejony dół: pole korekty (jak w mockupie) + zatwierdzenie */
+.footer {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-height) + 10px);
+  transform: translateX(-50%);
+  width: calc(min(430px, 100vw));
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 30;
+}
+
+.chatPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 5px 5px 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, hsla(236, 38%, 24%, 0.8), hsla(238, 40%, 14%, 0.9));
+}
+
+.chatInput {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 15px;
+  outline: none;
+}
+
+.chatInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.sendBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sendBtn:disabled {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.sendBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid hsla(268, 90%, 75%, 0.3);
+  border-top-color: var(--color-accent-light);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.saveBtn {
+  width: 100%;
+  border-radius: 999px;
+}
