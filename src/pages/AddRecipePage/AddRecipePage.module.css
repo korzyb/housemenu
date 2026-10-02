@@ -481,3 +481,10 @@
 .photoInput:focus {
   border-color: hsla(268, 90%, 72%, 0.7);
 }
+
+.importInfo {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: hsl(142, 60%, 72%);
+}

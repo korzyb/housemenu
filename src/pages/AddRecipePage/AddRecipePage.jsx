@@ -68,6 +68,7 @@ function RecipeForm({ recipe }) {
   const [importUrl,  setImportUrl]  = useState('')
   const [importing,  setImporting]  = useState(false)
   const [importErr,  setImportErr]  = useState(null)
+  const [importInfo, setImportInfo] = useState(null)
 
   function set(field, value) {
     setForm(f => ({ ...f, [field]: value }))
@@ -96,6 +97,7 @@ function RecipeForm({ recipe }) {
     if (!importUrl.trim()) return
     setImporting(true)
     setImportErr(null)
+    setImportInfo(null)
     const { data, error } = await invokeAi('import-recipe', { url: importUrl.trim() })
     setImporting(false)
     if (error) {
@@ -114,6 +116,7 @@ function RecipeForm({ recipe }) {
       difficulty:  data.difficulty  ?? f.difficulty,
       temperature: data.temperature ?? f.temperature,
       tags:        data.tags?.length ? data.tags : f.tags,
+      notes:       data.notes ?? f.notes,
       ingredients: data.ingredients?.length
         ? data.ingredients.map(i => ({ amount: i.amount ?? '', unit: i.unit ?? '', name: i.name ?? '' }))
         : f.ingredients,
@@ -122,6 +125,13 @@ function RecipeForm({ recipe }) {
         : f.steps,
     }))
     setImportUrl('')
+    setImportInfo(
+      data.import_source === 'schema'
+        ? (data.steps_mode === 'atomic'
+            ? '✓ Pobrano z danych strukturalnych strony (schema.org), kroki rozbite przez AI na pojedyncze czynności.'
+            : '✓ Pobrano z danych strukturalnych strony (schema.org). AI chwilowo niedostępne — kroki jak na stronie.')
+        : '✓ Przepis odczytany przez AI z treści strony (strona nie udostępnia danych schema.org). Sprawdź składniki.'
+    )
   }
 
   // ─── Tags ──────────────────────────────────────────────
@@ -196,6 +206,7 @@ function RecipeForm({ recipe }) {
             >{importing ? '…' : '✨ Importuj'}</button>
           </div>
           {importErr && <p className={styles.importErr}>{importErr}</p>}
+          {importInfo && <p className={styles.importInfo}>{importInfo}</p>}
         </div>}
 
         {/* Nazwa */}
