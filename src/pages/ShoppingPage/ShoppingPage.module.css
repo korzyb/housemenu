@@ -485,3 +485,32 @@
   font-size: 14px;
   color: var(--color-text-muted);
 }
+
+.askBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.askActions {
+  display: flex;
+  gap: 8px;
+}
+
+.askBtn {
+  flex: 1;
+  padding: 10px 8px;
+  font-size: 14px;
+}
+
+.askCancel {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}

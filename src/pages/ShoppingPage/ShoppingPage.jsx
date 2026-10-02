@@ -36,8 +36,9 @@ function plural(n, one, few, many) {
 }
 
 export default function ShoppingPage() {
-  const { items, loading, addItem, toggleItem, removeItem, clearChecked, generateFromMealPlan } =
+  const { items, loading, addItem, toggleItem, removeItem, clearChecked, generateFromMealPlan, hasOpenAutoItems } =
     useShoppingList()
+  const [askMode,    setAskMode]    = useState(false) // pytanie: zastąpić czy dopisać
   const [shopMode,   setShopMode]   = useState(false)
   const [inputVal,   setInputVal]   = useState('')
   const [generating, setGenerating] = useState(false)
@@ -64,11 +65,19 @@ export default function ShoppingPage() {
     await addItem({ name })
   }
 
-  async function handleGenerate() {
+  function handleGenerateClick() {
+    setGenResult(null)
+    // Na liście są niekupione produkty z planu → zapytaj, czy zastąpić czy dopisać
+    if (hasOpenAutoItems) setAskMode(true)
+    else handleGenerate('replace')
+  }
+
+  async function handleGenerate(mode) {
+    setAskMode(false)
     setGenerating(true)
     setGenResult(null)
     const { from, to } = ranges[range]
-    const { error, stats } = await generateFromMealPlan({ from, to })
+    const { error, stats } = await generateFromMealPlan({ from, to, mode })
     setGenerating(false)
 
     if (error) { setGenResult({ text: 'Nie udało się wygenerować listy. Spróbuj ponownie.', warn: true }); return }
@@ -76,7 +85,7 @@ export default function ShoppingPage() {
 
     const parts = []
     if (stats.items) {
-      parts.push(`Dodano ${stats.items} ${plural(stats.items, 'produkt', 'produkty', 'produktów')} z ${stats.recipes} ${plural(stats.recipes, 'przepisu', 'przepisów', 'przepisów')}.`)
+      parts.push(`Dodano ${stats.items} ${plural(stats.items, 'produkt', 'produkty', 'produktów')} z ${stats.recipes} ${plural(stats.recipes, 'przepisu', 'przepisów', 'przepisów')}${stats.updated ? ` (${stats.updated} zsumowano z listą)` : ''}.`)
     } else {
       parts.push('Zaplanowane posiłki nie mają przepisów ze składnikami.')
     }
@@ -187,14 +196,29 @@ export default function ShoppingPage() {
             </button>
           ))}
         </div>
-        <button
-          className={`glass ${styles.generateBtn}`}
-          onClick={handleGenerate}
-          disabled={generating}
-          type="button"
-        >
-          {generating ? 'Zbieram składniki…' : '✨ Generuj z planu'}
-        </button>
+        {askMode ? (
+          <div className={`glass ${styles.askBox}`}>
+            <p>Na liście są już niekupione produkty z planu. Co zrobić?</p>
+            <div className={styles.askActions}>
+              <button className={`btn-glow ${styles.askBtn}`} onClick={() => handleGenerate('replace')} type="button">
+                Zastąp listę
+              </button>
+              <button className={`btn-primary ${styles.askBtn}`} onClick={() => handleGenerate('append')} type="button">
+                Dopisz i zsumuj
+              </button>
+            </div>
+            <button className={styles.askCancel} onClick={() => setAskMode(false)} type="button">Anuluj</button>
+          </div>
+        ) : (
+          <button
+            className={`glass ${styles.generateBtn}`}
+            onClick={handleGenerateClick}
+            disabled={generating}
+            type="button"
+          >
+            {generating ? 'Zbieram składniki…' : '✨ Generuj z planu'}
+          </button>
+        )}
         {genResult && (
           <p className={`${styles.genResult} ${genResult.warn ? styles.genWarn : ''}`}>{genResult.text}</p>
         )}

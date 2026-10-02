@@ -474,3 +474,20 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.toShoppingBtn {
+  margin-left: auto;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid hsla(268, 90%, 75%, 0.6);
+  background: hsla(262, 60%, 35%, 0.4);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 0 12px hsla(268, 95%, 65%, 0.3);
+}
+
+.toShoppingBtn:disabled {
+  opacity: 0.5;
+}

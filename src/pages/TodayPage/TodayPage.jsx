@@ -4,6 +4,8 @@ import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import AISuggestSheet from '../../components/AISuggestSheet/AISuggestSheet'
 import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
+import Toast from '../../components/Toast/Toast'
+import { useAddToShopping } from '../../hooks/useAddToShopping'
 import MealTile from './MealTile'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import { MEAL_TYPES } from '../../lib/meals'
@@ -15,6 +17,7 @@ const todayStr = toDateString(new Date())
 export default function TodayPage() {
   const navigate = useNavigate()
   const { meals, loading, addMeal, removeMeal } = useMealPlan(weekStart)
+  const shopping = useAddToShopping()
 
   const [addSheet,     setAddSheet]     = useState(null) // { mealTypeId, prefill } | null
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, mealType } | null
@@ -126,6 +129,15 @@ export default function TodayPage() {
               Otwórz przepis
             </button>
           )}
+          {optionHasRecipe && (
+            <button className={styles.optionItem} disabled={shopping.busy} onClick={async () => {
+              const { meal } = optionsSheet
+              setOptionsSheet(null)
+              await shopping.addMeals([meal], meal.recipe?.name)
+            }}>
+              🛒 Dodaj składniki do zakupów
+            </button>
+          )}
           <button className={styles.optionItem} onClick={() => {
             const { mealType } = optionsSheet
             setOptionsSheet(null)
@@ -138,6 +150,15 @@ export default function TodayPage() {
           </button>
         </div>
       </BottomSheet>
+
+      <Toast
+        message={shopping.busy ? 'Dodaję składniki do zakupów…' : shopping.toast?.message}
+        warn={shopping.toast?.warn}
+        actionLabel={!shopping.busy && shopping.toast && !shopping.toast.warn ? 'Zobacz listę' : null}
+        onAction={() => navigate('/shopping')}
+        onClose={shopping.clearToast}
+        duration={shopping.busy ? 60000 : 4000}
+      />
     </div>
   )
 }

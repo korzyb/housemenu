@@ -177,3 +177,70 @@
   box-shadow: none;
   cursor: default;
 }
+
+/* Skrót dnia jako przycisk → zakupy na ten dzień */
+button.rowHeader {
+  background: none;
+  border: none;
+  padding: 6px 0;
+  border-radius: 8px;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+button.rowHeader:not(:disabled):hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+button.rowHeader:disabled {
+  cursor: default;
+}
+
+/* ── Zakupy na dzień (arkusz) ───────────── */
+
+.dayShop {
+  padding: 12px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dayShopRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 14px;
+}
+
+.dayShopMeal {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.dayShopName {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dayShopNote {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.dayShopEmpty {
+  padding: 8px 2px 4px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.dayShop :global(.btn-primary) {
+  margin-top: 8px;
+}

@@ -5,6 +5,8 @@ import { useMealPlan } from '../../hooks/useMealPlan'
 import { MEAL_TYPES } from '../../lib/meals'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
+import Toast from '../../components/Toast/Toast'
+import { useAddToShopping } from '../../hooks/useAddToShopping'
 import styles from './RecipeDetailPage.module.css'
 
 const WEEK_START = getWeekStart()
@@ -33,6 +35,7 @@ export default function RecipeDetailPage() {
   const navigate = useNavigate()
   const { recipe, loading, deleteRecipe } = useRecipe(id)
   const { addMeal } = useMealPlan(WEEK_START)
+  const shopping = useAddToShopping()
 
   const [servings,   setServings]   = useState(null)
   const [doneSteps,  setDoneSteps]  = useState(new Set())
@@ -125,6 +128,15 @@ export default function RecipeDetailPage() {
                 type="button"
               >+</button>
             </div>
+            <button
+              className={styles.toShoppingBtn}
+              onClick={() => shopping.addIngredients(
+                recipe.ingredients.map(ing => ({ ...ing, amount: scaleAmount(ing.amount, scale) })),
+                recipe.name,
+              )}
+              disabled={shopping.busy}
+              type="button"
+            >🛒 Do zakupów</button>
           </div>
         )}
 
@@ -234,6 +246,14 @@ export default function RecipeDetailPage() {
         >{adding ? '…' : 'Dodaj'}</button>
       </BottomSheet>
 
+      <Toast
+        message={shopping.busy ? 'Dodaję składniki do zakupów…' : shopping.toast?.message}
+        warn={shopping.toast?.warn}
+        actionLabel={!shopping.busy && shopping.toast && !shopping.toast.warn ? 'Zobacz listę' : null}
+        onAction={() => navigate('/shopping')}
+        onClose={shopping.clearToast}
+        duration={shopping.busy ? 60000 : 4000}
+      />
     </div>
   )
 }

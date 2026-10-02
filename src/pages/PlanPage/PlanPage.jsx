@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
+import Toast from '../../components/Toast/Toast'
+import { useAddToShopping } from '../../hooks/useAddToShopping'
 import PlanCell from './PlanCell'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
 import { MEAL_TYPES } from '../../lib/meals'
@@ -34,6 +36,8 @@ export default function PlanPage() {
   const [weekOffset, setWeekOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
   const [addSheet, setAddSheet]       = useState(null) // { date, mealTypeId, prefill }
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, date, mealTypeId }
+  const [daySheet, setDaySheet]       = useState(null) // { date, label } — zakupy na dzień
+  const shopping = useAddToShopping()
   const touchStartX = useRef(null)
 
   const displayWeekStart = new Date(BASE_WEEK_START)
@@ -131,9 +135,15 @@ export default function PlanPage() {
                 key={dateStr}
                 className={[styles.row, isToday ? styles.todayRow : ''].join(' ')}
               >
-                <div className={[styles.rowHeader, isToday ? styles.todayHeader : ''].join(' ')}>
+                <button
+                  className={[styles.rowHeader, isToday ? styles.todayHeader : ''].join(' ')}
+                  onClick={() => !isPast && setDaySheet({ date: dateStr, label: DAY_LABELS[i] })}
+                  disabled={isPast}
+                  type="button"
+                  aria-label={`Zakupy na ${DAY_LABELS[i]}`}
+                >
                   {DAY_LABELS[i]}
-                </div>
+                </button>
                 {MEAL_TYPES.map(mealType => {
                   const meal = mealMap[dateStr]?.[mealType.id] ?? null
                   return (
@@ -181,6 +191,13 @@ export default function PlanPage() {
               setOptionsSheet(null)
             }}>Otwórz przepis</button>
           )}
+          {optionsSheet?.meal?.recipe && (
+            <button className={styles.optionItem} disabled={shopping.busy} onClick={async () => {
+              const { meal } = optionsSheet
+              setOptionsSheet(null)
+              await shopping.addMeals([meal], meal.recipe.name)
+            }}>🛒 Dodaj składniki do zakupów</button>
+          )}
           <button className={styles.optionItem} onClick={() => {
             const { date, mealTypeId } = optionsSheet
             setOptionsSheet(null)
@@ -192,6 +209,56 @@ export default function PlanPage() {
           >Usuń z planu</button>
         </div>
       </BottomSheet>
+
+      {/* Bottom sheet: zakupy na wybrany dzień (tap w skrót dnia) */}
+      <BottomSheet
+        isOpen={!!daySheet}
+        onClose={() => setDaySheet(null)}
+        title={daySheet ? `🛒 Zakupy · ${new Date(`${daySheet.date}T00:00:00`).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}` : ''}
+      >
+        {daySheet && (() => {
+          const dayMeals = MEAL_TYPES.map(t => ({ type: t, meal: mealMap[daySheet.date]?.[t.id] })).filter(x => x.meal)
+          const withRecipe = dayMeals.filter(x => x.meal.recipe)
+          return (
+            <div className={styles.dayShop}>
+              {dayMeals.length === 0 && <p className={styles.dayShopEmpty}>Na ten dzień nic nie jest zaplanowane.</p>}
+              {dayMeals.map(({ type, meal }) => (
+                <div key={type.id} className={styles.dayShopRow}>
+                  <span className={styles.dayShopMeal}>{type.emoji} {type.label}</span>
+                  <span className={styles.dayShopName}>{meal.recipe?.name || meal.custom_name}</span>
+                  <span className={styles.dayShopNote}>
+                    {meal.recipe ? `${meal.recipe.ingredients?.length ?? 0} skł.` : 'bez przepisu'}
+                  </span>
+                </div>
+              ))}
+              {dayMeals.length > 0 && (
+                <button
+                  className="btn-primary"
+                  disabled={!withRecipe.length || shopping.busy}
+                  onClick={async () => {
+                    setDaySheet(null)
+                    await shopping.addMeals(dayMeals.map(x => x.meal))
+                  }}
+                  type="button"
+                >
+                  {withRecipe.length
+                    ? `Dodaj składniki do zakupów (${withRecipe.length} ${withRecipe.length === 1 ? 'przepis' : withRecipe.length < 5 ? 'przepisy' : 'przepisów'})`
+                    : 'Brak przepisów ze składnikami'}
+                </button>
+              )}
+            </div>
+          )
+        })()}
+      </BottomSheet>
+
+      <Toast
+        message={shopping.busy ? 'Dodaję składniki do zakupów…' : shopping.toast?.message}
+        warn={shopping.toast?.warn}
+        actionLabel={!shopping.busy && shopping.toast && !shopping.toast.warn ? 'Zobacz listę' : null}
+        onAction={() => navigate('/shopping')}
+        onClose={shopping.clearToast}
+        duration={shopping.busy ? 60000 : 4000}
+      />
     </div>
   )
 }
