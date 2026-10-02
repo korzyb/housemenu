@@ -104,17 +104,31 @@ export default function ShoppingPage() {
 
         <div className={styles.shopList}>
           {/* Kolejność alejek: kategorie jak w sklepie, z małymi nagłówkami */}
-          {groupByCategory(unchecked).map(([cat, catItems]) => (
-            <div key={cat}>
-              <p className={styles.shopCategory}>{categoryEmoji(cat)} {cat}</p>
-              {catItems.map(item => (
-                <div key={item.id} className={styles.shopItem} onClick={() => toggleItem(item.id)}>
-                  <span className={styles.shopItemName}>{item.name}</span>
-                  {item.amount && <span className={styles.shopItemAmount}>{item.amount}</span>}
-                </div>
-              ))}
-            </div>
-          ))}
+          {groupByCategory(unchecked).map(([cat, catItems]) => {
+            const isCollapsed = collapsed.has(cat)
+            return (
+              <div key={cat}>
+                <button
+                  className={styles.shopCategory}
+                  onClick={() => toggleCategory(cat)}
+                  type="button"
+                  aria-expanded={!isCollapsed}
+                >
+                  <span className={styles.shopCategoryName}>{categoryEmoji(cat)} {cat}</span>
+                  <span className={styles.shopCategoryCount}>{catItems.length}</span>
+                  <span className={[styles.chevron, isCollapsed ? styles.chevronCollapsed : ''].join(' ')}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
+                  </span>
+                </button>
+                {!isCollapsed && catItems.map(item => (
+                  <div key={item.id} className={styles.shopItem} onClick={() => toggleItem(item.id)}>
+                    <span className={styles.shopItemName}>{item.name}</span>
+                    {item.amount && <span className={styles.shopItemAmount}>{item.amount}</span>}
+                  </div>
+                ))}
+              </div>
+            )
+          })}
 
           {checked.length > 0 && (
             <div className={styles.shopDoneGroup}>
