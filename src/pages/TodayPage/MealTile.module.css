@@ -56,19 +56,21 @@
   overflow: hidden;
 }
 
-/* Zdjęcie: wyraźne na prawych 40% kafelka, płynne wygaszanie od 40% do 70% (licząc od prawej) */
+/* Zdjęcie dopasowane do wysokości kafelka (bez przycinania góry/dołu), przy prawej krawędzi;
+   lewa połowa zdjęcia płynnie wygaszana w poziomie (prawo → lewo) */
 .photoBg {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 70%;
+  width: auto;
+  max-width: 70%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   z-index: 1;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 43%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 43%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 50%);
 }
 
 /* Brak zdjęcia: duże emoji w miękkiej poświacie zamiast twardego kółka */

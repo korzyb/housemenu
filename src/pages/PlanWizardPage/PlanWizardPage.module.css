@@ -425,12 +425,13 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 70%;
+  width: auto;
+  max-width: 70%;
   height: 100%;
   object-fit: cover;
   z-index: 1;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 43%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 43%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 50%);
 }
 
 .emojiBg {
