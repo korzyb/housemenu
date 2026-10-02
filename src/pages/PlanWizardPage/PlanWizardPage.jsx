@@ -449,11 +449,9 @@ export default function PlanWizardPage() {
                             </span>
                           )}
                         </div>
-                        <span className={styles.plate}>
-                          {recipe?.photo_url
-                            ? <img src={recipe.photo_url} alt="" />
-                            : <span className={styles.plateEmoji}>{opt?.emoji || mealEmoji(item.mealType)}</span>}
-                        </span>
+                        {recipe?.photo_url
+                          ? <img src={recipe.photo_url} alt="" className={styles.photoBg} />
+                          : <span className={styles.emojiBg} aria-hidden="true">{opt?.emoji || mealEmoji(item.mealType)}</span>}
                       </div>
                     )
                   })}

@@ -31,12 +31,11 @@ export default function MealTile({ mealType, meal, onAdd, onSuggest, onOptions, 
         <span className={styles.typeLabel}>{mealType.label}</span>
         <span className={styles.dishName}>{dishName}</span>
       </div>
-      <div className={styles.plate}>
-        {photo
-          ? <img src={photo} alt="" className={styles.photo} />
-          : <span className={styles.plateEmoji}>{mealType.emoji}</span>
-        }
-      </div>
+      {/* Zdjęcie od prawej, wygaszane w lewo pod napis (jak w mockupach) */}
+      {photo
+        ? <img src={photo} alt="" className={styles.photoBg} />
+        : <span className={styles.emojiBg} aria-hidden="true">{mealType.emoji}</span>
+      }
       <button
         className={styles.optionsBtn}
         onClick={e => { e.stopPropagation(); onOptions() }}
