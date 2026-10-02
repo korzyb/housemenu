@@ -1,24 +1,24 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useShoppingList } from '../../hooks/useShoppingList'
-import { getWeekStart, toDateString } from '../../lib/dates'
+import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
+import { categoryEmoji, categoryOrder } from '../../lib/shopping'
 import styles from './ShoppingPage.module.css'
 
-const WEEK_START_STR = toDateString(getWeekStart())
-
-// Emoji nagłówków kategorii (dopasowanie po fragmencie nazwy, bez wielkości liter)
-const CATEGORY_EMOJI = [
-  ['warzyw', '🥬'], ['owoc', '🍎'], ['nabiał', '🥛'], ['mięs', '🥩'], ['ryb', '🐟'],
-  ['pieczyw', '🍞'], ['przypraw', '🧂'], ['napoj', '🧃'], ['napój', '🧃'], ['mrożon', '🧊'],
-  ['słodycz', '🍫'], ['chemi', '🧴'],
-]
-
-function categoryEmoji(category) {
-  const c = (category || '').toLowerCase()
-  return CATEGORY_EMOJI.find(([key]) => c.includes(key))?.[1] ?? '🛒'
+// Zakres generowania: bieżący tydzień od dziś (nie kupujemy na miniony dzień) albo cały następny
+function weekRanges() {
+  const today = new Date()
+  const thisStart = getWeekStart(today)
+  const thisEnd = new Date(thisStart); thisEnd.setDate(thisEnd.getDate() + 6)
+  const nextStart = new Date(thisStart); nextStart.setDate(nextStart.getDate() + 7)
+  const nextEnd = new Date(nextStart); nextEnd.setDate(nextEnd.getDate() + 6)
+  return {
+    current: { from: toDateString(today), to: toDateString(thisEnd), label: 'Ten tydzień', sub: `od dziś do ${thisEnd.getDate()}.${String(thisEnd.getMonth() + 1).padStart(2, '0')}` },
+    next:    { from: toDateString(nextStart), to: toDateString(nextEnd), label: 'Następny tydzień', sub: getWeekRange(nextStart) },
+  }
 }
 
-// Grupowanie z zachowaniem kolejności pierwszego wystąpienia; "Inne" zawsze na końcu
+// Grupy w kolejności sklepowej (src/lib/shopping.js → CATEGORIES)
 function groupByCategory(items) {
   const groups = new Map()
   for (const item of items) {
@@ -26,7 +26,13 @@ function groupByCategory(items) {
     if (!groups.has(cat)) groups.set(cat, [])
     groups.get(cat).push(item)
   }
-  return [...groups.entries()].sort(([a], [b]) => (a === 'Inne') - (b === 'Inne'))
+  return [...groups.entries()].sort(([a], [b]) => categoryOrder(a) - categoryOrder(b))
+}
+
+function plural(n, one, few, many) {
+  if (n === 1) return one
+  const d = n % 10, dd = n % 100
+  return d >= 2 && d <= 4 && (dd < 12 || dd > 14) ? few : many
 }
 
 export default function ShoppingPage() {
@@ -36,6 +42,9 @@ export default function ShoppingPage() {
   const [inputVal,   setInputVal]   = useState('')
   const [generating, setGenerating] = useState(false)
   const [collapsed,  setCollapsed]  = useState(() => new Set())
+  const [range,      setRange]      = useState('current')
+  const [genResult,  setGenResult]  = useState(null) // { text, warn? }
+  const ranges = weekRanges()
 
   const unchecked = items.filter(i => !i.is_checked)
   const checked   = items.filter(i =>  i.is_checked)
@@ -57,8 +66,26 @@ export default function ShoppingPage() {
 
   async function handleGenerate() {
     setGenerating(true)
-    await generateFromMealPlan(WEEK_START_STR)
+    setGenResult(null)
+    const { from, to } = ranges[range]
+    const { error, stats } = await generateFromMealPlan({ from, to })
     setGenerating(false)
+
+    if (error) { setGenResult({ text: 'Nie udało się wygenerować listy. Spróbuj ponownie.', warn: true }); return }
+    if (!stats.meals) { setGenResult({ text: 'W tym okresie nic nie jest zaplanowane.', warn: true }); return }
+
+    const parts = []
+    if (stats.items) {
+      parts.push(`Dodano ${stats.items} ${plural(stats.items, 'produkt', 'produkty', 'produktów')} z ${stats.recipes} ${plural(stats.recipes, 'przepisu', 'przepisów', 'przepisów')}.`)
+    } else {
+      parts.push('Zaplanowane posiłki nie mają przepisów ze składnikami.')
+    }
+    if (stats.withoutRecipe.length) {
+      const names = [...new Set(stats.withoutRecipe)]
+      parts.push(`Bez przepisu (dodaj ręcznie, co trzeba): ${names.slice(0, 4).join(', ')}${names.length > 4 ? '…' : ''}.`)
+    }
+    if (stats.items && !stats.aiUsed) parts.push('AI chwilowo niedostępne — kategorie dobrane automatycznie, nazwy bez ujednolicenia.')
+    setGenResult({ text: parts.join(' '), warn: !stats.items })
   }
 
   // ─── Tryb sklepowy ─────────────────────────────────────
@@ -76,10 +103,16 @@ export default function ShoppingPage() {
         </div>
 
         <div className={styles.shopList}>
-          {unchecked.map(item => (
-            <div key={item.id} className={styles.shopItem} onClick={() => toggleItem(item.id)}>
-              <span className={styles.shopItemName}>{item.name}</span>
-              {item.amount && <span className={styles.shopItemAmount}>{item.amount}</span>}
+          {/* Kolejność alejek: kategorie jak w sklepie, z małymi nagłówkami */}
+          {groupByCategory(unchecked).map(([cat, catItems]) => (
+            <div key={cat}>
+              <p className={styles.shopCategory}>{categoryEmoji(cat)} {cat}</p>
+              {catItems.map(item => (
+                <div key={item.id} className={styles.shopItem} onClick={() => toggleItem(item.id)}>
+                  <span className={styles.shopItemName}>{item.name}</span>
+                  {item.amount && <span className={styles.shopItemAmount}>{item.amount}</span>}
+                </div>
+              ))}
             </div>
           ))}
 
@@ -124,14 +157,34 @@ export default function ShoppingPage() {
         )}
       </header>
 
-      <button
-        className={`glass ${styles.generateBtn}`}
-        onClick={handleGenerate}
-        disabled={generating}
-        type="button"
-      >
-        {generating ? 'Generuję…' : '✨ Generuj z planu tygodnia'}
-      </button>
+      <div className={styles.generateBox}>
+        <div className={styles.rangeRow} role="radiogroup" aria-label="Zakres planu">
+          {Object.entries(ranges).map(([key, r]) => (
+            <button
+              key={key}
+              className={`${styles.rangeChip} ${range === key ? styles.rangeOn : ''}`}
+              onClick={() => setRange(key)}
+              type="button"
+              role="radio"
+              aria-checked={range === key}
+            >
+              <span>{r.label}</span>
+              <span className={styles.rangeSub}>{r.sub}</span>
+            </button>
+          ))}
+        </div>
+        <button
+          className={`glass ${styles.generateBtn}`}
+          onClick={handleGenerate}
+          disabled={generating}
+          type="button"
+        >
+          {generating ? 'Zbieram składniki…' : '✨ Generuj z planu'}
+        </button>
+        {genResult && (
+          <p className={`${styles.genResult} ${genResult.warn ? styles.genWarn : ''}`}>{genResult.text}</p>
+        )}
+      </div>
 
       <div className={styles.list}>
         {loading && [0, 1, 2, 3].map(i => <div key={i} className={`glass ${styles.skeleton}`} />)}

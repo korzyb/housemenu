@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { invokeAi } from '../lib/ai'
+import { CATEGORY_NAMES, aggregateIngredients, categoryOrder, guessCategory } from '../lib/shopping'
 
 export function useShoppingList() {
   const [items, setItems] = useState([])
@@ -25,7 +27,7 @@ export function useShoppingList() {
     fetchItems()
   }, [fetchItems])
 
-  async function addItem({ name, amount = null, category = 'Inne' }) {
+  async function addItem({ name, amount = null, category = guessCategory(name) }) {
     const maxOrder = items.length > 0 ? Math.max(...items.map(i => i.sort_order)) + 1 : 0
 
     const { data, error } = await supabase
@@ -71,48 +73,66 @@ export function useShoppingList() {
     return { error }
   }
 
-  async function generateFromMealPlan(weekStart) {
-    const start = weekStart instanceof Date
-      ? weekStart.toISOString().split('T')[0]
-      : weekStart
-    const end = (() => {
-      const d = new Date(weekStart)
-      d.setDate(d.getDate() + 6)
-      return d.toISOString().split('T')[0]
-    })()
-
+  // Generowanie z planu dla dat from…to (RRRR-MM-DD, włącznie).
+  // Składniki z przepisów → ujednolicone nazwy + kategorie (AI, zapas: słownik) → sumowanie ilości.
+  // Zastępuje poprzednie pozycje 'auto'; ręcznie dodane zostają.
+  async function generateFromMealPlan({ from, to }) {
     const { data: mealPlans, error: plansError } = await supabase
       .from('meal_plans')
-      .select('recipe:recipes(ingredients)')
-      .gte('date', start)
-      .lte('date', end)
-      .not('recipe_id', 'is', null)
+      .select('custom_name, recipe:recipes(name, ingredients)')
+      .gte('date', from)
+      .lte('date', to)
 
     if (plansError) return { error: plansError }
 
-    const allIngredients = mealPlans.flatMap(mp => mp.recipe?.ingredients || [])
+    const withRecipe = mealPlans.filter(mp => mp.recipe)
+    const withoutRecipe = mealPlans.filter(mp => !mp.recipe && mp.custom_name)
+    const raw = withRecipe.flatMap(mp => mp.recipe.ingredients || []).filter(i => i?.name?.trim())
 
-    if (allIngredients.length === 0) return { error: null }
+    const stats = {
+      meals: mealPlans.length,
+      recipes: new Set(withRecipe.map(mp => mp.recipe.name)).size,
+      withoutRecipe: withoutRecipe.map(mp => mp.custom_name),
+      items: 0,
+      aiUsed: false,
+    }
+    if (raw.length === 0) return { error: null, stats }
+
+    // Ujednolicenie nazw i kategorie — jedno zapytanie AI; przy błędzie (np. limit) słownik lokalny
+    const uniqueNames = [...new Set(raw.map(i => i.name.trim()))]
+    const { data: norm, error: aiError } = await invokeAi('shopping-normalize', {
+      names: uniqueNames,
+      categories: CATEGORY_NAMES,
+    })
+    const normMap = new Map((aiError ? [] : norm.items).map(i => [i.input, i]))
+    stats.aiUsed = !aiError
+
+    const aggregated = aggregateIngredients(raw.map(i => {
+      const n = normMap.get(i.name.trim())
+      return { ...i, displayName: n?.name || i.name, category: n?.category || guessCategory(n?.name || i.name) }
+    }))
 
     const { error: deleteError } = await supabase
       .from('shopping_list')
       .delete()
       .eq('source', 'auto')
+    if (deleteError) return { error: deleteError, stats }
 
-    if (deleteError) return { error: deleteError }
-
-    const rows = allIngredients.map((ing, i) => ({
-      name: ing.name,
-      amount: ing.amount ? `${ing.amount} ${ing.unit || ''}`.trim() : null,
-      category: 'Inne',
-      sort_order: i,
-      source: 'auto',
-    }))
+    const rows = aggregated
+      .sort((a, b) => categoryOrder(a.category) - categoryOrder(b.category) || a.name.localeCompare(b.name, 'pl'))
+      .map((item, i) => ({
+        name: item.name,
+        amount: item.amount,
+        category: item.category,
+        sort_order: i,
+        source: 'auto',
+      }))
 
     const { error } = await supabase.from('shopping_list').insert(rows)
+    stats.items = rows.length
 
     if (!error) fetchItems()
-    return { error }
+    return { error, stats }
   }
 
   return {
