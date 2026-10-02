@@ -36,8 +36,9 @@ function plural(n, one, few, many) {
 }
 
 export default function ShoppingPage() {
-  const { items, loading, addItem, toggleItem, removeItem, clearChecked, generateFromMealPlan, hasOpenAutoItems } =
+  const { items, loading, addItem, toggleItem, removeItem, clearChecked, clearAll, generateFromMealPlan, hasOpenAutoItems } =
     useShoppingList()
+  const [confirmClear, setConfirmClear] = useState(false)
   const [askMode,    setAskMode]    = useState(false) // pytanie: zastąpić czy dopisać
   const [shopMode,   setShopMode]   = useState(false)
   const [inputVal,   setInputVal]   = useState('')
@@ -298,6 +299,31 @@ export default function ShoppingPage() {
               </div>
             ))}
           </section>
+        )}
+
+        {/* Usunięcie całej listy — na dnie, z potwierdzeniem w miejscu */}
+        {!loading && items.length > 0 && (
+          confirmClear ? (
+            <div className={`glass ${styles.clearAllBox}`}>
+              <p>Usunąć całą listę ({items.length} {plural(items.length, 'produkt', 'produkty', 'produktów')})? Tego nie da się cofnąć.</p>
+              <div className={styles.askActions}>
+                <button className={`btn-glow ${styles.askBtn}`} onClick={() => setConfirmClear(false)} type="button">
+                  Anuluj
+                </button>
+                <button
+                  className={`${styles.askBtn} ${styles.dangerBtn}`}
+                  onClick={async () => { setConfirmClear(false); setGenResult(null); await clearAll() }}
+                  type="button"
+                >
+                  Usuń wszystko
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button className={styles.clearAllBtn} onClick={() => setConfirmClear(true)} type="button">
+              🗑 Usuń całą listę
+            </button>
+          )
         )}
       </div>
 

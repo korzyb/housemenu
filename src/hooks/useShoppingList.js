@@ -63,6 +63,17 @@ export function useShoppingList() {
     return { error }
   }
 
+  // Usuwa CAŁĄ listę (ręczne i z planu, kupione i niekupione)
+  async function clearAll() {
+    const { error } = await supabase
+      .from('shopping_list')
+      .delete()
+      .not('id', 'is', null)   // PostgREST wymaga filtra przy DELETE
+
+    if (!error) fetchItems()
+    return { error }
+  }
+
   async function clearChecked() {
     const { error } = await supabase
       .from('shopping_list')
@@ -119,6 +130,7 @@ export function useShoppingList() {
     toggleItem,
     removeItem,
     clearChecked,
+    clearAll,
     generateFromMealPlan,
     hasOpenAutoItems,
     refetch: fetchItems,
