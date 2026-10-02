@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
+import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
 import PlanCell from './PlanCell'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
 import { MEAL_TYPES } from '../../lib/meals'
@@ -31,9 +32,8 @@ export default function PlanPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [weekOffset, setWeekOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
-  const [addSheet, setAddSheet]       = useState(null) // { date, mealTypeId }
+  const [addSheet, setAddSheet]       = useState(null) // { date, mealTypeId, prefill }
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, date, mealTypeId }
-  const [inputValue, setInputValue]   = useState('')
   const touchStartX = useRef(null)
 
   const displayWeekStart = new Date(BASE_WEEK_START)
@@ -64,16 +64,12 @@ export default function PlanPage() {
   }
 
   function openAdd(date, mealTypeId, prefill = '') {
-    setInputValue(prefill)
-    setAddSheet({ date, mealTypeId })
+    setAddSheet({ date, mealTypeId, prefill })
   }
 
-  function closeAdd() { setAddSheet(null); setInputValue('') }
-
-  async function handleAddMeal() {
-    if (!inputValue.trim()) return
-    await addMeal({ date: addSheet.date, mealType: addSheet.mealTypeId, customName: inputValue.trim() })
-    closeAdd()
+  async function addToSlot({ recipeId = null, customName = null }) {
+    await addMeal({ date: addSheet.date, mealType: addSheet.mealTypeId, recipeId, customName })
+    setAddSheet(null)
   }
 
   async function handleRemove() {
@@ -164,35 +160,17 @@ export default function PlanPage() {
       </div>
 
       {/* Bottom sheet: dodaj posiłek */}
-      <BottomSheet
-        isOpen={!!addSheet}
-        onClose={closeAdd}
-        title={addMealType ? `${addMealType.emoji}  ${addMealType.label}` : ''}
-      >
-        <div className={styles.addForm}>
-          <input
-            className="glass-input"
-            placeholder="Nazwa posiłku, np. Kanapki…"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAddMeal()}
-            autoFocus
-          />
-          <button
-            className="btn-primary"
-            onClick={handleAddMeal}
-            disabled={!inputValue.trim()}
-          >
-            Dodaj
-          </button>
-          <button
-            className={styles.recipesLink}
-            onClick={() => { closeAdd(); navigate('/recipes') }}
-          >
-            Wybierz z przepisów →
-          </button>
-        </div>
-      </BottomSheet>
+      {addSheet && (
+        <AddMealSheet
+          title={`${addMealType?.emoji ?? ''} ${addMealType?.label ?? ''} · ${
+            new Date(`${addSheet.date}T00:00:00`).toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short' })
+          }`}
+          initialValue={addSheet.prefill}
+          onClose={() => setAddSheet(null)}
+          onPickRecipe={recipe => addToSlot({ recipeId: recipe.id })}
+          onAddCustom={name => addToSlot({ customName: name })}
+        />
+      )}
 
       {/* Bottom sheet: opcje */}
       <BottomSheet isOpen={!!optionsSheet} onClose={() => setOptionsSheet(null)}>
@@ -204,9 +182,9 @@ export default function PlanPage() {
             }}>Otwórz przepis</button>
           )}
           <button className={styles.optionItem} onClick={() => {
-            const { meal, date, mealTypeId } = optionsSheet
+            const { date, mealTypeId } = optionsSheet
             setOptionsSheet(null)
-            openAdd(date, mealTypeId, meal.custom_name || meal.recipe?.name || '')
+            openAdd(date, mealTypeId)
           }}>Zmień posiłek</button>
           <button
             className={[styles.optionItem, styles.optionDanger].join(' ')}

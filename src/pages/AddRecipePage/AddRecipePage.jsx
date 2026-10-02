@@ -1,29 +1,69 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useRecipes } from '../../hooks/useRecipes'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useRecipes, useRecipe } from '../../hooks/useRecipes'
 import { invokeAi } from '../../lib/ai'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
 const EMPTY_STEP       = { text: '' }
 
-export default function AddRecipePage() {
-  const navigate = useNavigate()
-  const { addRecipe } = useRecipes()
-  const [saving, setSaving] = useState(false)
+const EMPTY_FORM = {
+  name: '',
+  description: '',
+  photo_url: '',
+  prep_time: '',
+  servings: 4,
+  difficulty: 'easy',
+  temperature: 'hot',
+  tags: [],
+  notes: '',
+  source_type: 'manual',
+  source_url: null,
+  ingredients: [{ ...EMPTY_INGREDIENT }],
+  steps: [{ ...EMPTY_STEP }],
+}
 
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    prep_time: '',
-    servings: 4,
-    difficulty: 'easy',
-    temperature: 'hot',
-    tags: [],
-    notes: '',
-    ingredients: [{ ...EMPTY_INGREDIENT }],
-    steps: [{ ...EMPTY_STEP }],
-  })
+// Przepis z bazy → stan formularza
+function recipeToForm(r) {
+  return {
+    ...EMPTY_FORM,
+    name:        r.name ?? '',
+    description: r.description ?? '',
+    photo_url:   r.photo_url ?? '',
+    prep_time:   r.prep_time ? String(r.prep_time) : '',
+    servings:    r.servings ?? 4,
+    difficulty:  r.difficulty ?? 'easy',
+    temperature: r.temperature ?? 'hot',
+    tags:        r.tags ?? [],
+    notes:       r.notes ?? '',
+    source_type: r.source_type ?? 'manual',
+    source_url:  r.source_url ?? null,
+    ingredients: r.ingredients?.length
+      ? r.ingredients.map(i => ({ amount: i.amount ?? '', unit: i.unit ?? '', name: i.name ?? '' }))
+      : [{ ...EMPTY_INGREDIENT }],
+    steps: r.steps?.length ? r.steps.map(s => ({ text: s.text ?? '' })) : [{ ...EMPTY_STEP }],
+  }
+}
+
+// /recipes/new — nowy przepis; /recipes/:id/edit — edycja istniejącego
+export default function AddRecipePage() {
+  const { id } = useParams()
+  const { recipe, loading } = useRecipe(id)
+
+  if (!id) return <RecipeForm />
+  if (loading) return <p className={styles.loadingText}>Wczytywanie…</p>
+  if (!recipe) return <p className={styles.loadingText}>Nie znaleziono przepisu</p>
+  return <RecipeForm recipe={recipe} />
+}
+
+function RecipeForm({ recipe }) {
+  const navigate = useNavigate()
+  const { addRecipe, updateRecipe } = useRecipes()
+  const isEdit = !!recipe
+  const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState(null)
+
+  const [form, setForm] = useState(() => recipe ? recipeToForm(recipe) : EMPTY_FORM)
   const [tagInput,   setTagInput]   = useState('')
   const [importUrl,  setImportUrl]  = useState('')
   const [importing,  setImporting]  = useState(false)
@@ -65,6 +105,9 @@ export default function AddRecipePage() {
     setForm(f => ({
       ...f,
       name:        data.name        ?? f.name,
+      photo_url:   data.photo_url   ?? f.photo_url,
+      source_type: 'url',
+      source_url:  importUrl.trim(),
       description: data.description ?? f.description,
       prep_time:   data.prep_time   ? String(data.prep_time) : f.prep_time,
       servings:    data.servings    ?? f.servings,
@@ -92,32 +135,37 @@ export default function AddRecipePage() {
   async function handleSave() {
     if (!form.name.trim()) return
     setSaving(true)
-    const { data, error } = await addRecipe({
+    setSaveErr(null)
+    const payload = {
       name:        form.name.trim(),
       description: form.description.trim() || null,
+      photo_url:   form.photo_url.trim() || null,
       prep_time:   form.prep_time ? parseInt(form.prep_time) : null,
       servings:    form.servings || 4,
       difficulty:  form.difficulty,
       temperature: form.temperature,
       tags:        form.tags,
       notes:       form.notes.trim() || null,
-      source_type: 'manual',
+      source_type: form.source_type,
+      source_url:  form.source_url,
       ingredients: form.ingredients.filter(i => i.name.trim()).map(i => ({
         amount: i.amount, unit: i.unit, name: i.name.trim(),
       })),
       steps: form.steps.filter(s => s.text.trim()).map((s, i) => ({
         order: i + 1, text: s.text.trim(),
       })),
-    })
+    }
+    const { data, error } = isEdit ? await updateRecipe(recipe.id, payload) : await addRecipe(payload)
     setSaving(false)
-    if (!error) navigate(data?.id ? `/recipes/${data.id}` : '/recipes')
+    if (error) { setSaveErr('Nie udało się zapisać przepisu. Spróbuj ponownie.'); return }
+    navigate(`/recipes/${data?.id ?? recipe?.id}`, { replace: true })
   }
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={() => navigate(-1)}>←</button>
-        <h1 className={styles.title}>Nowy przepis</h1>
+        <h1 className={styles.title}>{isEdit ? 'Edytuj przepis' : 'Nowy przepis'}</h1>
         <button
           className={styles.saveBtn}
           onClick={handleSave}
@@ -127,8 +175,10 @@ export default function AddRecipePage() {
 
       <div className={styles.form}>
 
-        {/* Import z URL */}
-        <div className={styles.importSection}>
+        {saveErr && <p className={styles.importErr}>{saveErr}</p>}
+
+        {/* Import z URL (tylko przy nowym przepisie) */}
+        {!isEdit && <div className={styles.importSection}>
           <div className={styles.importRow}>
             <input
               className={styles.importInput}
@@ -146,7 +196,7 @@ export default function AddRecipePage() {
             >{importing ? '…' : '✨ Importuj'}</button>
           </div>
           {importErr && <p className={styles.importErr}>{importErr}</p>}
-        </div>
+        </div>}
 
         {/* Nazwa */}
         <input
@@ -154,8 +204,24 @@ export default function AddRecipePage() {
           placeholder="Nazwa przepisu *"
           value={form.name}
           onChange={e => set('name', e.target.value)}
-          autoFocus
+          autoFocus={!isEdit}
         />
+
+        {/* Zdjęcie (link) — wgrywanie plików w kolejnej sesji */}
+        <div className={styles.photoRow}>
+          <span className={styles.photoPreview}>
+            {form.photo_url.trim()
+              ? <img src={form.photo_url.trim()} alt="" onError={e => { e.currentTarget.style.display = 'none' }} />
+              : '📷'}
+          </span>
+          <input
+            className={styles.photoInput}
+            type="url"
+            placeholder="Link do zdjęcia (opcjonalnie)"
+            value={form.photo_url}
+            onChange={e => set('photo_url', e.target.value)}
+          />
+        </div>
 
         {/* Opis */}
         <textarea

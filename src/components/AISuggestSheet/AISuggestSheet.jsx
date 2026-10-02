@@ -20,7 +20,7 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
     setSuggestions([])
 
     const [{ data: recipesData }, { data: membersData }] = await Promise.all([
-      supabase.from('recipes').select('name').order('name').limit(30),
+      supabase.from('recipes').select('id, name').order('name').limit(30),
       supabase.from('household_members').select('name, ai_profile_card').eq('is_active', true),
     ])
 
@@ -30,13 +30,18 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
       .filter(m => m.brief)
 
     const { data, error: aiError } = await invokeAi('suggest-meal', {
-      mealType, recipes: recipesData || [], plannedToday, household,
+      mealType, recipes: (recipesData || []).map(r => ({ name: r.name })), plannedToday, household,
     })
 
     if (aiError) {
       setError(aiError)
     } else {
-      setSuggestions(data?.suggestions ?? [])
+      // Propozycje z bazy dostają id przepisu (dopasowanie po nazwie)
+      const byName = new Map((recipesData || []).map(r => [r.name.trim().toLowerCase(), r.id]))
+      setSuggestions((data?.suggestions ?? []).map(s => ({
+        ...s,
+        recipeId: s.from_db ? byName.get(String(s.name).trim().toLowerCase()) ?? null : null,
+      })))
     }
     setLoading(false)
   }
@@ -63,7 +68,7 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
           <button
             key={i}
             className={`glass glow ${styles.card}`}
-            onClick={() => onSelect(s.name)}
+            onClick={() => onSelect({ name: s.name, recipeId: s.recipeId })}
             type="button"
           >
             <span className={styles.cardEmoji}>{s.emoji}</span>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import AISuggestSheet from '../../components/AISuggestSheet/AISuggestSheet'
+import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
 import MealTile from './MealTile'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import { MEAL_TYPES } from '../../lib/meals'
@@ -15,10 +16,9 @@ export default function TodayPage() {
   const navigate = useNavigate()
   const { meals, loading, addMeal, removeMeal } = useMealPlan(weekStart)
 
-  const [addSheet,     setAddSheet]     = useState(null) // { mealTypeId } | null
+  const [addSheet,     setAddSheet]     = useState(null) // { mealTypeId, prefill } | null
   const [optionsSheet, setOptionsSheet] = useState(null) // { meal, mealType } | null
   const [suggestSheet, setSuggestSheet] = useState(null) // { mealTypeId } | null
-  const [inputValue,   setInputValue]   = useState('')
 
   const mealMap = Object.fromEntries(
     meals.filter(m => m.date === todayStr).map(m => [m.meal_type, m])
@@ -29,19 +29,12 @@ export default function TodayPage() {
   })
 
   function openAdd(mealTypeId, prefill = '') {
-    setInputValue(prefill)
-    setAddSheet({ mealTypeId })
+    setAddSheet({ mealTypeId, prefill })
   }
 
-  function closeAdd() {
+  async function addToSlot(mealTypeId, { recipeId = null, customName = null }) {
+    await addMeal({ date: todayStr, mealType: mealTypeId, recipeId, customName })
     setAddSheet(null)
-    setInputValue('')
-  }
-
-  async function handleAddMeal() {
-    if (!inputValue.trim()) return
-    await addMeal({ date: todayStr, mealType: addSheet.mealTypeId, customName: inputValue.trim() })
-    closeAdd()
   }
 
   async function handleRemoveMeal() {
@@ -91,35 +84,15 @@ export default function TodayPage() {
       )}
 
       {/* Bottom sheet: dodaj posiłek */}
-      <BottomSheet
-        isOpen={!!addSheet}
-        onClose={closeAdd}
-        title={`Dodaj — ${addSheetMealType?.label ?? ''}`}
-      >
-        <div className={styles.addForm}>
-          <input
-            className="glass-input"
-            placeholder="Nazwa posiłku, np. Kanapki…"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAddMeal()}
-            autoFocus
-          />
-          <button
-            className="btn-primary"
-            onClick={handleAddMeal}
-            disabled={!inputValue.trim()}
-          >
-            Dodaj
-          </button>
-          <button
-            className={styles.recipesLink}
-            onClick={() => { closeAdd(); navigate('/recipes') }}
-          >
-            Wybierz z przepisów →
-          </button>
-        </div>
-      </BottomSheet>
+      {addSheet && (
+        <AddMealSheet
+          title={`${addSheetMealType?.emoji ?? ''} ${addSheetMealType?.label ?? ''}`}
+          initialValue={addSheet.prefill}
+          onClose={() => setAddSheet(null)}
+          onPickRecipe={recipe => addToSlot(addSheet.mealTypeId, { recipeId: recipe.id })}
+          onAddCustom={name => addToSlot(addSheet.mealTypeId, { customName: name })}
+        />
+      )}
 
       {/* Bottom sheet: sugestie AI */}
       {suggestSheet && (
@@ -129,8 +102,14 @@ export default function TodayPage() {
           mealType={suggestSheet.mealTypeId}
           mealTypeLabel={MEAL_TYPES.find(t => t.id === suggestSheet.mealTypeId)?.label ?? ''}
           plannedToday={meals.filter(m => m.date === todayStr).map(m => m.recipe?.name || m.custom_name).filter(Boolean)}
-          onSelect={async (name) => {
-            await addMeal({ date: todayStr, mealType: suggestSheet.mealTypeId, customName: name })
+          onSelect={async ({ name, recipeId }) => {
+            // Propozycja z bazy → przypisz przepis (zdjęcie, link do przepisu); inaczej sama nazwa
+            await addMeal({
+              date: todayStr,
+              mealType: suggestSheet.mealTypeId,
+              recipeId: recipeId ?? null,
+              customName: recipeId ? null : name,
+            })
             setSuggestSheet(null)
           }}
         />
@@ -148,9 +127,9 @@ export default function TodayPage() {
             </button>
           )}
           <button className={styles.optionItem} onClick={() => {
-            const { meal, mealType } = optionsSheet
+            const { mealType } = optionsSheet
             setOptionsSheet(null)
-            openAdd(mealType.id, meal.custom_name || meal.recipe?.name || '')
+            openAdd(mealType.id)
           }}>
             Zmień posiłek
           </button>

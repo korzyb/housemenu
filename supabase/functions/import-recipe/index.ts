@@ -21,6 +21,17 @@ Deno.serve(async (req) => {
 
     const html = await pageRes.text()
 
+    // Zdjęcie przepisu z <meta property="og:image"> (atrybuty w dowolnej kolejności)
+    const ogRaw =
+      html.match(/<meta[^>]+property=["']og:image(?::url)?["'][^>]*content=["']([^"']+)["']/i)?.[1] ??
+      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]*property=["']og:image(?::url)?["']/i)?.[1]
+    let photoUrl: string | null = null
+    try {
+      if (ogRaw) photoUrl = new URL(ogRaw.replace(/&amp;/g, '&'), url).href
+    } catch {
+      photoUrl = null
+    }
+
     // Wyciągnij tekst (usuń skrypty, style, tagi HTML)
     const text = html
       .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -51,6 +62,7 @@ ${text}`
 
     const raw = await callGemini({ prompt, temperature: 0.2, maxOutputTokens: 4096, json: true })
     const recipe = JSON.parse(raw)
+    if (!recipe.error && photoUrl) recipe.photo_url = photoUrl
 
     return jsonResponse(recipe)
   } catch (err) {

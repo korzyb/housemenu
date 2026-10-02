@@ -68,11 +68,40 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-.deleteBtn {
+.heroActions {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 2;
+  display: flex;
+  gap: 10px;
+}
+
+.editBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: hsla(238, 40%, 11%, 0.70);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.editBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sourceLink {
+  color: var(--color-accent-light);
+  text-decoration: underline;
+}
+
+.deleteBtn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -309,9 +338,12 @@
 /* ─── Footer ────────────────────────────────────────────── */
 
 .footerMeta {
-  margin-top: 24px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.28);
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-text-muted);
   text-align: center;
 }
 

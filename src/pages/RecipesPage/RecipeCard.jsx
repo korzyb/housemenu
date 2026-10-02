@@ -19,6 +19,11 @@ export default function RecipeCard({ recipe }) {
           {recipe.servings  && <span>👤 {recipe.servings}</span>}
           {recipe.difficulty && <span>{recipe.difficulty === 'easy' ? '⭐ Łatwy' : recipe.difficulty === 'medium' ? '⭐⭐ Średni' : '⭐⭐⭐ Trudny'}</span>}
         </div>
+        <span className={styles.lastPlanned}>
+          {recipe.last_planned_at
+            ? `📅 ostatnio w planie: ${new Date(`${recipe.last_planned_at.slice(0, 10)}T00:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }).replace('.', '')}`
+            : '📅 jeszcze nie planowany'}
+        </span>
         {recipe.tags?.length > 0 && (
           <div className={styles.tags}>
             {recipe.tags.slice(0, 3).map(tag => (

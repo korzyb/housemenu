@@ -79,7 +79,12 @@ export default function RecipeDetailPage() {
         }
         <div className={styles.heroGradient} />
         <button className={styles.backBtn} onClick={() => navigate(-1)}>←</button>
-        <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Usuń przepis">🗑</button>
+        <div className={styles.heroActions}>
+          <button className={styles.editBtn} onClick={() => navigate(`/recipes/${id}/edit`)} aria-label="Edytuj przepis">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
+          </button>
+          <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Usuń przepis">🗑</button>
+        </div>
       </div>
 
       {/* Content */}
@@ -165,11 +170,21 @@ export default function RecipeDetailPage() {
           </section>
         )}
 
-        {recipe.created_at && (
-          <p className={styles.footerMeta}>
-            Dodano {new Date(recipe.created_at).toLocaleDateString('pl-PL')}
+        <div className={styles.footerMeta}>
+          {recipe.created_at && <p>Dodano {new Date(recipe.created_at).toLocaleDateString('pl-PL')}</p>}
+          <p>
+            {recipe.last_planned_at
+              ? `Ostatnio w planie: ${new Date(`${recipe.last_planned_at.slice(0, 10)}T00:00:00`).toLocaleDateString('pl-PL')}`
+              : 'Jeszcze nie był w planie'}
           </p>
-        )}
+          {recipe.source_url && (
+            <p>
+              🌐 <a href={recipe.source_url} target="_blank" rel="noreferrer" className={styles.sourceLink}>
+                {(() => { try { return new URL(recipe.source_url).hostname.replace(/^www\./, '') } catch { return 'źródło' } })()}
+              </a>
+            </p>
+          )}
+        </div>
 
         <div className={styles.spacer} />
       </div>

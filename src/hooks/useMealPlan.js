@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { toDateString } from '../lib/dates'
 
+// recipes.last_planned_at — tylko przesunięcie do przodu (planowanie wstecz nie cofa daty)
+function markPlanned(recipeId, dateStr) {
+  return supabase
+    .from('recipes')
+    .update({ last_planned_at: dateStr })
+    .eq('id', recipeId)
+    .or(`last_planned_at.is.null,last_planned_at.lt.${dateStr}`)
+}
+
 export function useMealPlan(weekStart) {
   const weekStartStr = toDateString(weekStart)
 
@@ -44,7 +53,10 @@ export function useMealPlan(weekStart) {
       .select('*, recipe:recipes(*)')
       .single()
 
-    if (!error) fetchMeals()
+    if (!error) {
+      if (recipeId) await markPlanned(recipeId, toDateString(date))
+      fetchMeals()
+    }
     return { data, error }
   }
 
@@ -70,9 +82,7 @@ export function useMealPlan(weekStart) {
       const d = toDateString(r.date)
       if (!lastByRecipe[r.recipeId] || d > lastByRecipe[r.recipeId]) lastByRecipe[r.recipeId] = d
     }
-    await Promise.all(Object.entries(lastByRecipe).map(([id, d]) =>
-      supabase.from('recipes').update({ last_planned_at: d }).eq('id', id)
-    ))
+    await Promise.all(Object.entries(lastByRecipe).map(([id, d]) => markPlanned(id, d)))
 
     fetchMeals()
     return { error: null }
