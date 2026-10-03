@@ -60,6 +60,7 @@ function decodeEntities(s: string): string {
     .replace(/&#0?39;|&apos;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    .replace(/&frac12;/g, '½').replace(/&frac14;/g, '¼').replace(/&frac34;/g, '¾')
     .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
     .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
 }
@@ -190,6 +191,63 @@ function normalizeSteps(list: Json): Step[] {
     .map((t: string, i: number) => ({ order: i + 1, text: String(t).trim() }))
 }
 
+// ─── Cookidoo / Thermomix ─────────────────────────────────────────────
+
+const DIFFICULTY: Record<string, string> = { 'łatwy': 'easy', 'średni': 'medium', 'trudny': 'hard' }
+
+async function importThermomix(schema: Json, html: string, url: string) {
+  const rawIngredients: string[] = (schema.recipeIngredient ?? []).map(clean).filter(Boolean)
+  const pageTextPlain = clean(html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' '))
+  const difficultyPl = pageTextPlain.match(/Poziom trudności\s+(łatwy|średni|trudny)/i)?.[1]?.toLowerCase()
+  const devices = [...new Set(pageTextPlain.match(/\bTM[5-7]\b/g) ?? [])].sort()
+  const categories = [].concat(schema.recipeCategory ?? []).map(c => clean(c).split(' - ')[0]).filter(Boolean)
+
+  const base = {
+    name: clean(schema.name),
+    description: clean(schema.description) || null,
+    prep_time: isoMinutes(schema.totalTime) ?? isoMinutes(schema.prepTime),
+    servings: toServings(schema.recipeYield),
+    difficulty: difficultyPl ? DIFFICULTY[difficultyPl] : null,
+    temperature: null as string | null,
+    tags: [...new Set(['thermomix', ...categories.map(c => c.toLowerCase())])].slice(0, 6),
+    photo_url: firstImage(schema.image),
+    notes: `Przepis Thermomix — gotuj według przepisu w urządzeniu / Cookidoo.${devices.length ? ` Urządzenia: ${devices.join(', ')}.` : ''}${clean(schema.recipeYield) ? ` Wydajność: ${clean(schema.recipeYield)}.` : ''}`,
+    steps: [] as Step[],
+    import_source: 'thermomix',
+    steps_mode: 'thermomix',
+  }
+
+  // AI tylko porządkuje składniki (mianownik, ilość/jednostka) + ocenia ciepło/zimno; przy błędzie — parser lokalny
+  try {
+    const raw = await callGemini({
+      prompt: `Uporządkuj listę składników przepisu Thermomix "${base.name}".
+
+${INGREDIENT_RULES}
+
+Oceń też, czy danie podaje się na ciepło czy zimno.
+
+Zwróć WYŁĄCZNIE JSON:
+{"ingredients": [{"amount": "string|null", "unit": "string|null", "name": "string"}], "temperature": "hot|cold|null"}
+
+SKŁADNIKI:
+${rawIngredients.map(i => `- ${i}`).join('\n')}`,
+      temperature: 0.1,
+      maxOutputTokens: 4096,
+      json: true,
+    })
+    const ai = JSON.parse(raw)
+    const ingredients = normalizeIngredients(ai.ingredients)
+    return {
+      ...base,
+      temperature: ai.temperature ?? null,
+      ingredients: ingredients.length ? ingredients : rawIngredients.map(parseIngredientLine),
+    }
+  } catch (err) {
+    console.warn('import-recipe (thermomix): AI niedostępne, składniki z parsera lokalnego:', (err as Error).message)
+    return { ...base, ingredients: rawIngredients.map(parseIngredientLine) }
+  }
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -222,6 +280,12 @@ Deno.serve(async (req) => {
     }
 
     const schema = findSchemaRecipe(html)
+
+    // ── Tryb 0: Cookidoo (Thermomix) — kroki są tylko po zalogowaniu, gotowaniem steruje urządzenie.
+    //    Bierzemy to, co publiczne: nazwa, zdjęcie, składniki, czasy, porcje, trudność; zamiast kroków — znacznik Thermomix.
+    if (schema && /(^|\.)cookidoo\./i.test(new URL(url).hostname)) {
+      return jsonResponse(await importThermomix(schema, html, url))
+    }
 
     // ── Tryb 1: schema.org/Recipe ──
     if (schema) {

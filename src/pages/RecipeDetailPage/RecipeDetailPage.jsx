@@ -6,6 +6,7 @@ import { MEAL_TYPES } from '../../lib/meals'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import Toast from '../../components/Toast/Toast'
+import { isThermomix } from '../../lib/recipes'
 import { useAddToShopping } from '../../hooks/useAddToShopping'
 import styles from './RecipeDetailPage.module.css'
 
@@ -68,6 +69,7 @@ export default function RecipeDetailPage() {
   if (loading) return <div className={styles.loading}>…</div>
   if (!recipe)  return <div className={styles.loading}>Nie znaleziono przepisu</div>
 
+  const thermomix = isThermomix(recipe)
   const currentServings = servings ?? recipe.servings ?? 4
   const scale = recipe.servings ? currentServings / recipe.servings : 1
 
@@ -97,6 +99,7 @@ export default function RecipeDetailPage() {
 
         {/* Meta chips */}
         <div className={styles.metaRow}>
+          {thermomix && <span className={`${styles.chip} ${styles.tmChip}`}>🟢 Thermomix</span>}
           {recipe.prep_time   && <span className={styles.chip}>⏱ {recipe.prep_time} min</span>}
           {recipe.difficulty  && <span className={styles.chip}>{DIFF_LABELS[recipe.difficulty]}</span>}
           {recipe.temperature && <span className={styles.chip}>{TEMP_LABELS[recipe.temperature]}</span>}
@@ -154,6 +157,20 @@ export default function RecipeDetailPage() {
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {/* Thermomix: gotowaniem steruje urządzenie — zamiast kroków link do Cookidoo */}
+        {thermomix && (
+          <section className={`glass glow ${styles.tmCard}`}>
+            <span className={styles.tmIcon}>🟢</span>
+            <div>
+              <p className={styles.tmTitle}>Gotujesz w Thermomix</p>
+              <p className={styles.tmText}>Przepis prowadzi urządzenie krok po kroku. W aplikacji masz składniki do planu i listy zakupów.</p>
+              {recipe.source_url && (
+                <a href={recipe.source_url} target="_blank" rel="noreferrer" className={styles.tmLink}>Otwórz w Cookidoo →</a>
+              )}
+            </div>
           </section>
         )}
 

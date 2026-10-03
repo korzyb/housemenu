@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { isThermomix, THERMOMIX_TAG } from '../../lib/recipes'
 import styles from './RecipeCard.module.css'
 
 export default function RecipeCard({ recipe }) {
   const navigate = useNavigate()
+  const thermomix = isThermomix(recipe)
+  const otherTags = (recipe.tags || []).filter(t => t.toLowerCase() !== THERMOMIX_TAG)
 
   return (
     <div className={`glass glow ${styles.card}`} onClick={() => navigate(`/recipes/${recipe.id}`)}>
@@ -24,9 +27,10 @@ export default function RecipeCard({ recipe }) {
             ? `📅 ostatnio w planie: ${new Date(`${recipe.last_planned_at.slice(0, 10)}T00:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }).replace('.', '')}`
             : '📅 jeszcze nie planowany'}
         </span>
-        {recipe.tags?.length > 0 && (
+        {(thermomix || otherTags.length > 0) && (
           <div className={styles.tags}>
-            {recipe.tags.slice(0, 3).map(tag => (
+            {thermomix && <span className={`${styles.tag} ${styles.tmTag}`}>🟢 Thermomix</span>}
+            {otherTags.slice(0, thermomix ? 2 : 3).map(tag => (
               <span key={tag} className={styles.tag}>{tag}</span>
             ))}
           </div>

@@ -488,3 +488,10 @@
   line-height: 1.45;
   color: hsl(142, 60%, 72%);
 }
+
+.optionalNote {
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}

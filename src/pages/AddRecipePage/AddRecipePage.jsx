@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useRecipes, useRecipe } from '../../hooks/useRecipes'
 import { invokeAi } from '../../lib/ai'
+import { THERMOMIX_TAG } from '../../lib/recipes'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -64,6 +65,7 @@ function RecipeForm({ recipe }) {
   const [saveErr, setSaveErr] = useState(null)
 
   const [form, setForm] = useState(() => recipe ? recipeToForm(recipe) : EMPTY_FORM)
+  const isTm = form.tags.some(t => t.toLowerCase() === THERMOMIX_TAG)
   const [tagInput,   setTagInput]   = useState('')
   const [importUrl,  setImportUrl]  = useState('')
   const [importing,  setImporting]  = useState(false)
@@ -126,7 +128,9 @@ function RecipeForm({ recipe }) {
     }))
     setImportUrl('')
     setImportInfo(
-      data.import_source === 'schema'
+      data.import_source === 'thermomix'
+        ? '✓ Przepis Thermomix z Cookidoo: nazwa, zdjęcie, składniki, czas, porcje i trudność. Kroki prowadzi urządzenie — w aplikacji ich nie potrzebujesz.'
+        : data.import_source === 'schema'
         ? (data.steps_mode === 'atomic'
             ? '✓ Pobrano z danych strukturalnych strony (schema.org), kroki rozbite przez AI na pojedyncze czynności.'
             : '✓ Pobrano z danych strukturalnych strony (schema.org). AI chwilowo niedostępne — kroki jak na stronie.')
@@ -290,6 +294,19 @@ function RecipeForm({ recipe }) {
           </div>
         </div>
 
+        {/* Thermomix — przepis prowadzi urządzenie; kroki w aplikacji opcjonalne */}
+        <div className={styles.chipGroup}>
+          <span className={styles.chipLabel}>Gotowanie</span>
+          <div className={styles.chips}>
+            <button type="button"
+              className={[styles.chip, isTm ? styles.chipActive : ''].join(' ')}
+              onClick={() => set('tags', isTm
+                ? form.tags.filter(t => t.toLowerCase() !== THERMOMIX_TAG)
+                : [THERMOMIX_TAG, ...form.tags])}
+            >🟢 Przepis Thermomix</button>
+          </div>
+        </div>
+
         {/* Tagi */}
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Tagi</h2>
@@ -336,7 +353,7 @@ function RecipeForm({ recipe }) {
 
         {/* Kroki */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Przygotowanie</h2>
+          <h2 className={styles.sectionTitle}>Przygotowanie{isTm && <span className={styles.optionalNote}> — opcjonalne (prowadzi Thermomix)</span>}</h2>
           {form.steps.map((step, i) => (
             <div key={i} className={styles.stepRow}>
               <span className={styles.stepNum}>{i + 1}</span>
