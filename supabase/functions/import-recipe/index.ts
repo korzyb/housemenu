@@ -1,5 +1,5 @@
 // Import przepisu z URL.
-// 1) schema.org/Recipe (JSON-LD) — gdy strona go ma: dokładne składniki i kroki, metadane bez zgadywania.
+// 1) schema.org/Recipe (JSON-LD albo mikrodane itemprop) — gdy strona go ma: dokładne składniki i kroki, metadane bez zgadywania.
 //    AI tylko porządkuje składniki i rozbija kroki na atomowe; gdy AI niedostępne → dane ze strony bez zmian.
 // 2) Brak schema.org → oczyszczony tekst strony → AI wyciąga cały przepis (też z atomowymi krokami).
 // Kroki „atomowe” (styl Thermomix): jedna czynność / jeden dodawany składnik na krok.
@@ -86,8 +86,11 @@ function firstImage(img: Json): string | null {
 
 // recipeYield: 4 | "4" | "Makes 8" | ["4", "4 porcje"] → pierwsza liczba
 function toServings(y: Json): number | null {
-  const v = Array.isArray(y) ? y.join(' ') : y
-  const n = parseInt(String(v ?? '').match(/\d+/)?.[0] ?? '', 10)
+  const v = String((Array.isArray(y) ? y.join(' ') : y) ?? '')
+  // „około 60 pierogów”, „420 gramów pasty”, „2600 ml zupy” — to wydajność, nie porcje
+  if (!/porcj|osob|osób|serving|people|person/i.test(v) &&
+      /\d\s*(g|kg|ml|l|gram|litr|szt|sztuk|pierog|ciast|kawał|bułek|plack|naleśnik)/i.test(v)) return null
+  const n = parseInt(v.match(/\d+/)?.[0] ?? '', 10)
   return Number.isFinite(n) && n > 0 && n < 100 ? n : null
 }
 
@@ -141,6 +144,125 @@ function findSchemaRecipe(html: string): Json | null {
     }
   }
   return null
+}
+
+// ─── schema.org/Recipe w mikrodanych (itemscope/itemprop w HTML) ──────
+// Np. aniagotuje.pl, foodandmore.pl. Zwraca obiekt w kształcie JSON-LD, żeby dalej obsłużyć go tak samo.
+
+const VOID_TAGS = new Set(['meta', 'link', 'img', 'br', 'hr', 'input', 'source'])
+
+function attr(tag: string, name: string): string | null {
+  const m = tag.match(new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'))
+  return m ? (m[1] ?? m[2] ?? m[3] ?? '') : null
+}
+
+// Koniec elementu zaczynającego się na `start` (indeks za zamykającym tagiem) + zakres wnętrza
+function elementRange(html: string, start: number): { innerStart: number; innerEnd: number; end: number } {
+  const open = html.slice(start).match(/^<([a-z][a-z0-9-]*)\b[^>]*>/i)
+  if (!open) return { innerStart: start, innerEnd: start, end: start + 1 }
+  const tag = open[1].toLowerCase()
+  const innerStart = start + open[0].length
+  if (VOID_TAGS.has(tag) || open[0].endsWith('/>')) return { innerStart, innerEnd: innerStart, end: innerStart }
+  const re = new RegExp(`<(/?)${tag}\\b[^>]*>`, 'gi')
+  re.lastIndex = innerStart
+  let depth = 1
+  for (let m; (m = re.exec(html));) {
+    if (m[1]) depth--
+    else if (!m[0].endsWith('/>')) depth++
+    if (depth === 0) return { innerStart, innerEnd: m.index, end: m.index + m[0].length }
+  }
+  return { innerStart, innerEnd: html.length, end: html.length }
+}
+
+// Wartość itemprop: meta → content, link → href, img → src, time → datetime, inne → atrybut content albo treść elementu
+function propValue(html: string, tag: string, start: number): string {
+  const name = tag.match(/^<([a-z0-9-]+)/i)?.[1].toLowerCase()
+  const fromAttr =
+    name === 'meta' ? attr(tag, 'content') :
+    name === 'link' ? attr(tag, 'href') :
+    name === 'img' || name === 'source' ? attr(tag, 'src') :
+    name === 'time' ? attr(tag, 'datetime') :
+    attr(tag, 'content')
+  if (fromAttr != null) return decodeEntities(fromAttr)
+  const r = elementRange(html, start)
+  return html.slice(r.innerStart, r.innerEnd)
+}
+
+function findMicrodataRecipe(html: string): Json | null {
+  const root = html.match(/<[a-z][a-z0-9-]*\b[^>]*itemtype\s*=\s*["']?https?:\/\/schema\.org\/Recipe["'\s>][^>]*>/i)
+  if (!root || root.index == null) return null
+  const range = elementRange(html, root.index)
+  let scope = html.slice(range.innerStart, range.innerEnd)
+
+  const props: Record<string, string[]> = {}
+  const add = (names: string, value: string) => {
+    for (const n of names.split(/\s+/).filter(Boolean)) (props[n] ??= []).push(value)
+  }
+
+  // Zagnieżdżone itemscope (autor, ocena, wartości odżywcze, okruszki…) — ich własne właściwości nie należą do przepisu.
+  // Gdy sam element ma itemprop (np. HowToStep jako recipeInstructions) — bierzemy jego treść jako wartość.
+  for (;;) {
+    const nested = scope.match(/<[a-z][a-z0-9-]*\b[^>]*\sitemscope\b[^>]*>/i)
+    if (!nested || nested.index == null) break
+    const r = elementRange(scope, nested.index)
+    const prop = attr(nested[0], 'itemprop')
+    if (prop) {
+      const inner = scope.slice(r.innerStart, r.innerEnd)
+      const textTag = inner.match(/<[a-z][a-z0-9-]*\b[^>]*\sitemprop\s*=\s*["']?text\b[^>]*>/i)
+      add(prop, textTag ? propValue(inner, textTag[0], textTag.index!) : inner)
+    }
+    scope = scope.slice(0, nested.index) + scope.slice(r.end)
+  }
+
+  for (const m of scope.matchAll(/<[a-z][a-z0-9-]*\b[^>]*\sitemprop\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)[^>]*>/gi)) {
+    add(attr(m[0], 'itemprop') ?? '', propValue(scope, m[0], m.index!))
+  }
+
+  const one = (k: string) => props[k]?.[0] ?? null
+  const ingredients = (props.recipeIngredient ?? props.ingredients ?? []).map(clean).filter(Boolean)
+  if (!ingredients.length) return null // samo oznaczenie bez składników (np. Kwestia Smaku) — nic nie daje
+
+  return {
+    '@type': 'Recipe',
+    name: clean(one('name')),
+    description: clean(one('description')) || null,
+    image: one('image') ?? null,
+    prepTime: one('prepTime'),
+    cookTime: one('cookTime'),
+    totalTime: one('totalTime'),
+    recipeYield: clean(one('recipeYield')),
+    keywords: one('keywords') ? clean(one('keywords')) : undefined,
+    recipeCategory: props.recipeCategory?.map(clean),
+    recipeCuisine: props.recipeCuisine?.map(clean),
+    recipeIngredient: ingredients,
+    recipeInstructions: props.recipeInstructions ?? [],
+    _microdata: true,
+  }
+}
+
+// Kroki z mikrodanych bywają całą treścią artykułu (wstęp, porady, komentarze).
+// Bez AI: bierzemy akapity po liście składników, do „Smacznego” / oceny.
+function trimArticleSteps(steps: string[], ingredients: string[]): string[] {
+  const ing = new Set(ingredients.map(i => i.toLowerCase()))
+  let from = 0
+  steps.forEach((s, i) => { if (ing.has(s.toLowerCase())) from = i + 1 })
+  const out: string[] = []
+  for (const s of steps.slice(from)) {
+    if (/^(smacznego|średnia \d|oceń|zobacz (też|podobne)|dziękuję za)/i.test(s)) break
+    if (s.length >= 25 && !ing.has(s.toLowerCase()) && !/kopiuj|ukryj zdjęcia/i.test(s)) out.push(s)
+  }
+  return out.slice(0, 30)
+}
+
+// "PT0H20M" albo tekst "1 godz. 20 min" / "30 minut" → minuty
+function toMinutes(v: unknown): number | null {
+  const iso = isoMinutes(v)
+  if (iso) return iso
+  const s = clean(v).toLowerCase()
+  const h = Number(s.match(/(\d+)\s*(h|godz)/)?.[1] ?? 0)
+  const m = Number(s.match(/(\d+)\s*(min|m\b)/)?.[1] ?? 0)
+  if (!h && !m && /^\d+$/.test(s)) return Number(s) || null // samo „30” (foodandmore.pl: <span>30</span> min.)
+  return h * 60 + m || null
 }
 
 // Proste parsowanie "200 g mąki" — tylko awaryjnie, gdy AI niedostępne
@@ -279,7 +401,7 @@ Deno.serve(async (req) => {
       try { return u ? new URL(decodeEntities(u), url).href : null } catch { return null }
     }
 
-    const schema = findSchemaRecipe(html)
+    const schema = findSchemaRecipe(html) ?? findMicrodataRecipe(html)
 
     // ── Tryb 0: Cookidoo (Thermomix) — kroki są tylko po zalogowaniu, gotowaniem steruje urządzenie.
     //    Bierzemy to, co publiczne: nazwa, zdjęcie, składniki, czasy, porcje, trudność; zamiast kroków — znacznik Thermomix.
@@ -290,17 +412,34 @@ Deno.serve(async (req) => {
     // ── Tryb 1: schema.org/Recipe ──
     if (schema) {
       const rawIngredients: string[] = (schema.recipeIngredient ?? schema.ingredients ?? []).map(clean).filter(Boolean)
+      const microdata = Boolean(schema._microdata)
       const rawSteps = instructionTexts(schema.recipeInstructions)
+      // Mikrodane: kroki bywają całym artykułem (aniagotuje.pl) albo ich brak (foodandmore.pl) —
+      // wtedy AI wybiera czynności z tekstu, a składniki i tak są dokładne ze strony.
+      const instrHtml = [].concat(schema.recipeInstructions ?? []).join('\n')
+      const stepsSource: 'steps' | 'article' | 'page' = !microdata ? 'steps'
+        : !rawSteps.length ? 'page'
+        : instrHtml.length > 1500 && [].concat(schema.recipeInstructions).length === 1 ? 'article'
+        : 'steps'
+      const stepsText = stepsSource === 'steps'
+        ? rawSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
+        : (stepsSource === 'article' ? pageText(instrHtml) : pageText(html)).slice(0, 15000)
       const base = {
         name: clean(schema.name),
         description: clean(schema.description) || null,
-        prep_time: isoMinutes(schema.totalTime) ??
-          (((isoMinutes(schema.prepTime) ?? 0) + (isoMinutes(schema.cookTime) ?? 0)) || null),
+        prep_time: toMinutes(schema.totalTime) ??
+          (((toMinutes(schema.prepTime) ?? 0) + (toMinutes(schema.cookTime) ?? 0)) || null),
         servings: toServings(schema.recipeYield),
         tags: toTags(schema),
-        photo_url: absolute(firstImage(schema.image)) ?? absolute(ogRaw ?? null),
-        import_source: 'schema',
+        // mikrodane często wskazują miniaturę (np. 150x150) — og:image jest zwykle pełnym zdjęciem
+        photo_url: microdata
+          ? absolute(ogRaw ?? null) ?? absolute(firstImage(schema.image))
+          : absolute(firstImage(schema.image)) ?? absolute(ogRaw ?? null),
+        import_source: microdata ? 'microdata' : 'schema',
       }
+      const fallbackSteps = stepsSource === 'steps' ? rawSteps
+        : stepsSource === 'article' ? trimArticleSteps(rawSteps, rawIngredients)
+        : []
 
       try {
         const raw = await callGemini({
@@ -321,15 +460,23 @@ Zwróć WYŁĄCZNIE JSON:
  "notes": "string lub null",
  "tags": ["max 5 krótkich polskich tagów, np. śniadanie, szybkie, wegetariańskie"],
  "difficulty": "easy|medium|hard|null",
- "temperature": "hot|cold|null"}
+ "temperature": "hot|cold|null",
+ "servings": liczba_porcji_lub_null}
+${base.servings ? '' : `Strona podaje tylko wydajność („${clean(schema.recipeYield) || 'brak'}”) — oszacuj w "servings", dla ilu osób (porcji obiadowych dla dorosłych) wystarczy przepis.`}
 
 OPIS ZE STRONY: ${base.description ?? 'brak'}
 
 SKŁADNIKI ZE STRONY:
 ${rawIngredients.map(i => `- ${i}`).join('\n')}
 
-KROKI ZE STRONY:
-${rawSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`,
+${stepsSource === 'steps'
+  ? `KROKI ZE STRONY:\n${stepsText}`
+  : `KROKI: strona nie ma ich wydzielonych — poniżej ${stepsSource === 'article' ? 'treść artykułu z przepisem' : 'tekst strony'}.
+Wybierz z niego WYŁĄCZNIE czynności przygotowania tego dania (pomiń wstęp, historię, kalorie, listę składników, reklamy, komentarze, inne przepisy).
+Składniki bierz z listy SKŁADNIKI ZE STRONY powyżej (ona jest dokładna). Porady i warianty przenieś do "notes".
+
+TEKST:
+${stepsText}`}`,
           temperature: 0.2,
           maxOutputTokens: 8192,
           json: true,
@@ -345,9 +492,10 @@ ${rawSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`,
           tags: Array.isArray(ai.tags) && ai.tags.length ? ai.tags.slice(0, 5) : base.tags,
           difficulty: ai.difficulty ?? null,
           temperature: ai.temperature ?? null,
+          servings: base.servings ?? (Number(ai.servings) > 0 && Number(ai.servings) < 50 ? Math.round(Number(ai.servings)) : null),
           notes: ai.notes ?? null,
           ingredients: ingredients.length ? ingredients : rawIngredients.map(parseIngredientLine),
-          steps: steps.length ? steps : rawSteps.map((text, i) => ({ order: i + 1, text })),
+          steps: steps.length ? steps : fallbackSteps.map((text, i) => ({ order: i + 1, text })),
           steps_mode: steps.length ? 'atomic' : 'original',
         })
       } catch (err) {
@@ -357,9 +505,9 @@ ${rawSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`,
           ...base,
           difficulty: null,
           temperature: null,
-          notes: null,
+          notes: fallbackSteps.length ? null : 'Kroków nie udało się pobrać (AI niedostępne) — uzupełnij je w edycji przepisu.',
           ingredients: rawIngredients.map(parseIngredientLine),
-          steps: rawSteps.map((text, i) => ({ order: i + 1, text })),
+          steps: fallbackSteps.map((text, i) => ({ order: i + 1, text })),
           steps_mode: 'original',
         })
       }

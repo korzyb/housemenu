@@ -130,10 +130,12 @@ function RecipeForm({ recipe }) {
     setImportInfo(
       data.import_source === 'thermomix'
         ? '✓ Przepis Thermomix z Cookidoo: nazwa, zdjęcie, składniki, czas, porcje i trudność. Kroki prowadzi urządzenie — w aplikacji ich nie potrzebujesz.'
-        : data.import_source === 'schema'
+        : data.import_source === 'schema' || data.import_source === 'microdata'
         ? (data.steps_mode === 'atomic'
             ? '✓ Pobrano z danych strukturalnych strony (schema.org), kroki rozbite przez AI na pojedyncze czynności.'
-            : '✓ Pobrano z danych strukturalnych strony (schema.org). AI chwilowo niedostępne — kroki jak na stronie.')
+            : data.steps?.length
+              ? '✓ Pobrano z danych strukturalnych strony (schema.org). AI chwilowo niedostępne — kroki jak na stronie, sprawdź je.'
+              : '✓ Pobrano składniki z danych strukturalnych strony (schema.org). AI chwilowo niedostępne — kroki uzupełnij ręcznie.')
         : '✓ Przepis odczytany przez AI z treści strony (strona nie udostępnia danych schema.org). Sprawdź składniki.'
     )
   }
