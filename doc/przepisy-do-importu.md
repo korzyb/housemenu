@@ -5,18 +5,18 @@
 
 ## Podsumowanie
 
-- **63 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
-- **53 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
+- **65 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
+- **55 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
 - **13 mini-przepisów ręcznych** — proste posiłki bez sensownego przepisu w sieci albo w Waszej domowej wersji (kanapki, parówki, oskarki, szybkie spaghetti…). Gotowe propozycje składników i kroków są w sekcji [Mini-przepisy](#mini-przepisy-do-wstawienia) na końcu pliku.
 
 ### Źródła i jak zaimportują się dziś
 
 | Tryb | Ile | Co to znaczy |
 | :--- | :---: | :--- |
-| 🟢 JSON-LD z krokami (Winiary) | 1 | Pełne dane schema.org — składniki i kroki wprost ze strony; AI tylko rozbija kroki na atomowe. Działa już dziś. |
-| 🟢 mikrodane (aniagotuje.pl) | 30 | Strona ma składniki zapisane w standardzie schema.org (**mikrodane**). Import bierze z nich **dokładne składniki, zdjęcie, czas i kategorie**; kroki są tam częścią artykułu, więc AI wybiera z niego same czynności i rozbija na atomowe. **Działa już dziś.** |
-| 🟢 Thermomix (Cookidoo) | 9 | Import bierze nazwę, zdjęcie, składniki, czas, porcje i trudność; przepis dostaje oznaczenie **Thermomix** — kroki prowadzi urządzenie, w aplikacji zamiast kroków jest link „Otwórz w Cookidoo”. **Działa już dziś.** |
-| 🤖 AI (Kwestia Smaku, Olga Smile, inne) | 10 | Brak danych strukturalnych — AI czyta treść strony (jak przy mojewypieki.com). |
+| 🟢 JSON-LD z krokami (Winiary, Smaker) | 2 | Pełne dane schema.org — składniki i kroki wprost ze strony; AI tylko rozbija kroki na atomowe. Działa już dziś. |
+| 🟢 mikrodane (aniagotuje.pl) | 29 | Strona ma składniki zapisane w standardzie schema.org (**mikrodane**). Import bierze z nich **dokładne składniki, zdjęcie, czas i kategorie**; kroki są tam częścią artykułu, więc AI wybiera z niego same czynności i rozbija na atomowe. **Działa już dziś.** |
+| 🟢 Thermomix (Cookidoo) | 10 | Import bierze nazwę, zdjęcie, składniki, czas, porcje i trudność; przepis dostaje oznaczenie **Thermomix** — kroki prowadzi urządzenie, w aplikacji zamiast kroków jest link „Otwórz w Cookidoo”. **Działa już dziś.** |
+| 🤖 AI (Kwestia Smaku, Olga Smile, inne) | 11 | Brak danych strukturalnych — AI czyta treść strony (jak przy mojewypieki.com). |
 | ✍️ ręcznie | 13 | Bez linku — mini-przepis do wpisania (mogę je przygotować hurtem). |
 
 ### Uzgodnione decyzje (✅ w tabelach)
@@ -38,6 +38,8 @@
 15. **Pasta jajeczna** — tylko jajka starte na tarce, majonez, musztarda, sól, pieprz, szczypiorek/natka (mini-przepis).
 16. **Kanapki** (jeden przepis z wariantami) i **parówki/frankfurterki** — ręczne mini-przepisy.
 17. **Gofry z jajkiem sadzonym** — z boczkiem albo szynką, sałatą i majonezem/ketchupem (mini-przepis, wzór Food&More).
+18. **Burgery wołowe** — w zestawie z **frytkami domowymi z patelni** (z surowych ziemniaków) i **colesławem z Thermomix** (Cookidoo); frytki i colesław jako osobne przepisy.
+19. **Bruschetta** — prosta, bez mozzarelli: pomidory, czosnek, oliwa, bazylia (Olga Smile).
 
 ### Legenda kolumn
 
@@ -86,7 +88,9 @@
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2020/01/2063431-v-1500x1500.jpg" width="110" alt="Pierogi (mrożone, z wariantami)"> | **Pierogi (mrożone, z wariantami)**<br><sub>z notatki: pierogi z serem, z kapustą, z mięsem</sub> | O, K<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>pierogi, polskie, szybkie, gotowe</sub> | ✍️ ręcznie | ✅ Gotowe mrożone pierogi do wrzucenia na garnek — nie do lepienia. Jeden przepis z 3 wariantami (jak „Jajecznica”). Zdjęcie poglądowe (aniagotuje.pl). |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/42adda4e9720dc462de01b31b4a99cf0/Derivates/45d73f7fbad461e8ae25dfc0a92a40f6b58b2bfb.jpg" width="110" alt="Pierogi leniwe (Thermomix)"> | **Pierogi leniwe (Thermomix)**<br><sub>z notatki: pierogi leniwe</sub> | O<br>⏱ 45 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, twaróg, dla dzieci</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r5420)<br>🟢 Thermomix | Ocena 4,6 (7,5 tys. opinii). Kroki prowadzi Thermomix. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2020/10/8437530-v-1500x1500.jpg" width="110" alt="Placki ziemniaczane"> | **Placki ziemniaczane**<br><sub>z notatki: placki ziemniaczane</sub> | O<br>⏱ 45 min · 👤 4<br>łatwy · na ciepło<br><sub>ziemniaki, polskie, wegetariańskie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/tradycyjne-placki-ziemniaczane)<br>🟢 mikrodane |  |
-| <img src="https://cdn.aniagotuje.com/pictures/articles/2020/05/3989474-v-1500x1500.jpg" width="110" alt="Burgery wołowe"> | **Burgery wołowe**<br><sub>z notatki: burgery / burger (obiady + grill)</sub> | O, G, K<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>wołowina, grill</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/burgery-wolowe)<br>🟢 mikrodane | Jeden przepis dla obiadu i grilla. |
+| <img src="https://cdn.aniagotuje.com/pictures/articles/2020/05/3989474-v-1500x1500.jpg" width="110" alt="Burgery wołowe"> | **Burgery wołowe**<br><sub>z notatki: burgery / burger (obiady + grill)</sub> | O, G, K<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>wołowina, grill</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/burgery-wolowe)<br>🟢 mikrodane | ✅ Jeden przepis dla obiadu i grilla. Podawane w zestawie z **frytkami domowymi z patelni** i **colesławem (Thermomix)** — dwie pozycje niżej, osobno, żeby dało się je planować też do innych dań. |
+| <img src="https://staticsmaker.iplsc.com/smaker_production_2023_11_28/b433f40c2f01e224c1e0db564f651a0f-content.JPG" width="110" alt="Frytki domowe z patelni"> | **Frytki domowe z patelni**<br><sub>z notatki: do burgerów (dopisek)</sub> | O, G<br>⏱ 30 min · 👤 2<br>łatwy · na ciepło<br><sub>ziemniaki, dodatek, smażone</sub> | [smaker.pl](https://smaker.pl/przepisy-przekaski/przepis-domowe-frytki-z-patelni,1992224,krzys16.html)<br>🟢 JSON-LD | ✅ Z surowych ziemniaków: słupki ok. 1 cm, smażone na rozgrzanym oleju na patelni, potem sól i przyprawa do frytek. Przepis na 0,5 kg ziemniaków (1–2 os.) — do burgerów dla 4 osób podwój ilość przy imporcie. |
+| <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/A21BF90A-A2AC-4F0B-A9F5-906B2CCD61DB/Derivates/39446760-5cd2-4e40-b9da-fde138a4c31d.jpg" width="110" alt="Colesław (Thermomix)"> | **Colesław (Thermomix)**<br><sub>z notatki: do burgerów (dopisek)</sub> | O, G, K<br>⏱ 15 min · 👤 6<br>łatwy · na zimno<br><sub>thermomix, surówka, kapusta, dodatek</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r505268)<br>🟢 Thermomix<br><sub>alt.: [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r713663)</sub> | ✅ Cookidoo „Coleslaw” — klasyczny z białej kapusty: kapusta, marchewka, cebula, majonez, sok z cytryny, ocet jabłkowy, miód. Kroki prowadzi Thermomix. Alt.: „Coleslaw z czerwonej kapusty” (ocena 4,9). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/01/11536436-v-1500x1500.jpg" width="110" alt="Frytki z jajkiem sadzonym i fasolką / kalafiorem"> | **Frytki z jajkiem sadzonym i fasolką / kalafiorem**<br><sub>z notatki: frytki z jajkiem i kalafiorem/fasolką (2×)</sub> | O<br>⏱ 45 min · 👤 4<br>łatwy · na ciepło<br><sub>ziemniaki, jajka, wegetariańskie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/frytki-z-piekarnika)<br>🟢 mikrodane<br><sub>alt.: [aniagotuje.pl](https://aniagotuje.pl/przepis/fasolka-szparagowa)</sub> | Danie złożone — jeden wpis (niżej) zbudowany z frytek z piekarnika (link) + jajka sadzonego + fasolki (link alt.) lub kalafiora. |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/7df6ac6d54fc070027b4003119d3c019/Derivates/6385028873fe7c6cace34efeae8324eea2bf2fca.jpg" width="110" alt="Pizza — ciasto (Thermomix)"> | **Pizza — ciasto (Thermomix)**<br><sub>z notatki: pizza (ciasto na pizzę)</sub> | O, K<br>⏱ 1 h · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, pizza, drożdżowe</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r55375)<br>🟢 Thermomix | Ciasto bazowe; dodatki dowolne. |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/64acade5d739820b5d2089364a3e61cb/Derivates/0571b2a66d2298c171f98b30ec149ee68aa18763.jpg" width="110" alt="Pizza retro na grubym cieście (Thermomix)"> | **Pizza retro na grubym cieście (Thermomix)**<br><sub>z notatki: pizza retro</sub> | O, K<br>⏱ 1 h 45 min · 👤 6<br>łatwy · na ciepło<br><sub>thermomix, pizza, retro</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r804406)<br>🟢 Thermomix | Z pieczarkami, papryką, kiełbasą, ketchupem — klimat lat 90. |
@@ -110,7 +114,7 @@
 
 | Zdjęcie | Danie | Parametry | Źródło i import | Uwagi |
 | :---: | :--- | :--- | :--- | :--- |
-| <img src="https://cdn.aniagotuje.com/pictures/articles/2020/07/5570713-v-1500x1500.jpg" width="110" alt="Bruschetta"> | **Bruschetta**<br><sub>z notatki: bruschetta</sub> | K, P<br>⏱ 15 min · 👤 4<br>łatwy · na ciepło<br><sub>włoskie, pomidory, szybkie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/bruschetta)<br>🟢 mikrodane |  |
+| <img src="https://www.olgasmile.com/wp-content/uploads/bruschetta-z-pomidorami-R-031820.JPG" width="110" alt="Bruschetta z pomidorami i czosnkiem"> | **Bruschetta z pomidorami i czosnkiem**<br><sub>z notatki: bruschetta</sub> | K, P<br>⏱ 20 min · 👤 3<br>łatwy · na ciepło<br><sub>włoskie, pomidory, szybkie, wegetariańskie</sub> | [olgasmile.com](https://www.olgasmile.com/bruschetta-z-pomidorami.html)<br>🤖 AI<br><sub>alt.: [olgusta.pl](https://www.olgusta.pl/2018/02/wloska-bruschetta-ze-swiezymi-pomidorami.html)</sub> | ✅ Prosta, bez sera: grzanki z oliwą + pomidory w kostce z czosnkiem, oliwą, odrobiną octu balsamicznego, solą i bazylią (10 min przegryzania). Zamiast aniagotuje (mozzarella, szynka parmeńska, cebulka). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/11/21731412-v-1500x1500.jpg" width="110" alt="Sałatka cezar"> | **Sałatka cezar**<br><sub>z notatki: sałatka cesarska</sub> | K, O<br>⏱ 30 min · 👤 4<br>łatwy · na zimno<br><sub>sałatka, kurczak</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/salatka-cezar)<br>🟢 mikrodane |  |
 | 📷 brak | **Prosta sałatka (sałata, pomidor, ogórek)**<br><sub>z notatki: sałatka (dopisek)</sub> | K, O<br>⏱ 10 min · 👤 4<br>łatwy · na zimno<br><sub>sałatka, wegetariańskie, szybkie, dodatek</sub> | ✍️ ręcznie | ✅ „Sałata, pomidor, ogórek, oliwa i finito” — mini-przepis (niżej). Pasuje też jako dodatek do obiadu. |
 | 📷 brak | **Tosty (sandwiche)**<br><sub>z notatki: tosty, tosty (sandwiche)</sub> | K, Ś<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, ser, szynka</sub> | ✍️ ręcznie | Mini-przepis (niżej). |
@@ -480,8 +484,8 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 ## Proponowany sposób importu
 
 1. ~~Decyzje~~ — ✅ uzgodnione (wyżej).
-2. **Mikrodane schema.org** (aniagotuje.pl) — ✅ obsłużone: 30 przepisów importuje się z dokładnymi składnikami ze strony.
-3. **Import hurtowy** — zamiast wklejać 50 linków po kolei w formularzu, mogę dodać prosty „import z listy linków” (wklejasz wiele URL-i naraz, przepisy trafiają do bazy, potem je przeglądasz/poprawiasz). Przy darmowym limicie Gemini rozłożyłbym to na 2–3 dni albo partie po ~15.
+2. **Mikrodane schema.org** (aniagotuje.pl) — ✅ obsłużone: 29 przepisów importuje się z dokładnymi składnikami ze strony.
+3. **Import hurtowy** — zamiast wklejać 52 linków po kolei w formularzu, mogę dodać prosty „import z listy linków” (wklejasz wiele URL-i naraz, przepisy trafiają do bazy, potem je przeglądasz/poprawiasz). Przy darmowym limicie Gemini rozłożyłbym to na 2–3 dni albo partie po ~15.
 4. **Mini-przepisy ręczne** (13) — przygotuję je jako gotowe dane do wstawienia jednym ruchem.
 5. **Thermomix (Cookidoo)** — ✅ obsłużone: import z linku oznacza przepis jako Thermomix (bez kroków).
 
