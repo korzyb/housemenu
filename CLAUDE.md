@@ -26,8 +26,8 @@ VITE_GEMINI_API_KEY=
 - Dane w Supabase (nie localStorage)
 
 ## Ekrany aplikacji (5 głównych)
-1. **Dziś** — ekran startowy, 4 kafelki (Śniadanie/Przekąska/Obiad/Kolacja), zawsze widoczne
-2. **Plan tygodnia** — siatka: dni jako wiersze (Pn–Nd), posiłki jako kolumny (Śn/Prz/Ob/Ko)
+1. **Dziś** — ekran startowy, 3 kafelki (Śniadanie/Obiad/Kolacja), zawsze widoczne; kolacja może być osobno dla dzieci i dorosłych (wyższy kafelek z dwoma rzędami) albo „tylko dzieci” (dorośli bez kolacji)
+2. **Plan tygodnia** — siatka: dni jako wiersze (Pn–Nd), posiłki jako kolumny (Śn/Ob/Ko; kolumna kolacji szersza, przy podziale dwie połówki 🧸 | 🧑‍🤝‍🧑)
 3. **Baza przepisów** — lista kart z miniaturami
 4. **Szczegóły przepisu** — hero zdjęcie, składniki, klikalne kroki, tryb gotowania
 5. **Lista zakupów** — tryb edycji + tryb sklepowy (pełny ekran, tap = przekreślenie)

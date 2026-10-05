@@ -2,14 +2,14 @@
 // Dla każdego slotu zwraca 3 alternatywy. Tryb korekty: currentPlan + instruction → poprawiony plan.
 //
 // Wejście:
-//   slots:        [{ date, dayLabel, mealType }]   — pory do zaplanowania
+//   slots:        [{ date, dayLabel, mealType, audience? }] — pory do zaplanowania (audience: all | kids | adults)
 //   recipes:      [{ name, tags, prep_time }]      — baza przepisów użytkownika
-//   household:    [{ name, brief }]                — planner_brief aktywnych domowników
+//   household:    [{ name, brief, child? }]        — planner_brief aktywnych domowników (child = dziecko)
 //   recentMeals:  ["nazwa"]                        — ostatnio jedzone (unikaj powtórek)
-//   existingPlan: [{ date, mealType, name }]       — już zaplanowane w tym tygodniu (kontekst)
+//   existingPlan: [{ date, mealType, audience?, name }] — już zaplanowane w tym tygodniu (kontekst)
 //   pantry, preferences: ["..."], notes            — kroki 1–2 kreatora
-//   currentPlan?: [{ date, mealType, name }], instruction?: string — korekta
-// Wyjście: { plan: [{ date, mealType, options: [{ name, emoji, prep_time, from_db }] }], tip }
+//   currentPlan?: [{ date, mealType, audience?, name }], instruction?: string — korekta
+// Wyjście: { plan: [{ date, mealType, audience, options: [{ name, emoji, prep_time, from_db }] }], tip }
 
 import { AiError, callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
 
@@ -20,9 +20,20 @@ const MEAL_LABELS: Record<string, string> = {
   dinner: 'kolacja',
 }
 
-type Slot = { date: string; dayLabel: string; mealType: string }
+// Kolacja osobno dla dzieci i dorosłych
+const AUDIENCE_LABELS: Record<string, string> = {
+  all: '',
+  kids: ' dla dzieci',
+  adults: ' dla dorosłych',
+}
+
+type Slot = { date: string; dayLabel: string; mealType: string; audience?: string }
 type Option = { name: string; emoji?: string; prep_time?: number | null; from_db?: boolean }
-type PlanItem = { date: string; mealType: string; options: Option[] }
+type PlanItem = { date: string; mealType: string; audience?: string; options: Option[] }
+type Planned = { date: string; mealType: string; audience?: string; name: string }
+
+const aud = (a?: string) => (a && a in AUDIENCE_LABELS ? a : 'all')
+const label = (mealType: string, audience?: string) => `${MEAL_LABELS[mealType] ?? mealType}${AUDIENCE_LABELS[aud(audience)]}`
 
 const SYSTEM_PROMPT = `Jesteś asystentem planowania domowych posiłków dla polskiej rodziny.
 Układasz praktyczne, smaczne menu z uwzględnieniem profili domowników, ich czasu i preferencji.
@@ -31,7 +42,9 @@ Zasady nadrzędne:
 - Priorytet mają przepisy z bazy użytkownika (podawaj wtedy DOKŁADNĄ nazwę z bazy), ale tylko gdy pasują.
 - Unikaj powtarzania tych samych dań w planowanym okresie i dań jedzonych ostatnio.
 - Dbaj o różnorodność w tygodniu (białka, warzywa, rodzaje dań) i realny czas gotowania.
-- Nazwy dań po polsku, krótkie i konkretne (np. "Makaron z pesto i pomidorkami").`
+- Nazwy dań po polsku, krótkie i konkretne (np. "Makaron z pesto i pomidorkami").
+- Posiłek „dla dzieci” planuj pod profile dzieci (proste, lubiane przez dzieci, łagodne); „dla dorosłych” — pod profile dorosłych.
+- Tagi przepisów (śniadanie, obiad, kolacja…) mówią, do jakiej pory dania zwykle pasują.`
 
 function list(items: string[], empty = 'brak') {
   return items.length ? items.join(', ') : empty
@@ -56,29 +69,28 @@ Deno.serve(async (req) => {
     }
 
     const recipeLines = (recipes as { name: string; tags?: string[]; prep_time?: number }[])
-      .slice(0, 80)
+      .slice(0, 120)
       .map(r => `- ${r.name}${r.prep_time ? ` (${r.prep_time} min)` : ''}${r.tags?.length ? ` [${r.tags.join(', ')}]` : ''}`)
       .join('\n') || 'brak przepisów w bazie'
 
-    const householdLines = (household as { name: string; brief: string }[])
+    const householdLines = (household as { name: string; brief: string; child?: boolean }[])
       .filter(m => m?.brief)
       .slice(0, 10)
-      .map(m => `- ${m.name}: ${m.brief}`)
+      .map(m => `- ${m.name}${m.child ? ' (dziecko)' : ''}: ${m.brief}`)
       .join('\n') || 'brak profili — planuj uniwersalnie dla rodziny'
 
     const slotLines = (slots as Slot[])
-      .map(s => `- ${s.date} (${s.dayLabel}) — ${MEAL_LABELS[s.mealType] ?? s.mealType} [mealType: ${s.mealType}]`)
+      .map(s => `- ${s.date} (${s.dayLabel}) — ${label(s.mealType, s.audience)} [mealType: ${s.mealType}, audience: ${aud(s.audience)}]`)
       .join('\n')
 
-    const existingLines = (existingPlan as { date: string; mealType: string; name: string }[])
-      .map(e => `- ${e.date} ${MEAL_LABELS[e.mealType] ?? e.mealType}: ${e.name}`)
+    const existingLines = (existingPlan as Planned[])
+      .map(e => `- ${e.date} ${label(e.mealType, e.audience)}: ${e.name}`)
       .join('\n') || 'nic'
 
     const correction = currentPlan && instruction
       ? `
 KOREKTA: użytkownik ma już taką propozycję (wybrane dania):
-${(currentPlan as { date: string; mealType: string; name: string }[])
-  .map(c => `- ${c.date} ${MEAL_LABELS[c.mealType] ?? c.mealType}: ${c.name}`).join('\n')}
+${(currentPlan as Planned[]).map(c => `- ${c.date} ${label(c.mealType, c.audience)}: ${c.name}`).join('\n')}
 
 Prośba użytkownika: "${String(instruction).slice(0, 500)}"
 Zmień TYLKO to, czego dotyczy prośba. Dla slotów bez zmian pierwsza opcja ma być dokładnie tym samym daniem co wyżej.
@@ -110,7 +122,7 @@ Jeśli użyto składników z domu — rozłóż je sensownie na kilka posiłków
 Zwróć WYŁĄCZNIE JSON:
 {
   "plan": [
-    { "date": "RRRR-MM-DD", "mealType": "breakfast|snack|lunch|dinner",
+    { "date": "RRRR-MM-DD", "mealType": "breakfast|lunch|dinner", "audience": "all|kids|adults",
       "options": [ { "name": "string", "emoji": "jedno emoji", "prep_time": liczba_minut_lub_null, "from_db": boolean } ] }
   ],
   "tip": "opcjonalnie 1 zdanie: praktyczna podpowiedź dla kucharza (np. co przygotować wcześniej lub czego dokupić) albo pusty string"
@@ -134,9 +146,9 @@ Zwróć WYŁĄCZNIE JSON:
 
     // Normalizacja: każdy żądany slot dokładnie raz, max 3 opcje, from_db weryfikowane z bazą
     const known = new Set((recipes as { name: string }[]).map(r => r.name.trim().toLowerCase()))
-    const byKey = new Map((parsed.plan ?? []).map(p => [`${p.date}|${p.mealType}`, p]))
+    const byKey = new Map((parsed.plan ?? []).map(p => [`${p.date}|${p.mealType}|${aud(p.audience)}`, p]))
     const plan = (slots as Slot[]).map(s => {
-      const options = (byKey.get(`${s.date}|${s.mealType}`)?.options ?? [])
+      const options = (byKey.get(`${s.date}|${s.mealType}|${aud(s.audience)}`)?.options ?? [])
         .filter(o => o?.name)
         .slice(0, 3)
         .map(o => ({
@@ -145,7 +157,7 @@ Zwróć WYŁĄCZNIE JSON:
           prep_time: typeof o.prep_time === 'number' ? o.prep_time : null,
           from_db: known.has(String(o.name).trim().toLowerCase()),
         }))
-      return { date: s.date, mealType: s.mealType, options }
+      return { date: s.date, mealType: s.mealType, audience: aud(s.audience), options }
     })
 
     const missing = plan.filter(p => p.options.length === 0).length

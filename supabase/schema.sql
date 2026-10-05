@@ -36,8 +36,11 @@ CREATE TABLE IF NOT EXISTS meal_plans (
               CHECK (meal_type IN ('breakfast', 'snack', 'lunch', 'dinner')),
   recipe_id   UUID        REFERENCES recipes(id) ON DELETE SET NULL,
   custom_name TEXT,        -- ręcznie wpisana nazwa (bez przepisu)
+  -- dla kogo: 'all' wspólny | 'kids' dzieci | 'adults' dorośli (kolacja z podziałem)
+  audience    TEXT        NOT NULL DEFAULT 'all' CHECK (audience IN ('all', 'kids', 'adults')),
+  skipped     BOOLEAN     NOT NULL DEFAULT false,  -- ta grupa nie je tego posiłku („bez kolacji”)
   created_at  TIMESTAMPTZ DEFAULT now(),
-  UNIQUE (date, meal_type)
+  UNIQUE (date, meal_type, audience)
 );
 
 -- ─────────────────────────────────────────

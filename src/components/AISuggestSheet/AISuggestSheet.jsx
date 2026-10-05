@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { parseProfileCard } from '../../lib/profile'
+import { householdForAudience } from '../../lib/profile'
 import { invokeAi } from '../../lib/ai'
 import BottomSheet from '../BottomSheet/BottomSheet'
 import styles from './AISuggestSheet.module.css'
 
-export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabel, plannedToday = [], onSelect }) {
+// audience: 'all' | 'kids' | 'adults' — kolacja dla dzieci bierze tylko profile dzieci (i odwrotnie)
+export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabel, audience = 'all', plannedToday = [], onSelect }) {
   const [suggestions, setSuggestions] = useState([])
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState(null)
@@ -20,17 +21,15 @@ export default function AISuggestSheet({ isOpen, onClose, mealType, mealTypeLabe
     setSuggestions([])
 
     const [{ data: recipesData }, { data: membersData }] = await Promise.all([
-      supabase.from('recipes').select('id, name').order('name').limit(30),
-      supabase.from('household_members').select('name, ai_profile_card').eq('is_active', true),
+      supabase.from('recipes').select('id, name, tags').order('name'),
+      supabase.from('household_members').select('name, profile, ai_profile_card').eq('is_active', true),
     ])
 
-    // Tylko domownicy z wygenerowaną kartą — do AI idzie krótkie streszczenie (planner_brief)
-    const household = (membersData || [])
-      .map(m => ({ name: m.name, brief: parseProfileCard(m.ai_profile_card)?.planner_brief }))
-      .filter(m => m.brief)
+    // Tylko domownicy z wygenerowaną kartą (z danej grupy) — do AI idzie krótkie streszczenie (planner_brief)
+    const household = householdForAudience(membersData || [], audience)
 
     const { data, error: aiError } = await invokeAi('suggest-meal', {
-      mealType, recipes: (recipesData || []).map(r => ({ name: r.name })), plannedToday, household,
+      mealType, audience, recipes: (recipesData || []).map(r => ({ name: r.name, tags: r.tags })), plannedToday, household,
     })
 
     if (aiError) {

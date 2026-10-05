@@ -2,12 +2,12 @@ import { useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
-import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
+import { useMealSheets } from '../../components/MealSheets/useMealSheets'
 import Toast from '../../components/Toast/Toast'
 import { useAddToShopping } from '../../hooks/useAddToShopping'
 import PlanCell from './PlanCell'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
-import { MEAL_TYPES } from '../../lib/meals'
+import { MEAL_TYPES, AUDIENCES, groupMeals, slotState, eatenMeals, mealName } from '../../lib/meals'
 import styles from './PlanPage.module.css'
 
 const BASE_WEEK_START = getWeekStart()
@@ -34,8 +34,6 @@ export default function PlanPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [weekOffset, setWeekOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
-  const [addSheet, setAddSheet]       = useState(null) // { date, mealTypeId, prefill }
-  const [optionsSheet, setOptionsSheet] = useState(null) // { meal, date, mealTypeId }
   const [daySheet, setDaySheet]       = useState(null) // { date, label } — zakupy na dzień
   const shopping = useAddToShopping()
   const touchStartX = useRef(null)
@@ -43,15 +41,13 @@ export default function PlanPage() {
   const displayWeekStart = new Date(BASE_WEEK_START)
   displayWeekStart.setDate(BASE_WEEK_START.getDate() + weekOffset * 7)
 
-  const { meals, loading, addMeal, removeMeal } = useMealPlan(displayWeekStart)
+  const plan = useMealPlan(displayWeekStart)
+  const { meals, loading } = plan
+  const sheets = useMealSheets({ plan, shopping, showDate: true })
   const weekDays = getWeekDays(displayWeekStart)
   const isPast = weekOffset < 0
 
-  const mealMap = {}
-  meals.forEach(m => {
-    if (!mealMap[m.date]) mealMap[m.date] = {}
-    mealMap[m.date][m.meal_type] = m
-  })
+  const mealMap = groupMeals(meals)
 
   function handleTouchStart(e) {
     touchStartX.current = e.touches[0].clientX
@@ -66,22 +62,6 @@ export default function PlanPage() {
     }
     touchStartX.current = null
   }
-
-  function openAdd(date, mealTypeId, prefill = '') {
-    setAddSheet({ date, mealTypeId, prefill })
-  }
-
-  async function addToSlot({ recipeId = null, customName = null }) {
-    await addMeal({ date: addSheet.date, mealType: addSheet.mealTypeId, recipeId, customName })
-    setAddSheet(null)
-  }
-
-  async function handleRemove() {
-    await removeMeal(optionsSheet.meal.id)
-    setOptionsSheet(null)
-  }
-
-  const addMealType = MEAL_TYPES.find(t => t.id === addSheet?.mealTypeId)
 
   return (
     <div className={styles.page}>
@@ -145,21 +125,19 @@ export default function PlanPage() {
                   {DAY_LABELS[i]}
                 </button>
                 {MEAL_TYPES.map(mealType => {
-                  const meal = mealMap[dateStr]?.[mealType.id] ?? null
+                  const state = slotState(mealMap[dateStr]?.[mealType.id])
+                  const slot = { date: dateStr, mealType, state }
                   return (
                     <PlanCell
                       key={mealType.id}
-                      meal={meal}
                       mealType={mealType}
+                      state={state}
+                      wide={!!mealType.splittable}
                       isToday={isToday}
                       isPast={isPast}
-                      onClick={() => {
-                        if (meal) {
-                          setOptionsSheet({ meal, date: dateStr, mealTypeId: mealType.id })
-                        } else {
-                          openAdd(dateStr, mealType.id)
-                        }
-                      }}
+                      onSlot={(audience, meal) => meal
+                        ? sheets.openOptions({ ...slot, audience, meal })
+                        : sheets.openAdd({ ...slot, audience, allowAudience: audience === 'all' })}
                     />
                   )
                 })}
@@ -169,46 +147,7 @@ export default function PlanPage() {
         </div>
       </div>
 
-      {/* Bottom sheet: dodaj posiłek */}
-      {addSheet && (
-        <AddMealSheet
-          title={`${addMealType?.emoji ?? ''} ${addMealType?.label ?? ''} · ${
-            new Date(`${addSheet.date}T00:00:00`).toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short' })
-          }`}
-          initialValue={addSheet.prefill}
-          onClose={() => setAddSheet(null)}
-          onPickRecipe={recipe => addToSlot({ recipeId: recipe.id })}
-          onAddCustom={name => addToSlot({ customName: name })}
-        />
-      )}
-
-      {/* Bottom sheet: opcje */}
-      <BottomSheet isOpen={!!optionsSheet} onClose={() => setOptionsSheet(null)}>
-        <div className={styles.optionsList}>
-          {optionsSheet?.meal?.recipe_id && (
-            <button className={styles.optionItem} onClick={() => {
-              navigate(`/recipes/${optionsSheet.meal.recipe_id}`)
-              setOptionsSheet(null)
-            }}>Otwórz przepis</button>
-          )}
-          {optionsSheet?.meal?.recipe && (
-            <button className={styles.optionItem} disabled={shopping.busy} onClick={async () => {
-              const { meal } = optionsSheet
-              setOptionsSheet(null)
-              await shopping.addMeals([meal], meal.recipe.name)
-            }}>🛒 Dodaj składniki do zakupów</button>
-          )}
-          <button className={styles.optionItem} onClick={() => {
-            const { date, mealTypeId } = optionsSheet
-            setOptionsSheet(null)
-            openAdd(date, mealTypeId)
-          }}>Zmień posiłek</button>
-          <button
-            className={[styles.optionItem, styles.optionDanger].join(' ')}
-            onClick={handleRemove}
-          >Usuń z planu</button>
-        </div>
-      </BottomSheet>
+      {sheets.element}
 
       {/* Bottom sheet: zakupy na wybrany dzień (tap w skrót dnia) */}
       <BottomSheet
@@ -217,15 +156,16 @@ export default function PlanPage() {
         title={daySheet ? `🛒 Zakupy · ${new Date(`${daySheet.date}T00:00:00`).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}` : ''}
       >
         {daySheet && (() => {
-          const dayMeals = MEAL_TYPES.map(t => ({ type: t, meal: mealMap[daySheet.date]?.[t.id] })).filter(x => x.meal)
+          const dayMeals = MEAL_TYPES.flatMap(t => eatenMeals(mealMap[daySheet.date]?.[t.id] ?? [])
+            .map(meal => ({ type: t, meal })))
           const withRecipe = dayMeals.filter(x => x.meal.recipe)
           return (
             <div className={styles.dayShop}>
               {dayMeals.length === 0 && <p className={styles.dayShopEmpty}>Na ten dzień nic nie jest zaplanowane.</p>}
               {dayMeals.map(({ type, meal }) => (
-                <div key={type.id} className={styles.dayShopRow}>
-                  <span className={styles.dayShopMeal}>{type.emoji} {type.label}</span>
-                  <span className={styles.dayShopName}>{meal.recipe?.name || meal.custom_name}</span>
+                <div key={meal.id} className={styles.dayShopRow}>
+                  <span className={styles.dayShopMeal}>{type.emoji} {type.label}{meal.audience && meal.audience !== 'all' ? ` ${AUDIENCES[meal.audience].emoji}` : ''}</span>
+                  <span className={styles.dayShopName}>{mealName(meal)}</span>
                   <span className={styles.dayShopNote}>
                     {meal.recipe ? `${meal.recipe.ingredients?.length ?? 0} skł.` : 'bez przepisu'}
                   </span>

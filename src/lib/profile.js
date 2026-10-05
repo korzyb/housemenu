@@ -385,3 +385,18 @@ export function membersLabel(n) {
   if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} domownicy`
   return `${n} domowników`
 }
+
+// Dziecko w sensie „kolacji dla dzieci”: małe dziecko lub dziecko szkolne (nastolatek je z dorosłymi)
+export const CHILD_PHASES = ['toddler', 'school_child']
+export function isChild(member) {
+  const phases = member?.profile?.base?.life_phase
+  return Array.isArray(phases) && phases.some(p => CHILD_PHASES.includes(p))
+}
+
+// Domownicy dla AI wg grupy posiłku: 'all' | 'kids' | 'adults' → [{ name, brief, child }]
+export function householdForAudience(members = [], audience = 'all') {
+  return members
+    .filter(m => audience === 'all' || (audience === 'kids' ? isChild(m) : !isChild(m)))
+    .map(m => ({ name: m.name, brief: parseProfileCard(m.ai_profile_card)?.planner_brief, child: isChild(m) }))
+    .filter(m => m.brief)
+}

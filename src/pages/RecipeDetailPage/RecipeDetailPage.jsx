@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRecipe } from '../../hooks/useRecipes'
 import { useMealPlan } from '../../hooks/useMealPlan'
-import { MEAL_TYPES } from '../../lib/meals'
+import { MEAL_TYPES, AUDIENCES } from '../../lib/meals'
 import { getWeekStart, toDateString } from '../../lib/dates'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import Toast from '../../components/Toast/Toast'
@@ -43,6 +43,7 @@ export default function RecipeDetailPage() {
   const [sheetOpen,  setSheetOpen]  = useState(false)
   const [pickedDate, setPickedDate] = useState(TODAY_STR)
   const [pickedMeal, setPickedMeal] = useState('lunch')
+  const [pickedAudience, setPickedAudience] = useState('all')
   const [adding,     setAdding]     = useState(false)
 
   function toggleStep(i) {
@@ -55,7 +56,8 @@ export default function RecipeDetailPage() {
 
   async function handleAddToPlan() {
     setAdding(true)
-    await addMeal({ date: pickedDate, mealType: pickedMeal, recipeId: id })
+    const splittable = MEAL_TYPES.find(t => t.id === pickedMeal)?.splittable
+    await addMeal({ date: pickedDate, mealType: pickedMeal, audience: splittable ? pickedAudience : 'all', recipeId: id })
     setAdding(false)
     setSheetOpen(false)
   }
@@ -254,6 +256,22 @@ export default function RecipeDetailPage() {
             >{mt.emoji} {mt.label}</button>
           ))}
         </div>
+
+        {MEAL_TYPES.find(t => t.id === pickedMeal)?.splittable && (
+          <>
+            <p className={styles.sheetLabel}>Dla kogo</p>
+            <div className={styles.mealBtns}>
+              {Object.values(AUDIENCES).map(a => (
+                <button
+                  key={a.id}
+                  className={[styles.mealBtn, pickedAudience === a.id ? styles.mealBtnActive : ''].join(' ')}
+                  onClick={() => setPickedAudience(a.id)}
+                  type="button"
+                >{a.emoji} {a.label}</button>
+              ))}
+            </div>
+          </>
+        )}
 
         <button
           className={styles.confirmBtn}

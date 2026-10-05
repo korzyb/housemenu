@@ -4,8 +4,8 @@ import { supabase } from '../../lib/supabase'
 import { invokeAi } from '../../lib/ai'
 import { useMealPlan } from '../../hooks/useMealPlan'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
-import { MEAL_TYPES } from '../../lib/meals'
-import { parseProfileCard } from '../../lib/profile'
+import { MEAL_TYPES, AUDIENCES, mealName } from '../../lib/meals'
+import { householdForAudience } from '../../lib/profile'
 import styles from './PlanWizardPage.module.css'
 
 const TOTAL_STEPS = 4
@@ -34,6 +34,17 @@ const parseDay = s => new Date(`${s}T00:00:00`)
 
 const mealLabel = id => MEAL_TYPES.find(t => t.id === id)?.label ?? id
 const mealEmoji = id => MEAL_TYPES.find(t => t.id === id)?.emoji ?? '🍽'
+const slotLabel = (mealType, audience) =>
+  `${mealLabel(mealType)}${audience && audience !== 'all' ? ` · ${AUDIENCES[audience].emoji} ${AUDIENCES[audience].label}` : ''}`
+const slotKey = s => `${s.date}|${s.mealType}|${s.audience ?? 'all'}`
+
+// Kolacja w kreatorze: wspólna / tylko dzieci (dorośli bez kolacji) / osobno
+const DINNER_MODES = [
+  { id: 'all',   label: `${AUDIENCES.all.emoji} Wspólna` },
+  { id: 'kids',  label: `${AUDIENCES.kids.emoji} Tylko dzieci` },
+  { id: 'split', label: `${AUDIENCES.kids.emoji} ${AUDIENCES.adults.emoji} Osobno` },
+]
+const dinnerAudiences = mode => (mode === 'split' ? ['kids', 'adults'] : [mode])
 
 function dayTitle(dateStr) {
   const d = parseDay(dateStr)
@@ -70,6 +81,7 @@ export default function PlanWizardPage() {
   const [day,         setDay]         = useState(futureDays[0] ?? weekDays[0])
   const [mealTypes,   setMealTypes]   = useState(['breakfast', 'lunch', 'dinner'])
   const [overwrite,   setOverwrite]   = useState(false)
+  const [dinnerMode,  setDinnerMode]  = useState('all')
 
   // Krok 4
   const [proposal,    setProposal]    = useState([])   // [{ date, mealType, options, idx }]
@@ -87,15 +99,13 @@ export default function PlanWizardPage() {
     since.setDate(since.getDate() - 14)
     Promise.all([
       supabase.from('recipes').select('id, name, tags, prep_time, photo_url').order('name'),
-      supabase.from('household_members').select('name, ai_profile_card').eq('is_active', true),
+      supabase.from('household_members').select('name, profile, ai_profile_card').eq('is_active', true),
       supabase.from('meal_plans').select('custom_name, recipe:recipes(name)')
-        .gte('date', toDateString(since)).lt('date', weekStartStr),
+        .gte('date', toDateString(since)).lt('date', weekStartStr).eq('skipped', false),
     ]).then(([rec, mem, recent]) => {
       setContext({
         recipes: rec.data || [],
-        household: (mem.data || [])
-          .map(m => ({ name: m.name, brief: parseProfileCard(m.ai_profile_card)?.planner_brief }))
-          .filter(m => m.brief),
+        household: householdForAudience(mem.data || [], 'all'),
         recentMeals: [...new Set((recent.data || []).map(m => m.recipe?.name || m.custom_name).filter(Boolean))],
       })
     })
@@ -106,27 +116,33 @@ export default function PlanWizardPage() {
     [context.recipes]
   )
 
-  const plannedMap = useMemo(() => {
+  // Zaplanowane wpisy: { 'data|pora': [rows] }
+  const plannedRows = useMemo(() => {
     const map = {}
-    for (const m of meals) map[`${m.date}|${m.meal_type}`] = m.recipe?.name || m.custom_name
+    for (const m of meals) (map[`${m.date}|${m.meal_type}`] ??= []).push(m)
     return map
   }, [meals])
 
-  // Pory do zaplanowania wg zakresu
-  const slots = useMemo(() => {
-    const days = scope === 'week' ? futureDays : [day]
-    const types = scope === 'meal' ? mealTypes.slice(0, 1) : mealTypes
-    const all = days.flatMap(date => MEAL_TYPES
-      .filter(t => types.includes(t.id))
-      .map(t => ({ date, mealType: t.id })))
-    return overwrite ? all : all.filter(s => !plannedMap[`${s.date}|${s.mealType}`])
-  }, [scope, day, futureDays, mealTypes, overwrite, plannedMap])
+  // Slot zajęty: wspólny — gdy cokolwiek zaplanowane; dzieci/dorośli — gdy jest ich wpis albo wspólny
+  const isPlanned = s => {
+    const rows = plannedRows[`${s.date}|${s.mealType}`] ?? []
+    return s.audience === 'all' ? rows.length > 0 : rows.some(r => r.audience === s.audience || r.audience === 'all')
+  }
 
-  const skippedCount = useMemo(() => {
+  // Wszystkie pory w zakresie (kolacja wg trybu: wspólna / dzieci / osobno)
+  const candidateSlots = useMemo(() => {
     const days = scope === 'week' ? futureDays : [day]
     const types = scope === 'meal' ? mealTypes.slice(0, 1) : mealTypes
-    return days.flatMap(date => types.map(t => `${date}|${t}`)).filter(k => plannedMap[k]).length
-  }, [scope, day, futureDays, mealTypes, plannedMap])
+    return days.flatMap(date => MEAL_TYPES
+      .filter(t => types.includes(t.id))
+      .flatMap(t => (t.splittable ? dinnerAudiences(dinnerMode) : ['all'])
+        .map(audience => ({ date, mealType: t.id, audience }))))
+  }, [scope, day, futureDays, mealTypes, dinnerMode])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const slots = useMemo(() => overwrite ? candidateSlots : candidateSlots.filter(s => !isPlanned(s)), [candidateSlots, overwrite, plannedRows])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const skippedCount = useMemo(() => candidateSlots.filter(isPlanned).length, [candidateSlots, plannedRows])
 
   function togglePref(p) {
     setPrefs(prev => {
@@ -149,15 +165,15 @@ export default function PlanWizardPage() {
 
   function requestBody(extra = {}) {
     const slotsWithLabels = slots.map(s => ({ ...s, dayLabel: DAY_NAMES[parseDay(s.date).getDay()] }))
-    const slotKeys = new Set(slots.map(s => `${s.date}|${s.mealType}`))
+    const slotDays = new Set(slots.map(s => `${s.date}|${s.mealType}`))
     return {
       slots: slotsWithLabels,
       recipes: context.recipes.map(r => ({ name: r.name, tags: r.tags, prep_time: r.prep_time })),
       household: context.household,
       recentMeals: context.recentMeals,
       existingPlan: meals
-        .filter(m => !slotKeys.has(`${m.date}|${m.meal_type}`))
-        .map(m => ({ date: m.date, mealType: m.meal_type, name: m.recipe?.name || m.custom_name })),
+        .filter(m => !m.skipped && MEAL_TYPES.some(t => t.id === m.meal_type) && !(overwrite && slotDays.has(`${m.date}|${m.meal_type}`)))
+        .map(m => ({ date: m.date, mealType: m.meal_type, audience: m.audience, name: mealName(m) })),
       pantry,
       preferences: [...prefs],
       notes,
@@ -183,7 +199,7 @@ export default function PlanWizardPage() {
     setAiError(null)
     const currentPlan = proposal
       .filter(p => p.options.length)
-      .map(p => ({ date: p.date, mealType: p.mealType, name: p.options[p.idx].name }))
+      .map(p => ({ date: p.date, mealType: p.mealType, audience: p.audience, name: p.options[p.idx].name }))
     const { data, error } = await invokeAi('plan-meals', requestBody({ currentPlan, instruction: text }))
     setCorrecting(false)
     if (error) { setAiError(error); return }
@@ -205,8 +221,13 @@ export default function PlanWizardPage() {
       .map(p => {
         const opt = p.options[p.idx]
         const recipe = recipesByName.get(opt.name.trim().toLowerCase())
-        return { date: p.date, mealType: p.mealType, recipeId: recipe?.id, customName: recipe ? null : opt.name }
+        return { date: p.date, mealType: p.mealType, audience: p.audience ?? 'all', recipeId: recipe?.id, customName: recipe ? null : opt.name }
       })
+    // „Tylko dzieci”: dorośli bez kolacji (chyba że mają już własną kolację, a nie zastępujemy)
+    for (const r of rows.filter(r => r.audience === 'kids' && dinnerMode === 'kids')) {
+      const adultsPlanned = (plannedRows[`${r.date}|${r.mealType}`] ?? []).some(m => m.audience === 'adults' && !m.skipped)
+      if (!adultsPlanned || overwrite) rows.push({ date: r.date, mealType: r.mealType, audience: 'adults', skipped: true })
+    }
     const { error } = await addMeals(rows)
     setSaving(false)
     if (error) { setAiError('Nie udało się zapisać planu. Spróbuj ponownie.'); return }
@@ -351,6 +372,23 @@ export default function PlanWizardPage() {
             ))}
           </div>
 
+          {mealTypes.includes('dinner') && (
+            <>
+              <p className={styles.groupLabel}>Kolacja dla</p>
+              <div className={styles.chips}>
+                {DINNER_MODES.map(m => (
+                  <button
+                    key={m.id}
+                    className={`${styles.chip} ${dinnerMode === m.id ? styles.chipOn : ''}`}
+                    onClick={() => setDinnerMode(m.id)}
+                    type="button"
+                  >{m.label}</button>
+                ))}
+              </div>
+              {dinnerMode === 'kids' && <p className={styles.muted}>Dorośli dostaną w planie „bez kolacji”.</p>}
+            </>
+          )}
+
           <button
             className={`glass ${styles.toggleRow}`}
             onClick={() => setOverwrite(o => !o)}
@@ -422,7 +460,7 @@ export default function PlanWizardPage() {
                     const recipe = opt && recipesByName.get(opt.name.trim().toLowerCase())
                     return (
                       <div
-                        key={item.mealType}
+                        key={slotKey(item)}
                         className={`glass glow ${styles.slot}`}
                         onTouchStart={e => { touchX.current = e.touches[0].clientX }}
                         onTouchEnd={e => {
@@ -433,7 +471,7 @@ export default function PlanWizardPage() {
                         }}
                       >
                         <div className={styles.slotText}>
-                          <span className={styles.slotMeal}>{mealLabel(item.mealType)}</span>
+                          <span className={styles.slotMeal}>{slotLabel(item.mealType, item.audience)}</span>
                           <span className={styles.slotDish}>{opt ? opt.name : 'Brak propozycji'}</span>
                           <span className={styles.slotMeta}>
                             {opt?.prep_time ? `⏱ ${opt.prep_time} min` : ''}

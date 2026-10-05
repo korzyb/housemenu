@@ -1,14 +1,11 @@
-import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMealPlan } from '../../hooks/useMealPlan'
-import BottomSheet from '../../components/BottomSheet/BottomSheet'
-import AISuggestSheet from '../../components/AISuggestSheet/AISuggestSheet'
-import AddMealSheet from '../../components/AddMealSheet/AddMealSheet'
+import { useMealSheets } from '../../components/MealSheets/useMealSheets'
 import Toast from '../../components/Toast/Toast'
 import { useAddToShopping } from '../../hooks/useAddToShopping'
 import MealTile from './MealTile'
 import { getWeekStart, toDateString } from '../../lib/dates'
-import { MEAL_TYPES } from '../../lib/meals'
+import { MEAL_TYPES, groupMeals, slotState } from '../../lib/meals'
 import styles from './TodayPage.module.css'
 
 const weekStart = getWeekStart()
@@ -16,37 +13,15 @@ const todayStr = toDateString(new Date())
 
 export default function TodayPage() {
   const navigate = useNavigate()
-  const { meals, loading, addMeal, removeMeal } = useMealPlan(weekStart)
+  const plan = useMealPlan(weekStart)
   const shopping = useAddToShopping()
+  const sheets = useMealSheets({ plan, shopping })
 
-  const [addSheet,     setAddSheet]     = useState(null) // { mealTypeId, prefill } | null
-  const [optionsSheet, setOptionsSheet] = useState(null) // { meal, mealType } | null
-  const [suggestSheet, setSuggestSheet] = useState(null) // { mealTypeId } | null
-
-  const mealMap = Object.fromEntries(
-    meals.filter(m => m.date === todayStr).map(m => [m.meal_type, m])
-  )
+  const today = groupMeals(plan.meals)[todayStr] ?? {}
 
   const dateLabel = new Date().toLocaleDateString('pl-PL', {
     weekday: 'long', day: 'numeric', month: 'long',
   })
-
-  function openAdd(mealTypeId, prefill = '') {
-    setAddSheet({ mealTypeId, prefill })
-  }
-
-  async function addToSlot(mealTypeId, { recipeId = null, customName = null }) {
-    await addMeal({ date: todayStr, mealType: mealTypeId, recipeId, customName })
-    setAddSheet(null)
-  }
-
-  async function handleRemoveMeal() {
-    await removeMeal(optionsSheet.meal.id)
-    setOptionsSheet(null)
-  }
-
-  const addSheetMealType = MEAL_TYPES.find(t => t.id === addSheet?.mealTypeId)
-  const optionHasRecipe = !!optionsSheet?.meal?.recipe_id
 
   return (
     <div className={styles.page}>
@@ -63,93 +38,33 @@ export default function TodayPage() {
         </Link>
       </header>
 
-      {loading ? (
+      {plan.loading && plan.meals.length === 0 ? (
         <div className={styles.skeletons}>
-          {[0, 1, 2, 3].map(i => <div key={i} className={`glass ${styles.skeleton}`} />)}
+          {MEAL_TYPES.map(t => <div key={t.id} className={`glass ${styles.skeleton}`} />)}
         </div>
       ) : (
         <div className={styles.slots}>
-          {MEAL_TYPES.map(mealType => (
-            <MealTile
-              key={mealType.id}
-              mealType={mealType}
-              meal={mealMap[mealType.id] ?? null}
-              onAdd={() => openAdd(mealType.id)}
-              onSuggest={() => setSuggestSheet({ mealTypeId: mealType.id })}
-              onOptions={() => setOptionsSheet({ meal: mealMap[mealType.id], mealType })}
-              onOpenRecipe={() => {
-                const m = mealMap[mealType.id]
-                if (m?.recipe_id) navigate(`/recipes/${m.recipe_id}`)
-              }}
-            />
-          ))}
+          {MEAL_TYPES.map(mealType => {
+            const state = slotState(today[mealType.id])
+            const slot = { date: todayStr, mealType, state }
+            return (
+              <MealTile
+                key={mealType.id}
+                mealType={mealType}
+                state={state}
+                onAdd={audience => sheets.openAdd({ ...slot, audience, allowAudience: audience === 'all' })}
+                onSuggest={audience => sheets.openSuggest({ ...slot, audience })}
+                onOptions={(audience, meal) => sheets.openOptions({ ...slot, audience, meal })}
+                onOpen={meal => meal?.recipe_id
+                  ? navigate(`/recipes/${meal.recipe_id}`)
+                  : sheets.openOptions({ ...slot, audience: meal?.audience ?? 'all', meal })}
+              />
+            )
+          })}
         </div>
       )}
 
-      {/* Bottom sheet: dodaj posiłek */}
-      {addSheet && (
-        <AddMealSheet
-          title={`${addSheetMealType?.emoji ?? ''} ${addSheetMealType?.label ?? ''}`}
-          initialValue={addSheet.prefill}
-          onClose={() => setAddSheet(null)}
-          onPickRecipe={recipe => addToSlot(addSheet.mealTypeId, { recipeId: recipe.id })}
-          onAddCustom={name => addToSlot(addSheet.mealTypeId, { customName: name })}
-        />
-      )}
-
-      {/* Bottom sheet: sugestie AI */}
-      {suggestSheet && (
-        <AISuggestSheet
-          isOpen={!!suggestSheet}
-          onClose={() => setSuggestSheet(null)}
-          mealType={suggestSheet.mealTypeId}
-          mealTypeLabel={MEAL_TYPES.find(t => t.id === suggestSheet.mealTypeId)?.label ?? ''}
-          plannedToday={meals.filter(m => m.date === todayStr).map(m => m.recipe?.name || m.custom_name).filter(Boolean)}
-          onSelect={async ({ name, recipeId }) => {
-            // Propozycja z bazy → przypisz przepis (zdjęcie, link do przepisu); inaczej sama nazwa
-            await addMeal({
-              date: todayStr,
-              mealType: suggestSheet.mealTypeId,
-              recipeId: recipeId ?? null,
-              customName: recipeId ? null : name,
-            })
-            setSuggestSheet(null)
-          }}
-        />
-      )}
-
-      {/* Bottom sheet: opcje wypełnionego kafelka */}
-      <BottomSheet isOpen={!!optionsSheet} onClose={() => setOptionsSheet(null)}>
-        <div className={styles.optionsList}>
-          {optionHasRecipe && (
-            <button className={styles.optionItem} onClick={() => {
-              navigate(`/recipes/${optionsSheet.meal.recipe_id}`)
-              setOptionsSheet(null)
-            }}>
-              Otwórz przepis
-            </button>
-          )}
-          {optionHasRecipe && (
-            <button className={styles.optionItem} disabled={shopping.busy} onClick={async () => {
-              const { meal } = optionsSheet
-              setOptionsSheet(null)
-              await shopping.addMeals([meal], meal.recipe?.name)
-            }}>
-              🛒 Dodaj składniki do zakupów
-            </button>
-          )}
-          <button className={styles.optionItem} onClick={() => {
-            const { mealType } = optionsSheet
-            setOptionsSheet(null)
-            openAdd(mealType.id)
-          }}>
-            Zmień posiłek
-          </button>
-          <button className={`${styles.optionItem} ${styles.optionDanger}`} onClick={handleRemoveMeal}>
-            Usuń z planu
-          </button>
-        </div>
-      </BottomSheet>
+      {sheets.element}
 
       <Toast
         message={shopping.busy ? 'Dodaję składniki do zakupów…' : shopping.toast?.message}

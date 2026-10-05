@@ -65,7 +65,7 @@
 .headerRow,
 .row {
   display: grid;
-  grid-template-columns: 34px repeat(4, 1fr);
+  grid-template-columns: 34px 1fr 1fr 1.6fr; /* kolacja szersza — miejsce na podział dzieci | dorośli */
   gap: 7px;
 }
 

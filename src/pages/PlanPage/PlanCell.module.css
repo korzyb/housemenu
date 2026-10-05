@@ -99,3 +99,94 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ── Kolacja: szersza kolumna (bez kwadratu — rozciąga się na wysokość wiersza) ── */
+
+.wide {
+  aspect-ratio: 1.6 / 1.02; /* ta sama wysokość co kwadratowe komórki (kolumna 1.6fr) */
+}
+
+.wide .plate {
+  width: auto;
+  height: 58%;
+}
+
+/* plakietka „tylko dzieci / tylko dorośli” */
+.badge {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-size: 13px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+/* ── Kolacja osobno: dwie połówki obok siebie ── */
+
+.splitCell {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  cursor: default;
+  animation: splitIn 0.3s ease;
+}
+
+@keyframes splitIn {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+
+.half {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 3px 5px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.half + .half {
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.half:hover,
+.half:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.half .plate {
+  width: auto;
+  height: 50%;
+}
+
+.halfWho {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.halfEmpty .plus {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.halfSkipped {
+  opacity: 0.6;
+}
+
+.skipIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.past .half {
+  cursor: default;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { MEAL_TYPE_IDS } from '../lib/meals'
 import { guessCategory } from '../lib/shopping'
 import { addIngredientsToList, ingredientsFromMeals } from '../lib/shoppingActions'
 
@@ -93,6 +94,8 @@ export function useShoppingList() {
       .select('custom_name, recipe:recipes(name, ingredients)')
       .gte('date', from)
       .lte('date', to)
+      .eq('skipped', false)             // „bez kolacji” — nic do kupienia
+      .in('meal_type', MEAL_TYPE_IDS)   // bez wycofanej przekąski
 
     if (plansError) return { error: plansError }
 

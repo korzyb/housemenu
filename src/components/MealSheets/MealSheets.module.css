@@ -1,0 +1,39 @@
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+}
+
+.optionsDish {
+  margin: 0 20px 6px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.optionItem {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--color-text);
+  font-size: 17px;
+  padding: 16px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.optionItem:last-child {
+  border-bottom: none;
+}
+
+.optionItem:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.optionItem:disabled {
+  opacity: 0.5;
+}
+
+.optionDanger {
+  color: hsl(350, 85%, 70%);
+}

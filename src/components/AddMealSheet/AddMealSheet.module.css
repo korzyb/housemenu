@@ -131,3 +131,34 @@
   color: var(--color-accent-light);
   font-size: 15px;
 }
+
+/* ── Dla kogo (kolacja) ─────────────────────── */
+
+.audience {
+  display: flex;
+  gap: 6px;
+}
+
+.audienceChip {
+  flex: 1;
+  padding: 9px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.audienceOn {
+  color: var(--color-text);
+  border-color: hsla(268, 90%, 72%, 0.7);
+  background: hsla(265, 70%, 45%, 0.35);
+  box-shadow: 0 0 12px hsla(268, 95%, 65%, 0.3);
+}
+
+.skipBtn {
+  width: 100%;
+  padding: 11px 16px;
+}

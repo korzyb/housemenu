@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecipes } from '../../hooks/useRecipes'
 import BottomSheet from '../BottomSheet/BottomSheet'
+import { AUDIENCES } from '../../lib/meals'
 import styles from './AddMealSheet.module.css'
 
 function formatShortDate(d) {
@@ -12,7 +13,11 @@ function formatShortDate(d) {
 
 // Dodawanie posiłku do pory: jedno pole = wyszukiwarka przepisów + własna nazwa (np. "Kanapki").
 // Renderuj warunkowo ({open && <AddMealSheet …/>}) — przepisy wczytują się przy otwarciu.
-export default function AddMealSheet({ title, initialValue = '', onClose, onPickRecipe, onAddCustom }) {
+// Kolacja (pora dzielona): audience + onAudienceChange → wybór „dla kogo”; onSkip → „bez kolacji” dla tej grupy.
+export default function AddMealSheet({
+  title, initialValue = '', onClose, onPickRecipe, onAddCustom,
+  audience, onAudienceChange, onSkip, skipLabel,
+}) {
   const navigate = useNavigate()
   const { recipes, loading } = useRecipes()
   const [query, setQuery] = useState(initialValue)
@@ -43,6 +48,21 @@ export default function AddMealSheet({ title, initialValue = '', onClose, onPick
   return (
     <BottomSheet isOpen onClose={onClose} title={title}>
       <div className={styles.content}>
+        {onAudienceChange && (
+          <div className={styles.audience} role="radiogroup" aria-label="Dla kogo">
+            {Object.values(AUDIENCES).map(a => (
+              <button
+                key={a.id}
+                className={`${styles.audienceChip} ${audience === a.id ? styles.audienceOn : ''}`}
+                onClick={() => onAudienceChange(a.id)}
+                role="radio"
+                aria-checked={audience === a.id}
+                type="button"
+              >{a.emoji} {a.label}</button>
+            ))}
+          </div>
+        )}
+
         <input
           className="glass-input"
           placeholder="Szukaj przepisu lub wpisz nazwę…"
@@ -55,6 +75,12 @@ export default function AddMealSheet({ title, initialValue = '', onClose, onPick
         {query.trim() && !exactMatch && (
           <button className={`btn-primary ${styles.customBtn}`} onClick={addCustom} disabled={busy} type="button">
             Dodaj „{query.trim()}”
+          </button>
+        )}
+
+        {onSkip && !query.trim() && (
+          <button className={`btn-glow ${styles.skipBtn}`} onClick={async () => { setBusy(true); await onSkip(); setBusy(false) }} disabled={busy} type="button">
+            💤 {skipLabel}
           </button>
         )}
 
