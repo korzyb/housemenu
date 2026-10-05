@@ -1,12 +1,12 @@
 # Przepisy do importu — z notatki domowej
 
-> Plik roboczy do przejrzenia przed importem do bazy housemenu. Wygenerowano: 4.10.2026.
+> Plik roboczy do przejrzenia przed importem do bazy housemenu. Wygenerowano: 5.10.2026.
 > Każdy link sprawdzony automatycznie (strona działa, ma zdjęcie, rodzaj danych przepisu).
 
 ## Podsumowanie
 
 - **65 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
-- **55 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
+- **64 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
 - **13 mini-przepisów ręcznych** — proste posiłki bez sensownego przepisu w sieci albo w Waszej domowej wersji (kanapki, parówki, oskarki, szybkie spaghetti…). Gotowe propozycje składników i kroków są w sekcji [Mini-przepisy](#mini-przepisy-do-wstawienia) na końcu pliku.
 
 ### Źródła i jak zaimportują się dziś
@@ -40,6 +40,14 @@
 17. **Gofry z jajkiem sadzonym** — z boczkiem albo szynką, sałatą i majonezem/ketchupem (mini-przepis, wzór Food&More).
 18. **Burgery wołowe** — w zestawie z **frytkami domowymi z patelni** (z surowych ziemniaków) i **colesławem z Thermomix** (Cookidoo); frytki i colesław jako osobne przepisy.
 19. **Bruschetta** — prosta, bez mozzarelli: pomidory, czosnek, oliwa, bazylia (Olga Smile).
+20. **Pierogi** — warianty: z kapustą i grzybami / z mięsem / z serem (bez ruskich).
+21. **Kiełbasa z cebulą** — mini-przepis z ilościami, żeby trafiała na listę zakupów.
+22. **Gofry wytrawne** — ciasto z Thermomix „Gofry klasyczne”, bez cukru.
+23. **Tosty** — z szynką albo salami.
+24. **Kanapki z rybą wędzoną** — osobna pozycja, nie wariant „Kanapek”.
+25. **Prosta sałatka** — dodatek do jajek sadzonych z bagietką, osobny przepis (jak colesław do burgerów).
+26. **Filet z kurczaka z grilla** — przepis z Salon Grilli.
+27. **Zdjęcia wskazane przez Was** — tosty, parówki, kanapki, oskarki, spaghetti, kiełbasa, sałatka, skrzydełka, kanapki z rybą wędzoną (zapisane w doc/img/).
 
 ### Legenda kolumn
 
@@ -53,7 +61,8 @@
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2022/01/23318618-v-1500x1500.jpg" width="110" alt="Jajecznica (z wariantami)"> | **Jajecznica (z wariantami)**<br><sub>z notatki: jajecznica (szczypiorek / cebula)</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>jajka, szybkie, wegetariańskie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/jajecznica)<br>🟢 mikrodane<br><sub>alt.: [aniagotuje.pl](https://aniagotuje.pl/przepis/jajecznica-z-grzybami)</sub> | ✅ Baza na maśle + warianty w notatkach przepisu: ze szczypiorkiem / z cebulą / z pieczarkami (wariant z pieczarkami — link alt.). |
 | <img src="https://images.aws.nestle.recipes/original/d1c97a9e7d00f05b9e3ca8b7c3915dd3_jajecznica.jpg" width="110" alt="Jajecznica na boczku z cebulą"> | **Jajecznica na boczku z cebulą**<br><sub>z notatki: jajecznica (boczek + cebula)</sub> | Ś, K<br>⏱ 15 min · 👤 2<br>łatwy · na ciepło<br><sub>jajka, boczek, szybkie</sub> | [winiary.pl](https://www.winiary.pl/przepisy/jajecznica-na-boczku-z-cebula/)<br>🟢 JSON-LD | ✅ Osobny przepis. Winiary ma pełne dane schema.org z krokami — najdokładniejszy import z całej listy. |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/68bd4dcea7246f9709512f1caf5e8e1a/Derivates/eabaaa053140ea01d9a43738e3e5f4bf47cec0b6.jpg" width="110" alt="Jajka na miękko (Thermomix)"> | **Jajka na miękko (Thermomix)**<br><sub>z notatki: jajka na miękko</sub> | Ś<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, jajka</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r55348)<br>🟢 Thermomix | ✅ Cookidoo „Gotowanie jajek” (Kulinarne ABC) — 4 jajka prosto z lodówki + 400 g wody, w Varomie. Kroki prowadzi Thermomix. |
-| <img src="https://cdn.aniagotuje.com/pictures/articles/2018/05/105371-v-1000x1000.jpg" width="110" alt="Jajka sadzone z bagietką i sałatką"> | **Jajka sadzone z bagietką i sałatką**<br><sub>z notatki: jajka sadzone z bagietką</sub> | Ś, K<br>⏱ 20 min · 👤 2<br>łatwy · na ciepło<br><sub>jajka, bagietka, sałatka</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/jak-zrobic-jajko-sadzone)<br>🟢 mikrodane | ✅ Zestaw: jajka sadzone + bagietka czosnkowa/ziołowa na ciepło (opiekacz/piekarnik) + prosta sałatka. Jeden wpis złożony — mini-przepis (niżej); link = technika jajka sadzonego. |
+| <img src="https://cdn.aniagotuje.com/pictures/articles/2018/05/105371-v-1000x1000.jpg" width="110" alt="Jajka sadzone z bagietką czosnkową"> | **Jajka sadzone z bagietką czosnkową**<br><sub>z notatki: jajka sadzone z bagietką</sub> | Ś, K<br>⏱ 20 min · 👤 2<br>łatwy · na ciepło<br><sub>jajka, bagietka</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/jak-zrobic-jajko-sadzone)<br>🟢 mikrodane | ✅ Jajka sadzone + bagietka czosnkowa/ziołowa na ciepło (opiekacz/piekarnik). Podawane z **prostą sałatką** — pozycja niżej, osobno (jak colesław do burgerów). Mini-przepis (niżej); link = technika jajka sadzonego. |
+| <img src="https://smakidnia.pl/wp-content/uploads/2025/01/Copie-de-Copy-of-Kapusniak-–-1200-x-1200-px-35.webp" width="110" alt="Prosta sałatka (sałata, pomidor, ogórek)"> | **Prosta sałatka (sałata, pomidor, ogórek)**<br><sub>z notatki: sałatka (dopisek)</sub> | Ś, K, O<br>⏱ 10 min · 👤 4<br>łatwy · na zimno<br><sub>sałatka, wegetariańskie, szybkie, dodatek</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [smakidnia.pl](https://smakidnia.pl/salatka-z-pomidorow-ogorkow-i-cebuli/)</sub> | ✅ Dodatek do **jajek sadzonych z bagietką** (pozycja wyżej) — osobny przepis, żeby dało się go dodać też do innych dań. „Sałata, pomidor, ogórek, oliwa i finito”. Zdjęcie: Smaki dnia. |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/tortilla-ziemniaczana-00.jpg" width="110" alt="Tortilla de patatas (omlet z ziemniakami i cebulą)"> | **Tortilla de patatas (omlet z ziemniakami i cebulą)**<br><sub>z notatki: omlet z ziemniakami</sub> | Ś, O, K<br>⏱ 35 min · 👤 4<br>średni · na ciepło<br><sub>jajka, ziemniaki, hiszpańskie, wegetariańskie</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/przepis/tortilla-de-patatas-hiszpanska-tortilla-z-ziemniakami)<br>🤖 AI | ✅ Klasyczna hiszpańska: tylko ziemniaki, cebula, jajka, olej i sól. Kwestia Smaku oznacza tylko nazwę i zdjęcie (bez składników), więc import przez AI z treści — przepis ma 5 składników, łatwo sprawdzić. |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/BF8451DA-A394-4757-A709-27541C2C50DB/Derivates/38499A74-62BB-4A6B-8EAE-72D397111CC2.jpg" width="110" alt="Omlet biszkoptowy (Thermomix)"> | **Omlet biszkoptowy (Thermomix)**<br><sub>z notatki: omlet biszkoptowe</sub> | Ś<br>⏱ 10 min · 👤 1<br>łatwy · na ciepło<br><sub>thermomix, jajka, słodkie</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r56894)<br>🟢 Thermomix | Cookidoo: nazwa, zdjęcie, składniki, porcje i trudność się zaimportują; kroki prowadzi Thermomix. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2016/03/102460-v-1000x1000.jpg" width="110" alt="Naleśniki z serem"> | **Naleśniki z serem**<br><sub>z notatki: naleśniki z serem</sub> | Ś, O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>słodkie, twaróg, dla dzieci</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/nalesniki-aksamitne-z-serem)<br>🟢 mikrodane |  |
@@ -61,15 +70,15 @@
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2018/01/104433-v-1000x1000.jpg" width="110" alt="Placki owsiane"> | **Placki owsiane**<br><sub>z notatki: placki owsiane</sub> | Ś, P<br>⏱ 20 min · 👤 2<br>łatwy · na ciepło<br><sub>owsiane, fit, szybkie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/placki-owsiane-z-bananem)<br>🟢 mikrodane | Wersja z bananem (3 składniki). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2023/12/52594504-v-1500x1500.jpg" width="110" alt="Racuchy z jabłkami"> | **Racuchy z jabłkami**<br><sub>z notatki: racuchy z jabłkami</sub> | Ś, O, P<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>słodkie, jabłka</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/racuchy-z-jablkami)<br>🟢 mikrodane |  |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/dc7c90076f21c34128aef08d780dcf0b/Derivates/74e008df37384b8bae4a29667ab36b2e385c368a.jpg" width="110" alt="Gofry (Thermomix)"> | **Gofry (Thermomix)**<br><sub>z notatki: gofry</sub> | Ś, P<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, słodkie</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r904543)<br>🟢 Thermomix | Cookidoo „Gofry klasyczne” — kroki prowadzi Thermomix. |
-| <img src="https://foodandmore.pl/wp-content/uploads/2022/01/S_C4581.jpg" width="110" alt="Gofry z jajkiem sadzonym i boczkiem"> | **Gofry z jajkiem sadzonym i boczkiem**<br><sub>z notatki: gofry (+ z jajkiem sadzonym)</sub> | Ś, K<br>⏱ 30 min · 👤 3<br>łatwy · na ciepło<br><sub>wytrawne, jajka, boczek, gofry</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [foodandmore.pl](https://foodandmore.pl/2022/01/gofry-z-sadzonym-jajkiem-i-boczkiem/)</sub> | ✅ Wzór: Food&More (gofry + sałata + pomidor + jajko sadzone + boczek). U nich bez sosu i z chili — w mini-przepisie (niżej) dodałem majonez/ketchup i wariant z szynką zamiast boczku. |
+| <img src="https://foodandmore.pl/wp-content/uploads/2022/01/S_C4581.jpg" width="110" alt="Gofry z jajkiem sadzonym i boczkiem"> | **Gofry z jajkiem sadzonym i boczkiem**<br><sub>z notatki: gofry (+ z jajkiem sadzonym)</sub> | Ś, K<br>⏱ 30 min · 👤 6<br>łatwy · na ciepło<br><sub>wytrawne, jajka, boczek, gofry</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [foodandmore.pl](https://foodandmore.pl/2022/01/gofry-z-sadzonym-jajkiem-i-boczkiem/)</sub><br><sub>alt.: [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r904543)</sub> | ✅ Ciasto: Thermomix „Gofry klasyczne” (Cookidoo, link alt.) — **bez cukru i cukru waniliowego**. Wierzch wg Food&More: sałata, pomidor, jajko sadzone, boczek albo szynka + majonez lub ketchup. Ciasto daje 12 gofrów = 6 porcji po 2. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2024/08/66144659-v-1500x1500.jpg" width="110" alt="Kasza jaglana z owocami (jaglanka)"> | **Kasza jaglana z owocami (jaglanka)**<br><sub>z notatki: kasza jaglana z owocami</sub> | Ś<br>⏱ 25 min · 👤 2<br>łatwy · na ciepło<br><sub>fit, owoce, bez glutenu</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/jaglanka)<br>🟢 mikrodane |  |
-| 📷 brak | **Parówki / frankfurterki**<br><sub>z notatki: parówki, frankfurterki</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, dla dzieci</sub> | ✍️ ręcznie | ✅ Ręczny mini-przepis (niżej) — dzięki niemu parówki trafią na listę zakupów. |
+| <img src="https://radio.rzeszow.pl/wp-content/uploads/2025/09/Od-frankfurterki-do-parowki.-Dzis-obchodzimy-Dzien-Parowki.jpg" width="110" alt="Parówki / frankfurterki"> | **Parówki / frankfurterki**<br><sub>z notatki: parówki, frankfurterki</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, dla dzieci</sub> | ✍️ ręcznie | ✅ Ręczny mini-przepis (niżej) — dzięki niemu parówki trafią na listę zakupów. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/07/16974341-v-1500x1500.jpg" width="110" alt="Hot dogi"> | **Hot dogi**<br><sub>z notatki: hot-dog</sub> | Ś, K<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>dla dzieci, szybkie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/hot-dogi)<br>🟢 mikrodane |  |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/C198F16F-29BD-4A92-A369-61042DAF412A/Derivates/e8969ec982d09d7bb33ccedd2b0c30d247b0f96d.jpg" width="110" alt="Hot dogi kibica (Thermomix)"> | **Hot dogi kibica (Thermomix)**<br><sub>z notatki: hot dog kibica / „hot-dog Kubica”</sub> | Ś, K, P<br>⏱ 1 h 50 min · 👤 15<br>łatwy · na ciepło<br><sub>thermomix, drożdżowe, impreza</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r127849)<br>🟢 Thermomix | 15 sztuk, 10 min pracy / 1 h 50 min z wyrastaniem. Kroki prowadzi Thermomix. |
-| 📷 brak | **Kanapki (z wariantami)**<br><sub>z notatki: kanapki (dżem / wędlina / Almette / miód / pasta orzechowa)</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na zimno<br><sub>szybkie, bez gotowania</sub> | ✍️ ręcznie | ✅ Ręczny przepis — jak „Jajecznica”: jeden wpis, baza w składnikach, warianty w notatkach. Dodatek wybranego wariantu dopisujesz na listę zakupów ręcznie. |
+| <img src="https://media.centrumrespo.pl/wp-content/uploads/2024/11/05101632/Kanapki-z-serkiem-smietankowym-i-wedlina-warzywa.jpg" width="110" alt="Kanapki (z wariantami)"> | **Kanapki (z wariantami)**<br><sub>z notatki: kanapki (dżem / wędlina / Almette / miód / pasta orzechowa)</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na zimno<br><sub>szybkie, bez gotowania</sub> | ✍️ ręcznie | ✅ Ręczny przepis — jak „Jajecznica”: jeden wpis, baza w składnikach, warianty w notatkach. Dodatek wybranego wariantu dopisujesz na listę zakupów ręcznie. |
 | <img src="https://www.zajadam.pl/wp-content/uploads/2015/03/pasta-jajeczna-1-891x500.jpg" width="110" alt="Pasta jajeczna"> | **Pasta jajeczna**<br><sub>z notatki: pasta jajeczna (2×)</sub> | Ś, K<br>⏱ 20 min · 👤 2<br>łatwy · na zimno<br><sub>jajka, do kanapek, wegetariańskie</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [zajadam.pl](https://www.zajadam.pl/wielkanoc/pasta-jajeczna)</sub> | ✅ Tylko: jajka, majonez, musztarda, sól, pieprz + szczypiorek/natka. Wzór: zajadam.pl (dokładnie te składniki), ale tam jajka idą do blendera — mini-przepis (niżej) ma wersję z tarką. Odpada aniagotuje (ser żółty, ogórek, śmietana). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/09/19799464-v-1500x1500.jpg" width="110" alt="Zapiekanki"> | **Zapiekanki**<br><sub>z notatki: zapiekanki (śniadania + kolacje)</sub> | Ś, K<br>⏱ 25 min · 👤 4<br>łatwy · na ciepło<br><sub>bagietka, pieczarki, ser</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/zapiekanki)<br>🟢 mikrodane |  |
-| 📷 brak | **Oskarki**<br><sub>z notatki: oskarki (śniadania + kolacje)</sub> | Ś, K<br>⏱ 15 min · 👤 2<br>łatwy · na ciepło<br><sub>kanapki na ciepło, opiekacz, szybkie</sub> | ✍️ ręcznie | ✅ Wasz domowy przepis: podgrzewana kanapka z ciabatty z salami, warzywami i sosem ketchup-majonez, w opiekaczu (jak kebab/tortilla). Mini-przepis (niżej) — popraw ilości, jeśli robicie inaczej. |
+| <img src="https://pliki.doradcasmaku.pl/panini-z-szynka-prosciutto-i-mozzarella-wloskie-tosty0-4.jpg" width="110" alt="Oskarki"> | **Oskarki**<br><sub>z notatki: oskarki (śniadania + kolacje)</sub> | Ś, K<br>⏱ 15 min · 👤 2<br>łatwy · na ciepło<br><sub>kanapki na ciepło, opiekacz, szybkie</sub> | ✍️ ręcznie | ✅ Wasz domowy przepis: podgrzewana kanapka z ciabatty z salami, warzywami i sosem ketchup-majonez, w opiekaczu (jak kebab/tortilla). Mini-przepis (niżej) — popraw ilości, jeśli robicie inaczej. |
 
 ## 🍽 Obiady — dania główne
 
@@ -82,7 +91,7 @@
 | <img src="https://www.olgasmile.com/images/000028274-poledwiczki-z-cebula-1.JPG" width="110" alt="Polędwiczki wieprzowe z cebulą"> | **Polędwiczki wieprzowe z cebulą**<br><sub>z notatki: polędwiczki wieprzowe z cebulą (2×)</sub> | O<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>wieprzowina, szybkie</sub> | [olgasmile.com](https://www.olgasmile.com/poledwiczki-wieprzowe-z-cebula.html)<br>🤖 AI |  |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/02/12660139-v-1500x1500.jpg" width="110" alt="Pieczone udka z kurczaka"> | **Pieczone udka z kurczaka**<br><sub>z notatki: pieczone udka z kurczaka (2×)</sub> | O<br>⏱ 1 h 15 min · 👤 4<br>łatwy · na ciepło<br><sub>kurczak, piekarnik</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/udka-pieczone)<br>🟢 mikrodane |  |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/BCEAF003-FEAA-483E-B5E1-C53A578681D7/Derivates/148ef20d-b251-490b-9008-671ceb0e7e86.jpg" width="110" alt="Kurczak w cieście pomidorowym (Thermomix)"> | **Kurczak w cieście pomidorowym (Thermomix)**<br><sub>z notatki: kurczak w cieście (pomidorowym)</sub> | O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, kurczak, smażone</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r146451)<br>🟢 Thermomix | Ocena 4,5 (886 opinii). Z sosem czosnkowym. Kroki prowadzi Thermomix. |
-| 📷 brak | **Spaghetti bolognese (domowe, z sosem ze słoika)**<br><sub>z notatki: spaghetti bolognese</sub> | O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>makaron, mięso mielone, włoskie</sub> | ✍️ ręcznie | ✅ Wersja domowa: mięso mielone smażone i doprawione osobno, potem sos ze słoika doprawiony ziołami, makaron gotowany oddzielnie — mini-przepis (niżej). |
+| <img src="https://pliki.doradcasmaku.pl/spaghetti-bolognese-prosto-i-szybko0-4.jpg" width="110" alt="Spaghetti bolognese (domowe, z sosem ze słoika)"> | **Spaghetti bolognese (domowe, z sosem ze słoika)**<br><sub>z notatki: spaghetti bolognese</sub> | O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>makaron, mięso mielone, włoskie</sub> | ✍️ ręcznie | ✅ Wersja domowa: mięso mielone smażone i doprawione osobno, potem sos ze słoika doprawiony ziołami, makaron gotowany oddzielnie — mini-przepis (niżej). |
 | <img src="https://zpierwszegotloczenia.pl/obrazek/duze/makaron-z-krewetkami-i-pomidorkami-koktajlowymi-423430.jpeg" width="110" alt="Makaron z krewetkami i pomidorkami koktajlowymi"> | **Makaron z krewetkami i pomidorkami koktajlowymi**<br><sub>z notatki: krewetki z makaronem (Internet), makaron z krewetkami</sub> | O, K<br>⏱ 20 min · 👤 3<br>łatwy · na ciepło<br><sub>makaron, owoce morza, szybkie</sub> | [zpierwszegotloczenia.pl](https://zpierwszegotloczenia.pl/przepis/makaron-z-krewetkami-i-pomidorkami-koktajlowymi/2)<br>🤖 AI<br><sub>alt.: [primipiatti.pl](https://primipiatti.pl/2024/01/29/makaron-z-krewetkami-i-pomidorkami-koktajlowymi/)</sub> | ✅ Cebula + czosnek, krewetki, pomidorki koktajlowe; ugotowany makaron na koniec do patelni i wszystko razem mieszane. Przepis podaje olej Kujawski „z oregano, pomidorami i cebulą” — przy imporcie zamienię na oliwę + oregano. Alt. (z masłem i śmietaną): Primi Piatti. |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/nalesniki_00_0.jpg" width="110" alt="Naleśniki (podstawowe)"> | **Naleśniki (podstawowe)**<br><sub>z notatki: naleśniki</sub> | O, Ś<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>słodkie, dla dzieci</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/przepis/nalesniki)<br>🤖 AI | Ciasto bazowe — nadzienie dowolne (dżem, ser, nutella…). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2020/01/2063431-v-1500x1500.jpg" width="110" alt="Pierogi (mrożone, z wariantami)"> | **Pierogi (mrożone, z wariantami)**<br><sub>z notatki: pierogi z serem, z kapustą, z mięsem</sub> | O, K<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>pierogi, polskie, szybkie, gotowe</sub> | ✍️ ręcznie | ✅ Gotowe mrożone pierogi do wrzucenia na garnek — nie do lepienia. Jeden przepis z 3 wariantami (jak „Jajecznica”). Zdjęcie poglądowe (aniagotuje.pl). |
@@ -116,18 +125,17 @@
 | :---: | :--- | :--- | :--- | :--- |
 | <img src="https://www.olgasmile.com/wp-content/uploads/bruschetta-z-pomidorami-R-031820.JPG" width="110" alt="Bruschetta z pomidorami i czosnkiem"> | **Bruschetta z pomidorami i czosnkiem**<br><sub>z notatki: bruschetta</sub> | K, P<br>⏱ 20 min · 👤 3<br>łatwy · na ciepło<br><sub>włoskie, pomidory, szybkie, wegetariańskie</sub> | [olgasmile.com](https://www.olgasmile.com/bruschetta-z-pomidorami.html)<br>🤖 AI<br><sub>alt.: [olgusta.pl](https://www.olgusta.pl/2018/02/wloska-bruschetta-ze-swiezymi-pomidorami.html)</sub> | ✅ Prosta, bez sera: grzanki z oliwą + pomidory w kostce z czosnkiem, oliwą, odrobiną octu balsamicznego, solą i bazylią (10 min przegryzania). Zamiast aniagotuje (mozzarella, szynka parmeńska, cebulka). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/11/21731412-v-1500x1500.jpg" width="110" alt="Sałatka cezar"> | **Sałatka cezar**<br><sub>z notatki: sałatka cesarska</sub> | K, O<br>⏱ 30 min · 👤 4<br>łatwy · na zimno<br><sub>sałatka, kurczak</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/salatka-cezar)<br>🟢 mikrodane |  |
-| 📷 brak | **Prosta sałatka (sałata, pomidor, ogórek)**<br><sub>z notatki: sałatka (dopisek)</sub> | K, O<br>⏱ 10 min · 👤 4<br>łatwy · na zimno<br><sub>sałatka, wegetariańskie, szybkie, dodatek</sub> | ✍️ ręcznie | ✅ „Sałata, pomidor, ogórek, oliwa i finito” — mini-przepis (niżej). Pasuje też jako dodatek do obiadu. |
-| 📷 brak | **Tosty (sandwiche)**<br><sub>z notatki: tosty, tosty (sandwiche)</sub> | K, Ś<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, ser, szynka</sub> | ✍️ ręcznie | Mini-przepis (niżej). |
+| <img src="https://gerlach.pl/img/ybc_blog/post/tostyzopiekacza.jpg" width="110" alt="Tosty (sandwiche) z szynką lub salami"> | **Tosty (sandwiche) z szynką lub salami**<br><sub>z notatki: tosty, tosty (sandwiche)</sub> | K, Ś<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, ser, szynka, salami, opiekacz</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [gerlach.pl](https://gerlach.pl/blog/post/przepis-na-tosty-z-opiekacza-5-pomyslow-na-chrupiace-sniadanie.html)</sub> | ✅ Z szynką albo salami. Mini-przepis (niżej). Zdjęcie: Gerlach. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2015/10/102201-v-1000x1000.jpg" width="110" alt="Tosty francuskie"> | **Tosty francuskie**<br><sub>z notatki: tosty francuskie (2×)</sub> | K, Ś<br>⏱ 15 min · 👤 2<br>łatwy · na ciepło<br><sub>słodkie, jajka, szybkie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/klasyczne-tosty-francuskie)<br>🟢 mikrodane |  |
-| 📷 brak | **Ryba wędzona**<br><sub>z notatki: ryba wędzona (dopisek)</sub> | K<br>⏱ 5 min · 👤 2<br>łatwy · na zimno<br><sub>ryby, bez gotowania</sub> | ✍️ ręcznie | Gotowy produkt — mini-przepis (niżej). Alternatywa: szybka pasta z wędzonej makreli (aniagotuje.pl/przepis/szybka-pasta-z-wedzonej-makreli). |
-| 📷 brak | **Kiełbasa (na ciepło / z grilla)**<br><sub>z notatki: kiełbasa (kolacje + grill)</sub> | K, G<br>⏱ 15 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, szybkie</sub> | ✍️ ręcznie | Mini-przepis (niżej). |
+| <img src="img/kanapki-z-ryba-wedzona.jpg" width="110" alt="Kanapki z rybą wędzoną"> | **Kanapki z rybą wędzoną**<br><sub>z notatki: ryba wędzona (dopisek)</sub> | K<br>⏱ 5 min · 👤 2<br>łatwy · na zimno<br><sub>ryby, kanapki, bez gotowania</sub> | ✍️ ręcznie | ✅ Osobna pozycja (nie wariant „Kanapek”): pieczywo z masłem, rozdrobniona ryba wędzona i dymka/szczypiorek. Zdjęcie z Waszego posta na Facebooku — zapisane w repo (doc/img/), bo link z Facebooka wygasa po kilku dniach; przy imporcie trzeba je będzie wgrać do aplikacji. |
+| <img src="https://morliny.pl/wp-content/uploads/2021/06/0c9509a8-7640-54b3-95dd-35b0a3fb1cd4.jpg" width="110" alt="Kiełbasa z cebulą (z patelni / z grilla)"> | **Kiełbasa z cebulą (z patelni / z grilla)**<br><sub>z notatki: kiełbasa (kolacje + grill)</sub> | K, G<br>⏱ 25 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, szybkie</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [morliny.pl](https://morliny.pl/przepisy/kielbasa-morlinska-smazona-z-cebula/)</sub> | ✅ Mini-przepis z konkretnymi ilościami — po wstawieniu do bazy kiełbasa, cebula i dodatki trafiają na listę zakupów jak przy każdym przepisie. Zdjęcie: Morliny. |
 
 ## 🔥 Grill
 
 | Zdjęcie | Danie | Parametry | Źródło i import | Uwagi |
 | :---: | :--- | :--- | :--- | :--- |
-| 📷 brak | **Skrzydełka z grilla (gotowe z Biedronki)**<br><sub>z notatki: skrzydełka (Biedronka)</sub> | G<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, kurczak, gotowe</sub> | ✍️ ręcznie | ✅ Gotowe marynowane z Biedronki — mini-przepis z 1 produktem (niżej). |
-| <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/steki10.jpg" width="110" alt="Filet z kurczaka z grilla"> | **Filet z kurczaka z grilla**<br><sub>z notatki: filet z kurczaka</sub> | G, O<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, kurczak</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/przepis/marynat-do-mies-z-grilla)<br>🤖 AI | Link to uniwersalna marynata (oliwa, balsamico, rozmaryn, czosnek) — przepis złożę: filet + marynata + grillowanie ok. 6–7 min/stronę. |
+| <img src="https://staticsmaker.iplsc.com/smaker_production_2023_05_26/f8cab73a162268395e6df93801ec8fbb-content.jpg" width="110" alt="Skrzydełka z grilla (gotowe z Biedronki)"> | **Skrzydełka z grilla (gotowe z Biedronki)**<br><sub>z notatki: skrzydełka (Biedronka)</sub> | G<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, kurczak, gotowe</sub> | ✍️ ręcznie | ✅ Gotowe marynowane z Biedronki — mini-przepis z 1 produktem (niżej). |
+| <img src="https://salongrilli.pl/images/Artykulu/Przepisy/Royalprzepisy/FiletKurczaka.jpg" width="110" alt="Filet z kurczaka z grilla"> | **Filet z kurczaka z grilla**<br><sub>z notatki: filet z kurczaka</sub> | G, O<br>⏱ 45 min · 👤 2<br>łatwy · na ciepło<br><sub>grill, kurczak</sub> | [salongrilli.pl](https://salongrilli.pl/soczyste-grillowane-filety-z-kurczaka-na-grillu-gazowym-przepis-na-perfekcyjne-mieso-n-47.html)<br>🤖 AI | ✅ Marynata: oliwa, czosnek, sok z cytryny, oregano, wędzona papryka; min. 30 min marynowania, grill 200–220°C, 3 min z każdej strony + 5 min pośrednio, do 75°C w środku. Na 2 filety (2 os.) — dla 4 osób podwój. |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/poledwiczka-z-grilla-sos-rabarbarowy-00.jpg" width="110" alt="Polędwiczka wieprzowa z grilla"> | **Polędwiczka wieprzowa z grilla**<br><sub>z notatki: polędwica wieprzowa</sub> | G<br>⏱ 1 h 20 min · 👤 3<br>łatwy · na ciepło<br><sub>grill, wieprzowina</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/kuchnia_polska/dania_z_grilla/poledwiczka_z_grilla/przepis.html)<br>🤖 AI | Z marynowaniem min. 1 h. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2018/04/105322-v-1000x1000.jpg" width="110" alt="Karkówka z grilla"> | **Karkówka z grilla**<br><sub>z notatki: karkówka</sub> | G<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, wieprzowina</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/soczysta-karkowka-z-grilla)<br>🟢 mikrodane | Plus czas marynowania (najlepiej na noc). |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2024/05/62228987-v-1500x1500.jpg" width="110" alt="Warzywa z grilla"> | **Warzywa z grilla**<br><sub>z notatki: warzywa (pieczarki / papryka / cukinia)</sub> | G<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, wegetariańskie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/warzywa-na-grilla)<br>🟢 mikrodane |  |
@@ -140,9 +148,9 @@
 
 Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak przy imporcie. Popraw ilości, jeśli robicie inaczej.
 
-### Jajka sadzone z bagietką i sałatką
+### Jajka sadzone z bagietką czosnkową
 
-*Ś, K · ⏱ 20 min · 👤 2 · łatwy · na ciepło · tagi: jajka, bagietka, sałatka*
+*Ś, K · ⏱ 20 min · 👤 2 · łatwy · na ciepło · tagi: jajka, bagietka*
 
 **Składniki:**
 - 4 jajka
@@ -150,10 +158,6 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 - 1 bagietka
 - 40 g masła
 - 1–2 ząbki czosnku lub 1 łyżeczka ziół prowansalskich
-- 1 główka sałaty
-- 2 pomidory
-- 1 ogórek
-- 2 łyżki oliwy
 - sól, pieprz
 
 **Kroki:**
@@ -162,45 +166,69 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 3. Przekrój bagietkę wzdłuż i pokrój na kawałki.
 4. Posmaruj bagietkę masłem czosnkowym.
 5. Zapiekaj bagietkę 5–7 min (w opiekaczu 3–4 min).
-6. Porwij sałatę do miski.
-7. Pokrój pomidory w cząstki.
-8. Pokrój ogórek w plastry.
-9. Polej sałatkę 2 łyżkami oliwy i dopraw solą i pieprzem.
-10. Rozgrzej masło na patelni.
-11. Wbij 4 jajka na patelnię.
-12. Smaż 3–4 min, aż białko się zetnie, a żółtko zostanie płynne.
-13. Dopraw jajka solą i pieprzem.
-14. Podawaj jajka z ciepłą bagietką i sałatką.
+6. Rozgrzej masło na patelni.
+7. Wbij 4 jajka na patelnię.
+8. Smaż 3–4 min, aż białko się zetnie, a żółtko zostanie płynne.
+9. Dopraw jajka solą i pieprzem.
+10. Podawaj jajka z ciepłą bagietką i prostą sałatką.
 
-### Gofry z jajkiem sadzonym i boczkiem
+### Prosta sałatka (sałata, pomidor, ogórek)
 
-*Ś, K · ⏱ 30 min · 👤 3 · łatwy · na ciepło · tagi: wytrawne, jajka, boczek, gofry*
+*Ś, K, O · ⏱ 10 min · 👤 4 · łatwy · na zimno · tagi: sałatka, wegetariańskie, szybkie, dodatek*
 
 **Składniki:**
-- 6 gofrów wytrawnych (ciasto jak „Gofry klasyczne”, bez cukru, ze szczyptą soli)
-- 6 jajek
-- 6 plastrów boczku wędzonego (albo 6 plastrów szynki)
-- 6 liści sałaty (np. rzymskiej)
+- 1 główka sałaty
 - 2 pomidory
-- majonez lub ketchup
-- 1 łyżka oleju
+- 1 ogórek
+- 2 łyżki oliwy
 - sól, pieprz
 
 **Kroki:**
-1. Upiecz gofry z ciasta bez cukru.
-2. Rozgrzej patelnię bez tłuszczu.
-3. Smaż boczek 3 min z każdej strony, aż będzie chrupiący (szynkę tylko podgrzej 1 min).
-4. Odłóż boczek na ręcznik papierowy.
-5. Umyj i osusz liście sałaty.
-6. Pokrój pomidory w plastry.
-7. Rozgrzej 1 łyżkę oleju na patelni.
-8. Wbij jajka na patelnię.
-9. Smaż jajka 3–4 min, aż białko się zetnie, a żółtko zostanie płynne.
-10. Dopraw jajka solą i pieprzem.
-11. Posmaruj gofry majonezem lub ketchupem.
-12. Połóż na gofrach sałatę i pomidor.
-13. Dodaj jajko sadzone.
-14. Dodaj boczek lub szynkę i od razu podawaj.
+1. Umyj i osusz sałatę.
+2. Porwij sałatę do miski.
+3. Pokrój pomidory w cząstki.
+4. Pokrój ogórek w plastry.
+5. Dodaj warzywa do sałaty.
+6. Polej 2 łyżkami oliwy.
+7. Dopraw solą i pieprzem.
+8. Wymieszaj tuż przed podaniem.
+
+### Gofry z jajkiem sadzonym i boczkiem
+
+*Ś, K · ⏱ 30 min · 👤 6 · łatwy · na ciepło · tagi: wytrawne, jajka, boczek, gofry*
+
+**Składniki:**
+- 3 jajka
+- 1 szczypta soli
+- 280 g mąki pszennej
+- 1 łyżeczka proszku do pieczenia
+- 320 g wody mineralnej gazowanej
+- 70 g oleju
+- 6 jajek (do smażenia)
+- 6 plastrów boczku wędzonego (albo 6 plastrów szynki)
+- 12 liści sałaty (np. rzymskiej)
+- 3 pomidory
+- majonez lub ketchup
+- 1 łyżka oleju (do smażenia jajek)
+- sól, pieprz
+
+**Kroki:**
+1. Przygotuj ciasto w Thermomix wg przepisu „Gofry klasyczne” (Cookidoo), ale pomiń cukier i cukier waniliowy.
+2. Rozgrzej gofrownicę.
+3. Upiecz 12 gofrów.
+4. Rozgrzej patelnię bez tłuszczu.
+5. Smaż boczek 3 min z każdej strony, aż będzie chrupiący (szynkę tylko podgrzej 1 min).
+6. Odłóż boczek na ręcznik papierowy.
+7. Umyj i osusz liście sałaty.
+8. Pokrój pomidory w plastry.
+9. Rozgrzej 1 łyżkę oleju na patelni.
+10. Wbij 6 jajek na patelnię.
+11. Smaż jajka 3–4 min, aż białko się zetnie, a żółtko zostanie płynne.
+12. Dopraw jajka solą i pieprzem.
+13. Posmaruj gofry majonezem lub ketchupem.
+14. Połóż na gofrach sałatę i pomidor.
+15. Dodaj jajko sadzone.
+16. Dodaj boczek lub szynkę i od razu podawaj.
 
 ### Parówki / frankfurterki
 
@@ -336,7 +364,7 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 *O, K · ⏱ 20 min · 👤 4 · łatwy · na ciepło · tagi: pierogi, polskie, szybkie, gotowe*
 
 **Składniki:**
-- 1 kg mrożonych pierogów (ruskie / z mięsem / z serem)
+- 1 kg mrożonych pierogów (z kapustą i grzybami / z mięsem / z serem)
 - 1 łyżka soli do wody
 - dodatki wg wariantu (niżej)
 
@@ -349,7 +377,7 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 6. Polej dodatkami wybranego wariantu i podawaj.
 
 **Warianty (do notatek przepisu):**
-- ruskie / z mięsem — z cebulką: 1 cebulę w kostkę zeszklij na 2 łyżkach masła (albo skwarki z 100 g boczku)
+- z kapustą i grzybami / z mięsem — z cebulką: 1 cebulę w kostkę zeszklij na 2 łyżkach masła (albo skwarki z 100 g boczku)
 - z serem na słodko — z 200 g śmietany 18% i 1–2 łyżkami cukru (albo z roztopionym masłem i cukrem)
 - odsmażane (każdy wariant) — ugotowane pierogi podsmaż na maśle 2–3 min z każdej strony
 
@@ -379,34 +407,13 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 10. Usmaż 4 jajka sadzone, 3–4 min.
 11. Podawaj frytki z jajkiem i warzywami.
 
-### Prosta sałatka (sałata, pomidor, ogórek)
+### Tosty (sandwiche) z szynką lub salami
 
-*K, O · ⏱ 10 min · 👤 4 · łatwy · na zimno · tagi: sałatka, wegetariańskie, szybkie, dodatek*
-
-**Składniki:**
-- 1 główka sałaty
-- 2 pomidory
-- 1 ogórek
-- 2 łyżki oliwy
-- sól, pieprz
-
-**Kroki:**
-1. Umyj i osusz sałatę.
-2. Porwij sałatę do miski.
-3. Pokrój pomidory w cząstki.
-4. Pokrój ogórek w plastry.
-5. Dodaj warzywa do sałaty.
-6. Polej 2 łyżkami oliwy.
-7. Dopraw solą i pieprzem.
-8. Wymieszaj tuż przed podaniem.
-
-### Tosty (sandwiche)
-
-*K, Ś · ⏱ 10 min · 👤 2 · łatwy · na ciepło · tagi: szybkie, ser, szynka*
+*K, Ś · ⏱ 10 min · 👤 2 · łatwy · na ciepło · tagi: szybkie, ser, szynka, salami, opiekacz*
 
 **Składniki:**
 - 4 kromki chleba tostowego
-- 4 plastry szynki
+- 4 plastry szynki lub 8 plastrów salami
 - 4 plastry sera żółtego
 - 1 łyżka masła
 - ketchup (opcjonalnie)
@@ -414,43 +421,57 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 **Kroki:**
 1. Rozgrzej opiekacz.
 2. Posmaruj kromki masłem.
-3. Połóż na 2 kromkach szynkę.
+3. Połóż na 2 kromkach szynkę lub salami.
 4. Połóż ser.
 5. Przykryj pozostałymi kromkami.
 6. Opiekaj 3–4 min do zrumienienia.
 7. Podawaj z ketchupem.
 
-### Ryba wędzona
+### Kanapki z rybą wędzoną
 
-*K · ⏱ 5 min · 👤 2 · łatwy · na zimno · tagi: ryby, bez gotowania*
+*K · ⏱ 5 min · 👤 2 · łatwy · na zimno · tagi: ryby, kanapki, bez gotowania*
 
 **Składniki:**
-- ryba wędzona (np. makrela, ok. 300 g)
-- pieczywo
-- masło
-- cytryna
-- cebula / ogórek kiszony (opcjonalnie)
+- 6 kromek chleba (np. pszenno-żytniego)
+- 2 łyżki masła
+- 300 g ryby wędzonej (np. makreli lub pstrąga)
+- 1 pęczek cebulki dymki lub szczypiorku
+- sok z cytryny (opcjonalnie)
 
 **Kroki:**
-1. Obierz rybę ze skóry i ości.
-2. Pokrój cytrynę w cząstki.
-3. Podawaj rybę z pieczywem, masłem i cytryną.
+1. Obierz rybę ze skóry.
+2. Wyjmij ości.
+3. Rozdrobnij rybę widelcem na płatki.
+4. Posiekaj dymkę lub szczypiorek.
+5. Posmaruj kromki masłem.
+6. Połóż na kromkach rybę.
+7. Posyp dymką lub szczypiorkiem.
+8. Skrop sokiem z cytryny, jeśli lubisz.
 
-### Kiełbasa (na ciepło / z grilla)
+### Kiełbasa z cebulą (z patelni / z grilla)
 
-*K, G · ⏱ 15 min · 👤 4 · łatwy · na ciepło · tagi: grill, szybkie*
+*K, G · ⏱ 25 min · 👤 4 · łatwy · na ciepło · tagi: grill, szybkie*
 
 **Składniki:**
-- 4 kiełbasy (np. śląskie / na grill)
-- pieczywo
+- 4 kiełbasy (ok. 800 g, np. śląska / podwawelska / na grill)
+- 2 duże cebule
+- 1 łyżka oleju
+- 4 bułki lub 8 kromek chleba
 - musztarda
 - ketchup
 
 **Kroki:**
-1. Rozgrzej grill lub patelnię.
-2. Natnij kiełbasy w kilku miejscach.
-3. Grilluj/smaż 10–12 min, obracając.
-4. Podawaj z pieczywem, musztardą i ketchupem.
+1. Obierz 2 cebule.
+2. Pokrój cebule w piórka.
+3. Pokrój kiełbasy w ukośne plastry (albo natnij całe, jeśli na grill).
+4. Rozgrzej 1 łyżkę oleju na patelni.
+5. Smaż cebulę 5 min na średnim ogniu, aż się zeszkli.
+6. Dodaj kiełbasę.
+7. Smaż 8–10 min, mieszając, aż kiełbasa się zrumieni, a cebula zbrązowieje.
+8. Podawaj z pieczywem, musztardą i ketchupem.
+
+**Warianty (do notatek przepisu):**
+- z grilla — całe kiełbasy natnij i grilluj 10–12 min, obracając; cebulę usmaż na patelni albo w tacce na grillu
 
 ### Skrzydełka z grilla (gotowe z Biedronki)
 
