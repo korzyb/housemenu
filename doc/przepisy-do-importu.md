@@ -6,7 +6,7 @@
 ## Podsumowanie
 
 - **65 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
-- **64 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
+- **65 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
 - **13 mini-przepisów ręcznych** — proste posiłki bez sensownego przepisu w sieci albo w Waszej domowej wersji (kanapki, parówki, oskarki, szybkie spaghetti…). Gotowe propozycje składników i kroków są w sekcji [Mini-przepisy](#mini-przepisy-do-wstawienia) na końcu pliku.
 
 ### Źródła i jak zaimportują się dziś
@@ -142,7 +142,7 @@
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2018/05/105409-v-1000x1000.jpg" width="110" alt="Halloumi z grilla"> | **Halloumi z grilla**<br><sub>z notatki: ser hallumi</sub> | G, K<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, wegetariańskie, ser</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/cukinia-z-grilla-z-serem-halloumi)<br>🟢 mikrodane | Wersja z cukinią. Sam halloumi: plastry 1 cm, 2–3 min/stronę. |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/szaszlyki_z_lososia_ananasa04.jpg" width="110" alt="Krewetki z ananasem (szaszłyki)"> | **Krewetki z ananasem (szaszłyki)**<br><sub>z notatki: krewetki z ananasem</sub> | G<br>⏱ 25 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, owoce morza</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/kuchnia_polska/dania_z_grilla/szaszlyki_z_lososia/przepis.html)<br>🤖 AI | Nie znalazłem dokładnie tego przepisu — link to „szaszłyki z łososia i ananasa”; przy imporcie zamienię łososia na krewetki (grill ~1 min/stronę). |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/szaszlyki_z_kurczakiem_00.jpg" width="110" alt="Szaszłyki z kurczakiem"> | **Szaszłyki z kurczakiem**<br><sub>z notatki: szaszłyki</sub> | G<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, kurczak</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/dania_dla_dwojga/party/szaszlyki_z_kurczakiem/przepis.html)<br>🤖 AI | ✅ Z kurczakiem. Przepis z ananasem i papryką — ananas można pominąć przy edycji. |
-| 📷 brak | **Bagietka z grilla (czosnkowa)**<br><sub>z notatki: bagietka</sub> | G<br>⏱ 10 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, pieczywo</sub> | ✍️ ręcznie | Mini-przepis (niżej). |
+| <img src="https://kuchnialidla.pl/img/PL/960x540/1cf9ed2a559c-15e01bef105d-kuchnia-lidla-bagietki-czosnkowe-1250x700.webp" width="110" alt="Bagietka z grilla (czosnkowa)"> | **Bagietka z grilla (czosnkowa)**<br><sub>z notatki: bagietka</sub> | G<br>⏱ 10 min · 👤 4<br>łatwy · na ciepło<br><sub>grill, pieczywo</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [kuchnialidla.pl](https://kuchnialidla.pl/bagietki-czosnkowe)</sub> | Mini-przepis (niżej). |
 
 ## Mini-przepisy do wstawienia
 

@@ -89,7 +89,8 @@ function toServings(y: Json): number | null {
   const v = String((Array.isArray(y) ? y.join(' ') : y) ?? '')
   // „około 60 pierogów”, „420 gramów pasty”, „2600 ml zupy” — to wydajność, nie porcje
   if (!/porcj|osob|osób|serving|people|person/i.test(v) &&
-      /\d\s*(g|kg|ml|l|gram|litr|szt|sztuk|pierog|ciast|kawał|bułek|plack|naleśnik)/i.test(v)) return null
+      (/\d\s*(g|kg|ml|l)\b|gram|litr/i.test(v) ||
+       /szt|sztuk|pierog|ciast|kawał|bułek|bułk|plack|placusz|naleśnik|racuch|gofr|kotlet|tost|hot.?dog|zapiekan/i.test(v))) return null
   const n = parseInt(v.match(/\d+/)?.[0] ?? '', 10)
   return Number.isFinite(n) && n > 0 && n < 100 ? n : null
 }
@@ -378,20 +379,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json()
+    // html (opcjonalnie): treść strony pobrana po stronie wywołującego — dla stron, które blokują serwery w chmurze
+    const { url, html: providedHtml } = await req.json()
     if (!url) {
       return jsonResponse({ error: 'Brakuje parametru url' }, 400)
     }
 
-    const pageRes = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; housemenu-bot/1.0)',
-        'Accept-Language': 'pl,en;q=0.8',
-      },
-      signal: AbortSignal.timeout(12000),
-    })
-    if (!pageRes.ok) throw new Error(`Nie udało się pobrać strony: ${pageRes.status}`)
-    const html = await pageRes.text()
+    let html: string
+    if (typeof providedHtml === 'string' && providedHtml.length > 500) {
+      html = providedHtml
+    } else {
+      const pageRes = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'pl,en;q=0.8',
+        },
+        signal: AbortSignal.timeout(12000),
+      })
+      if (!pageRes.ok) {
+        throw new Error(pageRes.status === 403
+          ? 'Ta strona blokuje pobieranie przepisów przez serwer (403). Wpisz przepis ręcznie albo spróbuj innego źródła.'
+          : `Nie udało się pobrać strony: ${pageRes.status}`)
+      }
+      html = await pageRes.text()
+    }
 
     // Zdjęcie z <meta property="og:image"> (atrybuty w dowolnej kolejności)
     const ogRaw =
