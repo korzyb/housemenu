@@ -328,6 +328,7 @@
 .notes {
   font-size: 14px;
   line-height: 1.6;
+  white-space: pre-line;
   color: var(--color-text-muted);
   padding: 12px 14px;
   background: var(--color-glass-bg);
