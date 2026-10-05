@@ -5,8 +5,8 @@
 
 ## Podsumowanie
 
-- **65 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
-- **65 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
+- **66 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
+- **66 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
 - **13 mini-przepisów ręcznych** — proste posiłki bez sensownego przepisu w sieci albo w Waszej domowej wersji (kanapki, parówki, oskarki, szybkie spaghetti…). Gotowe propozycje składników i kroków są w sekcji [Mini-przepisy](#mini-przepisy-do-wstawienia) na końcu pliku.
 
 ### Źródła i jak zaimportują się dziś
@@ -16,7 +16,7 @@
 | 🟢 JSON-LD z krokami (Winiary, Smaker) | 2 | Pełne dane schema.org — składniki i kroki wprost ze strony; AI tylko rozbija kroki na atomowe. Działa już dziś. |
 | 🟢 mikrodane (aniagotuje.pl) | 29 | Strona ma składniki zapisane w standardzie schema.org (**mikrodane**). Import bierze z nich **dokładne składniki, zdjęcie, czas i kategorie**; kroki są tam częścią artykułu, więc AI wybiera z niego same czynności i rozbija na atomowe. **Działa już dziś.** |
 | 🟢 Thermomix (Cookidoo) | 10 | Import bierze nazwę, zdjęcie, składniki, czas, porcje i trudność; przepis dostaje oznaczenie **Thermomix** — kroki prowadzi urządzenie, w aplikacji zamiast kroków jest link „Otwórz w Cookidoo”. **Działa już dziś.** |
-| 🤖 AI (Kwestia Smaku, Olga Smile, inne) | 11 | Brak danych strukturalnych — AI czyta treść strony (jak przy mojewypieki.com). |
+| 🤖 AI (Kwestia Smaku, Olga Smile, inne) | 12 | Brak danych strukturalnych — AI czyta treść strony (jak przy mojewypieki.com). |
 | ✍️ ręcznie | 13 | Bez linku — mini-przepis do wpisania (mogę je przygotować hurtem). |
 
 ### Uzgodnione decyzje (✅ w tabelach)
@@ -72,6 +72,7 @@
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/dc7c90076f21c34128aef08d780dcf0b/Derivates/74e008df37384b8bae4a29667ab36b2e385c368a.jpg" width="110" alt="Gofry (Thermomix)"> | **Gofry (Thermomix)**<br><sub>z notatki: gofry</sub> | Ś, P<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, słodkie</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r904543)<br>🟢 Thermomix | Cookidoo „Gofry klasyczne” — kroki prowadzi Thermomix. |
 | <img src="https://foodandmore.pl/wp-content/uploads/2022/01/S_C4581.jpg" width="110" alt="Gofry z jajkiem sadzonym i boczkiem"> | **Gofry z jajkiem sadzonym i boczkiem**<br><sub>z notatki: gofry (+ z jajkiem sadzonym)</sub> | Ś, K<br>⏱ 30 min · 👤 6<br>łatwy · na ciepło<br><sub>wytrawne, jajka, boczek, gofry</sub> | ✍️ ręcznie<br><sub>wzór i zdjęcie: [foodandmore.pl](https://foodandmore.pl/2022/01/gofry-z-sadzonym-jajkiem-i-boczkiem/)</sub><br><sub>alt.: [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r904543)</sub> | ✅ Ciasto: Thermomix „Gofry klasyczne” (Cookidoo, link alt.) — **bez cukru i cukru waniliowego**. Wierzch wg Food&More: sałata, pomidor, jajko sadzone, boczek albo szynka + majonez lub ketchup. Ciasto daje 12 gofrów = 6 porcji po 2. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2024/08/66144659-v-1500x1500.jpg" width="110" alt="Kasza jaglana z owocami (jaglanka)"> | **Kasza jaglana z owocami (jaglanka)**<br><sub>z notatki: kasza jaglana z owocami</sub> | Ś<br>⏱ 25 min · 👤 2<br>łatwy · na ciepło<br><sub>fit, owoce, bez glutenu</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/jaglanka)<br>🟢 mikrodane |  |
+| <img src="https://justbefit.pl/wp-content/uploads/2024/09/Kasza-jaglana-z-prazonym-jablkiem-i-cynamonem.webp" width="110" alt="Kasza jaglana z prażonym jabłkiem"> | **Kasza jaglana z prażonym jabłkiem**<br><sub>z notatki: dopisek: kasza jaglana z jabłkami grzanymi</sub> | Ś, K<br>⏱ 15 min · 👤 1<br>łatwy · na ciepło<br><sub>kasza, jabłka, słodkie, fit, bez glutenu</sub> | [justbefit.pl](https://justbefit.pl/przepisy/kasza-jaglana-z-prazonym-jablkiem-i-cynamonem/)<br>🤖 AI | ✅ Kasza na wodzie z mlekiem + jabłka podsmażone na maśle z cynamonem i miodem. Przepis na 1 porcję — w aplikacji przeskalujesz porcje. Erytrytol opcjonalnie (można pominąć lub dać więcej miodu). |
 | <img src="https://radio.rzeszow.pl/wp-content/uploads/2025/09/Od-frankfurterki-do-parowki.-Dzis-obchodzimy-Dzien-Parowki.jpg" width="110" alt="Parówki / frankfurterki"> | **Parówki / frankfurterki**<br><sub>z notatki: parówki, frankfurterki</sub> | Ś, K<br>⏱ 10 min · 👤 2<br>łatwy · na ciepło<br><sub>szybkie, dla dzieci</sub> | ✍️ ręcznie | ✅ Ręczny mini-przepis (niżej) — dzięki niemu parówki trafią na listę zakupów. |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/07/16974341-v-1500x1500.jpg" width="110" alt="Hot dogi"> | **Hot dogi**<br><sub>z notatki: hot-dog</sub> | Ś, K<br>⏱ 20 min · 👤 4<br>łatwy · na ciepło<br><sub>dla dzieci, szybkie</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/hot-dogi)<br>🟢 mikrodane |  |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/C198F16F-29BD-4A92-A369-61042DAF412A/Derivates/e8969ec982d09d7bb33ccedd2b0c30d247b0f96d.jpg" width="110" alt="Hot dogi kibica (Thermomix)"> | **Hot dogi kibica (Thermomix)**<br><sub>z notatki: hot dog kibica / „hot-dog Kubica”</sub> | Ś, K, P<br>⏱ 1 h 50 min · 👤 15<br>łatwy · na ciepło<br><sub>thermomix, drożdżowe, impreza</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r127849)<br>🟢 Thermomix | 15 sztuk, 10 min pracy / 1 h 50 min z wyrastaniem. Kroki prowadzi Thermomix. |
@@ -506,7 +507,7 @@ Propozycje dla pozycji bez linku (✍️). Kroki w stylu „atomowym”, jak prz
 
 1. ~~Decyzje~~ — ✅ uzgodnione (wyżej).
 2. **Mikrodane schema.org** (aniagotuje.pl) — ✅ obsłużone: 29 przepisów importuje się z dokładnymi składnikami ze strony.
-3. **Import hurtowy** — zamiast wklejać 52 linków po kolei w formularzu, mogę dodać prosty „import z listy linków” (wklejasz wiele URL-i naraz, przepisy trafiają do bazy, potem je przeglądasz/poprawiasz). Przy darmowym limicie Gemini rozłożyłbym to na 2–3 dni albo partie po ~15.
+3. **Import hurtowy** — zamiast wklejać 53 linków po kolei w formularzu, mogę dodać prosty „import z listy linków” (wklejasz wiele URL-i naraz, przepisy trafiają do bazy, potem je przeglądasz/poprawiasz). Przy darmowym limicie Gemini rozłożyłbym to na 2–3 dni albo partie po ~15.
 4. **Mini-przepisy ręczne** (13) — przygotuję je jako gotowe dane do wstawienia jednym ruchem.
 5. **Thermomix (Cookidoo)** — ✅ obsłużone: import z linku oznacza przepis jako Thermomix (bez kroków).
 
