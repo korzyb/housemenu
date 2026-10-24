@@ -3,7 +3,7 @@
 // Pliki z /assets/ mają hash w nazwie → można je brać z cache. Zapytania do innych domen (Supabase, czcionki,
 // zdjęcia przepisów) idą normalnie, bez cache.
 
-const CACHE = 'mealplanner-v3'
+const CACHE = 'mealplanner-v4'
 
 self.addEventListener('install', () => self.skipWaiting())
 
@@ -36,7 +36,9 @@ self.addEventListener('fetch', event => {
     return
   }
 
-  // Pliki z hashem w nazwie i ikony: cache, a gdy brak — sieć (i zapis)
+  // Tylko pliki z hashem w nazwie (/assets/) z cache; manifest, ikony, sw.js — zawsze z sieci
+  if (!url.pathname.includes('/assets/')) return
+
   event.respondWith((async () => {
     const cache = await caches.open(CACHE)
     const cached = await cache.match(req)
