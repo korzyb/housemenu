@@ -1,9 +1,9 @@
 {
-  "name": "housemenu — planer posiłków",
-  "short_name": "housemenu",
+  "id": "./?pwa=mealplanner",
+  "name": "mealplanner — planer posiłków",
+  "short_name": "mealplanner",
   "description": "Domowy planer posiłków, przepisy i lista zakupów",
   "lang": "pl",
-  "id": "./?pwa=housemenu-2",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
