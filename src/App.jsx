@@ -15,7 +15,7 @@ import styles from './App.module.css'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <div className={styles.app}>
         <div className={styles.bgBlobs} aria-hidden="true" />
         <main className={styles.main}>

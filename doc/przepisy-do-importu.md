@@ -5,8 +5,8 @@
 
 ## Podsumowanie
 
-- **66 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
-- **66 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
+- **67 pozycji** po usunięciu duplikatów z notatki (np. jajecznica, oskarki, zapiekanki, pasta jajeczna, polędwiczki, rosół występowały 2–3×); pancakes pominięte — już są w bazie.
+- **67 przepisów ze zdjęciem** (ze strony źródłowej albo — przy mini-przepisach — ze strony-wzoru) (podgląd poniżej, w kolumnie „Zdjęcie”) — import z linku pobierze je automatycznie.
 - **13 mini-przepisów ręcznych** — proste posiłki bez sensownego przepisu w sieci albo w Waszej domowej wersji (kanapki, parówki, oskarki, szybkie spaghetti…). Gotowe propozycje składników i kroków są w sekcji [Mini-przepisy](#mini-przepisy-do-wstawienia) na końcu pliku.
 
 ### Źródła i jak zaimportują się dziś
@@ -15,7 +15,7 @@
 | :--- | :---: | :--- |
 | 🟢 JSON-LD z krokami (Winiary, Smaker) | 2 | Pełne dane schema.org — składniki i kroki wprost ze strony; AI tylko rozbija kroki na atomowe. Działa już dziś. |
 | 🟢 mikrodane (aniagotuje.pl) | 29 | Strona ma składniki zapisane w standardzie schema.org (**mikrodane**). Import bierze z nich **dokładne składniki, zdjęcie, czas i kategorie**; kroki są tam częścią artykułu, więc AI wybiera z niego same czynności i rozbija na atomowe. **Działa już dziś.** |
-| 🟢 Thermomix (Cookidoo) | 10 | Import bierze nazwę, zdjęcie, składniki, czas, porcje i trudność; przepis dostaje oznaczenie **Thermomix** — kroki prowadzi urządzenie, w aplikacji zamiast kroków jest link „Otwórz w Cookidoo”. **Działa już dziś.** |
+| 🟢 Thermomix (Cookidoo) | 11 | Import bierze nazwę, zdjęcie, składniki, czas, porcje i trudność; przepis dostaje oznaczenie **Thermomix** — kroki prowadzi urządzenie, w aplikacji zamiast kroków jest link „Otwórz w Cookidoo”. **Działa już dziś.** |
 | 🤖 AI (Kwestia Smaku, Olga Smile, inne) | 12 | Brak danych strukturalnych — AI czyta treść strony (jak przy mojewypieki.com). |
 | ✍️ ręcznie | 13 | Bez linku — mini-przepis do wpisania (mogę je przygotować hurtem). |
 
@@ -48,6 +48,7 @@
 25. **Prosta sałatka** — dodatek do jajek sadzonych z bagietką, osobny przepis (jak colesław do burgerów).
 26. **Filet z kurczaka z grilla** — przepis z Salon Grilli.
 27. **Zdjęcia wskazane przez Was** — tosty, parówki, kanapki, oskarki, spaghetti, kiełbasa, sałatka, skrzydełka, kanapki z rybą wędzoną (zapisane w doc/img/).
+28. **Wieprzowina stir-fry z warzywami** — z Cookidoo (Thermomix), dopisana później.
 
 ### Legenda kolumn
 
@@ -92,6 +93,7 @@
 | <img src="https://www.olgasmile.com/images/000028274-poledwiczki-z-cebula-1.JPG" width="110" alt="Polędwiczki wieprzowe z cebulą"> | **Polędwiczki wieprzowe z cebulą**<br><sub>z notatki: polędwiczki wieprzowe z cebulą (2×)</sub> | O<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>wieprzowina, szybkie</sub> | [olgasmile.com](https://www.olgasmile.com/poledwiczki-wieprzowe-z-cebula.html)<br>🤖 AI |  |
 | <img src="https://cdn.aniagotuje.com/pictures/articles/2021/02/12660139-v-1500x1500.jpg" width="110" alt="Pieczone udka z kurczaka"> | **Pieczone udka z kurczaka**<br><sub>z notatki: pieczone udka z kurczaka (2×)</sub> | O<br>⏱ 1 h 15 min · 👤 4<br>łatwy · na ciepło<br><sub>kurczak, piekarnik</sub> | [aniagotuje.pl](https://aniagotuje.pl/przepis/udka-pieczone)<br>🟢 mikrodane |  |
 | <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/BCEAF003-FEAA-483E-B5E1-C53A578681D7/Derivates/148ef20d-b251-490b-9008-671ceb0e7e86.jpg" width="110" alt="Kurczak w cieście pomidorowym (Thermomix)"> | **Kurczak w cieście pomidorowym (Thermomix)**<br><sub>z notatki: kurczak w cieście (pomidorowym)</sub> | O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>thermomix, kurczak, smażone</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl-PL/r146451)<br>🟢 Thermomix | Ocena 4,5 (886 opinii). Z sosem czosnkowym. Kroki prowadzi Thermomix. |
+| <img src="https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/e80214c59d3995387bd389790c8a497e/Derivates/bfb3481ea7f4754c84b2cbfa500ad89775027652.jpg" width="110" alt="Wieprzowina stir-fry z warzywami (Thermomix)"> | **Wieprzowina stir-fry z warzywami (Thermomix)**<br><sub>z notatki: dopisek — wieprzowina stir fry</sub> | O, K<br>⏱ 1 h 20 min · 👤 6<br>łatwy · na ciepło<br><sub>thermomix, wieprzowina, makaron ryżowy, azjatyckie</sub> | [cookidoo.pl](https://cookidoo.pl/recipes/recipe/pl/r432475)<br>🟢 Thermomix | ✅ Ocena 4,8 (3,4 tys. opinii). Polędwica wieprzowa w paskach z makaronem ryżowym, papryką, marchewką, groszkiem cukrowym i pak choi; sos sojowy i ostrygowy, przyprawa 5 smaków; nerkowce i dymka do podania. 45 min pracy / 1 h 20 min razem. Kroki prowadzi Thermomix. |
 | <img src="https://pliki.doradcasmaku.pl/spaghetti-bolognese-prosto-i-szybko0-4.jpg" width="110" alt="Spaghetti bolognese (domowe, z sosem ze słoika)"> | **Spaghetti bolognese (domowe, z sosem ze słoika)**<br><sub>z notatki: spaghetti bolognese</sub> | O<br>⏱ 40 min · 👤 4<br>łatwy · na ciepło<br><sub>makaron, mięso mielone, włoskie</sub> | ✍️ ręcznie | ✅ Wersja domowa: mięso mielone smażone i doprawione osobno, potem sos ze słoika doprawiony ziołami, makaron gotowany oddzielnie — mini-przepis (niżej). |
 | <img src="https://zpierwszegotloczenia.pl/obrazek/duze/makaron-z-krewetkami-i-pomidorkami-koktajlowymi-423430.jpeg" width="110" alt="Makaron z krewetkami i pomidorkami koktajlowymi"> | **Makaron z krewetkami i pomidorkami koktajlowymi**<br><sub>z notatki: krewetki z makaronem (Internet), makaron z krewetkami</sub> | O, K<br>⏱ 20 min · 👤 3<br>łatwy · na ciepło<br><sub>makaron, owoce morza, szybkie</sub> | [zpierwszegotloczenia.pl](https://zpierwszegotloczenia.pl/przepis/makaron-z-krewetkami-i-pomidorkami-koktajlowymi/2)<br>🤖 AI<br><sub>alt.: [primipiatti.pl](https://primipiatti.pl/2024/01/29/makaron-z-krewetkami-i-pomidorkami-koktajlowymi/)</sub> | ✅ Cebula + czosnek, krewetki, pomidorki koktajlowe; ugotowany makaron na koniec do patelni i wszystko razem mieszane. Przepis podaje olej Kujawski „z oregano, pomidorami i cebulą” — przy imporcie zamienię na oliwę + oregano. Alt. (z masłem i śmietaną): Primi Piatti. |
 | <img src="https://www.kwestiasmaku.com/sites/v123.kwestiasmaku.com/files/nalesniki_00_0.jpg" width="110" alt="Naleśniki (podstawowe)"> | **Naleśniki (podstawowe)**<br><sub>z notatki: naleśniki</sub> | O, Ś<br>⏱ 30 min · 👤 4<br>łatwy · na ciepło<br><sub>słodkie, dla dzieci</sub> | [kwestiasmaku.com](https://www.kwestiasmaku.com/przepis/nalesniki)<br>🤖 AI | Ciasto bazowe — nadzienie dowolne (dżem, ser, nutella…). |
