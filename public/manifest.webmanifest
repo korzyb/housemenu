@@ -3,7 +3,7 @@
   "short_name": "housemenu",
   "description": "Domowy planer posiłków, przepisy i lista zakupów",
   "lang": "pl",
-  "id": "./",
+  "id": "./?pwa=housemenu-2",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
