@@ -44,7 +44,7 @@ Zasady nadrzędne:
 - Dbaj o różnorodność w tygodniu (białka, warzywa, rodzaje dań) i realny czas gotowania.
 - Nazwy dań po polsku, krótkie i konkretne (np. "Makaron z pesto i pomidorkami").
 - Posiłek „dla dzieci” planuj pod profile dzieci (proste, lubiane przez dzieci, łagodne); „dla dorosłych” — pod profile dorosłych.
-- Tagi przepisów (śniadanie, obiad, kolacja…) mówią, do jakiej pory dania zwykle pasują.`
+- Tagi pór przy przepisach z bazy (śniadanie, obiad, kolacja) są WIĄŻĄCE: przepis otagowany np. tylko "obiad" proponuj WYŁĄCZNIE na obiad, nigdy na kolację ani śniadanie.`
 
 function list(items: string[], empty = 'brak') {
   return items.length ? items.join(', ') : empty
@@ -145,11 +145,21 @@ Zwróć WYŁĄCZNIE JSON:
     }
 
     // Normalizacja: każdy żądany slot dokładnie raz, max 3 opcje, from_db weryfikowane z bazą
-    const known = new Set((recipes as { name: string }[]).map(r => r.name.trim().toLowerCase()))
+    const key = (n: string) => String(n).trim().toLowerCase()
+    const known = new Set((recipes as { name: string }[]).map(r => key(r.name)))
+    // Pory, do których przypisano przepis tagami (np. tylko „obiad”) — przepis spoza swojej pory odpada
+    const MEAL_TAG_NAMES = new Set(['śniadanie', 'obiad', 'kolacja'])
+    const mealTags = new Map((recipes as { name: string; tags?: string[] }[]).map(r =>
+      [key(r.name), (r.tags ?? []).map(t => t.toLowerCase()).filter(t => MEAL_TAG_NAMES.has(t))]))
+    const fitsMeal = (name: string, mealType: string) => {
+      const tags = mealTags.get(key(name))
+      return !tags?.length || tags.includes(MEAL_LABELS[mealType])
+    }
     const byKey = new Map((parsed.plan ?? []).map(p => [`${p.date}|${p.mealType}|${aud(p.audience)}`, p]))
     const plan = (slots as Slot[]).map(s => {
-      const options = (byKey.get(`${s.date}|${s.mealType}|${aud(s.audience)}`)?.options ?? [])
-        .filter(o => o?.name)
+      const raw = (byKey.get(`${s.date}|${s.mealType}|${aud(s.audience)}`)?.options ?? []).filter(o => o?.name)
+      const fitting = raw.filter(o => fitsMeal(o.name, s.mealType))
+      const options = (fitting.length ? fitting : raw)
         .slice(0, 3)
         .map(o => ({
           name: String(o.name).trim(),

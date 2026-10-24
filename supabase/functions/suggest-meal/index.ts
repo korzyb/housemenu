@@ -31,7 +31,8 @@ Deno.serve(async (req) => {
     const list = recipes as Recipe[]
     const tagged = list.filter(r => r.tags?.some(t => t.toLowerCase() === mealLabel))
     const rest = list.filter(r => !tagged.includes(r))
-    const recipeNames = [...tagged, ...rest].slice(0, 60).map(r => r.name).join(', ') || 'brak przepisów'
+    const recipeNames = [...tagged, ...rest].slice(0, 80)
+      .map(r => `${r.name}${r.tags?.length ? ` [${r.tags.join(', ')}]` : ''}`).join('; ') || 'brak przepisów'
     const plannedNames = (plannedToday as string[]).join(', ') || 'nic'
 
     // Streszczenia profili domowników z tej grupy (planner_brief z karty profilu)
@@ -61,6 +62,7 @@ Już zaplanowane dzisiaj: ${plannedNames}
 ${householdSection}
 Zasady:
 ${householdRules}${audienceRule}- Preferuj przepisy z bazy (użyj dokładnej nazwy, "from_db": true), ale tylko jeśli pasują
+- Przepisy z bazy otagowane porami (śniadanie/obiad/kolacja) proponuj TYLKO na te pory
 - Jeśli proponujesz coś nowego: "from_db": false
 - Unikaj powtórzeń z "już zaplanowane"
 - Odpowiedz TYLKO tablicą JSON (bez markdown, bez wyjaśnień):
@@ -73,9 +75,15 @@ ${householdRules}${audienceRule}- Preferuj przepisy z bazy (użyj dokładnej naz
 
     const raw = await callGemini({ prompt, temperature: 0.8, maxOutputTokens: 1024, json: true })
     // "z Twoich przepisów" tylko gdy nazwa faktycznie jest w bazie (model potrafi to zmyślić)
-    const known = new Set(list.map(r => r.name.trim().toLowerCase()))
-    const suggestions = (JSON.parse(raw) as { name: string; from_db?: boolean }[])
-      .map(s => ({ ...s, from_db: known.has(String(s.name).trim().toLowerCase()) }))
+    const key = (n: string) => String(n).trim().toLowerCase()
+    const known = new Set(list.map(r => key(r.name)))
+    // Przepis otagowany innymi porami (np. tylko „obiad”) nie trafia do podpowiedzi na kolację
+    const MEAL_TAG_NAMES = new Set(['śniadanie', 'obiad', 'kolacja'])
+    const mealTags = new Map(list.map(r => [key(r.name), (r.tags ?? []).map(t => t.toLowerCase()).filter(t => MEAL_TAG_NAMES.has(t))]))
+    const all = (JSON.parse(raw) as { name: string; from_db?: boolean }[])
+      .map(s => ({ ...s, from_db: known.has(key(s.name)) }))
+    const fitting = all.filter(s => { const t = mealTags.get(key(s.name)); return !t?.length || t.includes(mealLabel) })
+    const suggestions = fitting.length ? fitting : all
 
     return jsonResponse({ suggestions })
   } catch (err) {
