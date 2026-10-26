@@ -162,3 +162,29 @@
   width: 100%;
   padding: 11px 16px;
 }
+
+/* „✨ AI” w rogu okna — 3 propozycje AI w karuzeli */
+.aiBtn {
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid hsla(268, 90%, 75%, 0.55);
+  background: hsla(262, 60%, 35%, 0.45);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-family);
+  box-shadow: 0 0 10px hsla(268, 95%, 65%, 0.35);
+  cursor: pointer;
+}
+
+.aiBtnOn {
+  background: linear-gradient(135deg, hsl(268, 80%, 58%), hsl(292, 75%, 55%));
+  border-color: transparent;
+}
+
+/* Karuzela AI zajmuje górę okna — lista krótsza, żeby całość zmieściła się na ekranie */
+.listShort {
+  max-height: 26vh;
+}

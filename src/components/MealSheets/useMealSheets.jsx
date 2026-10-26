@@ -32,6 +32,15 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
 
   const close = setter => () => setter(null)
 
+  // Dania zaplanowane już na ten dzień — AI ich nie powtarza
+  const plannedOn = slot => plan.meals.filter(m => m.date === slot.date && !m.skipped).map(mealName).filter(Boolean)
+
+  // Wybrana propozycja AI → do planu; danie z sieci (z linkiem) → najpierw pytanie, czy dodać do przepisów
+  async function pickSuggestion(slot, suggestion) {
+    if (suggestion.url && !suggestion.recipeId) { setWebPick({ slot, suggestion }); return }
+    await save(slot, { recipeId: suggestion.recipeId ?? null, customName: suggestion.recipeId ? null : suggestion.name })
+  }
+
   // ── Propozycja z sieci: import do przepisów (albo sama nazwa w planie) ──
   async function addWebPick(toRecipes) {
     const { slot, suggestion } = webPick
@@ -98,6 +107,12 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
           skipLabel={addSlot.audience && addSlot.audience !== 'all' ? `${AUDIENCES[addSlot.audience].label} bez kolacji` : ''}
           onPickRecipe={async recipe => { await save(addSlot, { recipeId: recipe.id }); setAddSlot(null) }}
           onAddCustom={async name => { await save(addSlot, { customName: name }); setAddSlot(null) }}
+          ai={{ mealType: addSlot.mealType.id, plannedToday: plannedOn(addSlot) }}
+          onPickSuggestion={async suggestion => {
+            const slot = { ...addSlot, audience: addSlot.audience ?? 'all' }
+            setAddSlot(null)
+            await pickSuggestion(slot, suggestion)
+          }}
         />
       )}
 
@@ -108,13 +123,11 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
           mealType={suggestSlot.mealType.id}
           mealTypeLabel={title(suggestSlot).replace(/^\S+\s/, '')}
           audience={suggestSlot.audience ?? 'all'}
-          plannedToday={plan.meals.filter(m => m.date === suggestSlot.date && !m.skipped).map(mealName).filter(Boolean)}
+          plannedToday={plannedOn(suggestSlot)}
           onSelect={async suggestion => {
             const slot = suggestSlot
             setSuggestSlot(null)
-            // Danie z sieci (z linkiem) → najpierw pytanie, czy dodać do przepisów
-            if (suggestion.url && !suggestion.recipeId) { setWebPick({ slot, suggestion }); return }
-            await save(slot, { recipeId: suggestion.recipeId ?? null, customName: suggestion.recipeId ? null : suggestion.name })
+            await pickSuggestion(slot, suggestion)
           }}
         />
       )}

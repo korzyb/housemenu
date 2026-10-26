@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import styles from './BottomSheet.module.css'
 
-export default function BottomSheet({ isOpen, onClose, title, children }) {
+// action — opcjonalny przycisk w prawym górnym rogu (obok tytułu)
+export default function BottomSheet({ isOpen, onClose, title, action, children }) {
   useEffect(() => {
     if (!isOpen) return
     document.body.style.overflow = 'hidden'
@@ -14,7 +15,12 @@ export default function BottomSheet({ isOpen, onClose, title, children }) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.sheet} onClick={e => e.stopPropagation()}>
         <div className={styles.handle} />
-        {title && <p className={styles.title}>{title}</p>}
+        {(title || action) && (
+          <div className={styles.header}>
+            <p className={styles.title}>{title}</p>
+            {action}
+          </div>
+        )}
         {children}
       </div>
     </div>

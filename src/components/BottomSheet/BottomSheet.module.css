@@ -36,13 +36,21 @@
   margin: 12px auto 0;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .title {
+  flex: 1;
+  min-width: 0;
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 700;
   color: var(--color-text);
-  padding: 14px 20px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin: 0;
 }
 

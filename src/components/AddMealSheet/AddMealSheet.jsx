@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecipes } from '../../hooks/useRecipes'
 import BottomSheet from '../BottomSheet/BottomSheet'
+import AiCarousel from '../AiCarousel/AiCarousel'
 import { AUDIENCES } from '../../lib/meals'
 import styles from './AddMealSheet.module.css'
 
@@ -14,14 +15,16 @@ function formatShortDate(d) {
 // Dodawanie posiłku do pory: jedno pole = wyszukiwarka przepisów + własna nazwa (np. "Kanapki").
 // Renderuj warunkowo ({open && <AddMealSheet …/>}) — przepisy wczytują się przy otwarciu.
 // Kolacja (pora dzielona): audience + onAudienceChange → wybór „dla kogo”; onSkip → „bez kolacji” dla tej grupy.
+// ai = { mealType, plannedToday } + onPickSuggestion → przycisk „✨ AI” w rogu: 3 propozycje AI w karuzeli.
 export default function AddMealSheet({
   title, initialValue = '', onClose, onPickRecipe, onAddCustom,
-  audience, onAudienceChange, onSkip, skipLabel,
+  audience, onAudienceChange, onSkip, skipLabel, ai, onPickSuggestion,
 }) {
   const navigate = useNavigate()
   const { recipes, loading } = useRecipes()
   const [query, setQuery] = useState(initialValue)
   const [busy,  setBusy]  = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
 
   const q = query.trim().toLowerCase()
   const filtered = q
@@ -37,6 +40,12 @@ export default function AddMealSheet({
     setBusy(false)
   }
 
+  async function pickSuggestion(suggestion) {
+    setBusy(true)
+    await onPickSuggestion(suggestion)
+    setBusy(false)
+  }
+
   async function addCustom() {
     const name = query.trim()
     if (!name) return
@@ -46,7 +55,19 @@ export default function AddMealSheet({
   }
 
   return (
-    <BottomSheet isOpen onClose={onClose} title={title}>
+    <BottomSheet
+      isOpen
+      onClose={onClose}
+      title={title}
+      action={ai && onPickSuggestion && (
+        <button
+          className={`${styles.aiBtn} ${aiOpen ? styles.aiBtnOn : ''}`}
+          onClick={() => setAiOpen(o => !o)}
+          aria-pressed={aiOpen}
+          type="button"
+        >✨ AI</button>
+      )}
+    >
       <div className={styles.content}>
         {onAudienceChange && (
           <div className={styles.audience} role="radiogroup" aria-label="Dla kogo">
@@ -63,13 +84,24 @@ export default function AddMealSheet({
           </div>
         )}
 
+        {aiOpen && (
+          <AiCarousel
+            key={audience ?? 'all'}
+            mealType={ai.mealType}
+            audience={audience ?? 'all'}
+            plannedToday={ai.plannedToday}
+            onPick={pickSuggestion}
+            disabled={busy}
+          />
+        )}
+
         <input
           className="glass-input"
           placeholder="Szukaj przepisu lub wpisz nazwę…"
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !exactMatch && addCustom()}
-          autoFocus
+          autoFocus={!aiOpen}
         />
 
         {query.trim() && !exactMatch && (
@@ -88,7 +120,7 @@ export default function AddMealSheet({
           {q ? 'Pasujące przepisy' : 'Z Twoich przepisów'}
         </p>
 
-        <div className={`${styles.list} ${busy ? styles.busy : ''}`}>
+        <div className={`${styles.list} ${aiOpen ? styles.listShort : ''} ${busy ? styles.busy : ''}`}>
           {loading && [0, 1, 2].map(i => <div key={i} className={`glass ${styles.skeleton}`} />)}
 
           {!loading && recipes.length === 0 && (
