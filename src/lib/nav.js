@@ -20,7 +20,8 @@ export function useTabNavigation() {
   useEffect(() => {
     if (normalized) return
     normalized = true
-    if (historyIndex() === 0 && location.pathname !== HOME) {
+    // „/” (start aplikacji z ikony) samo przekierowuje na „Dziś” — nie wolno go wkładać do historii
+    if (historyIndex() === 0 && location.pathname !== HOME && location.pathname !== '/') {
       const target = location.pathname + location.search
       navigate(HOME, { replace: true })
       navigate(target)
