@@ -11,37 +11,41 @@ function markPlanned(recipeId, dateStr) {
     .or(`last_planned_at.is.null,last_planned_at.lt.${dateStr}`)
 }
 
+// Plan tygodnia z bazy → { week, meals, error } (week = dla którego tygodnia jest wynik)
+async function loadWeek(weekStartStr) {
+  const endDate = new Date(weekStartStr)
+  endDate.setDate(endDate.getDate() + 6)
+  const { data, error } = await supabase
+    .from('meal_plans')
+    .select('*, recipe:recipes(*)')
+    .gte('date', weekStartStr)
+    .lte('date', toDateString(endDate))
+    .order('date')
+  return { week: weekStartStr, meals: data || [], error: error ?? null }
+}
+
 export function useMealPlan(weekStart) {
   const weekStartStr = toDateString(weekStart)
 
-  const [meals, setMeals] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const fetchMeals = useCallback(async () => {
-    if (!weekStartStr) return
-    setLoading(true)
-    setError(null)
-
-    const endDate = new Date(weekStartStr)
-    endDate.setDate(endDate.getDate() + 6)
-    const end = toDateString(endDate)
-
-    const { data, error } = await supabase
-      .from('meal_plans')
-      .select('*, recipe:recipes(*)')
-      .gte('date', weekStartStr)
-      .lte('date', end)
-      .order('date')
-
-    if (error) setError(error)
-    else setMeals(data || [])
-    setLoading(false)
-  }, [weekStartStr])
+  // Wynik z bazy razem z tygodniem, którego dotyczy: „ładuję”, dopóki nie przyszedł wynik dla bieżącego tygodnia.
+  // Przy zmianie tygodnia zostają poprzednie posiłki (siatka tylko przygasa), nic nie miga.
+  const [result, setResult] = useState({ week: null, meals: [], error: null })
 
   useEffect(() => {
-    fetchMeals()
-  }, [fetchMeals])
+    let stale = false // odpowiedź dla tygodnia, z którego już przełączono — pomijamy
+    loadWeek(weekStartStr).then(r => { if (!stale) setResult(r) })
+    return () => { stale = true }
+  }, [weekStartStr])
+
+  // Ponowne pobranie po zmianie (bez szkieletu ładowania)
+  const fetchMeals = useCallback(async () => {
+    const r = await loadWeek(weekStartStr)
+    setResult(prev => (prev.week === weekStartStr || prev.week === null ? r : prev))
+  }, [weekStartStr])
+
+  const meals = result.meals
+  const loading = result.week !== weekStartStr
+  const error = result.error
 
   // Slot ma albo wpis wspólny ('all'), albo osobne 'kids'/'adults' — usuń wpisy sprzeczne z zapisanym
   function clearConflicts(dateStr, mealType, audience) {

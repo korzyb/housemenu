@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useShoppingList } from '../../hooks/useShoppingList'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
@@ -40,6 +40,11 @@ export default function ShoppingPage() {
   const { items, loading, addItem, toggleItem, removeItem, clearChecked, clearAll, generateFromMealPlan, hasOpenAutoItems } =
     useShoppingList()
   const [confirmClear, setConfirmClear] = useState(false)
+  const clearBoxRef = useRef(null)
+  // Potwierdzenie „Usuń całą listę” rozwija się w dół — przewiń, żeby przyciski były nad paskiem „Dodaj produkt”
+  useEffect(() => {
+    if (confirmClear) clearBoxRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+  }, [confirmClear])
   const [askMode,    setAskMode]    = useState(false) // pytanie: zastąpić czy dopisać
   const [shopMode,   setShopMode]   = useState(false)
   const [inputVal,   setInputVal]   = useState('')
@@ -306,7 +311,7 @@ export default function ShoppingPage() {
         {/* Usunięcie całej listy — na dnie, z potwierdzeniem w miejscu */}
         {!loading && items.length > 0 && (
           confirmClear ? (
-            <div className={`glass ${styles.clearAllBox}`}>
+            <div className={`glass ${styles.clearAllBox}`} ref={clearBoxRef}>
               <p>Usunąć całą listę ({items.length} {plural(items.length, 'produkt', 'produkty', 'produktów')})? Tego nie da się cofnąć.</p>
               <div className={styles.askActions}>
                 <button className={`btn-glow ${styles.askBtn}`} onClick={() => setConfirmClear(false)} type="button">

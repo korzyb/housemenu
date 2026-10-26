@@ -535,6 +535,8 @@
 }
 
 .clearAllBox {
+  /* przewinięcie do potwierdzenia zostawia miejsce na pasek „Dodaj produkt” i dolną nawigację */
+  scroll-margin-bottom: calc(var(--nav-height) + 90px);
   display: flex;
   flex-direction: column;
   gap: 10px;

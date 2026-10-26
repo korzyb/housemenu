@@ -12,24 +12,27 @@ async function getHouseholdId() {
   return data?.id ?? null
 }
 
+const loadMembers = () => supabase.from('household_members').select('*').order('created_at')
+
 export function useMembers() {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(null)
 
-  const fetchMembers = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    const { data, error } = await supabase
-      .from('household_members')
-      .select('*')
-      .order('created_at')
-    if (error) setError(error)
-    else setMembers(data || [])
+  // Stan zmieniany dopiero po odpowiedzi z bazy
+  const apply = useCallback(({ data, error }) => {
+    setError(error ?? null)
+    if (!error) setMembers(data || [])
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchMembers() }, [fetchMembers])
+  useEffect(() => {
+    let stale = false
+    loadMembers().then(r => { if (!stale) apply(r) })
+    return () => { stale = true }
+  }, [apply])
+
+  const fetchMembers = useCallback(async () => apply(await loadMembers()), [apply])
 
   async function addMember(member) {
     const household_id = await getHouseholdId()
@@ -63,20 +66,22 @@ export function useMembers() {
 }
 
 export function useMember(id) {
-  const [member,  setMember]  = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState(null)
+  // Wynik z bazy razem z id, którego dotyczy — „ładuję”, dopóki nie przyszedł wynik dla bieżącego id
+  const [result, setResult] = useState({ id: null, member: null, error: null })
 
   useEffect(() => {
     if (!id) return
-    setLoading(true)
+    let stale = false
     supabase.from('household_members').select('*').eq('id', id).single()
       .then(({ data, error }) => {
-        if (error) setError(error)
-        else setMember(data)
-        setLoading(false)
+        if (!stale) setResult({ id, member: error ? null : data, error: error ?? null })
       })
+    return () => { stale = true }
   }, [id])
+
+  const current = result.id === id
+  const member = current ? result.member : null
+  const loading = !!id && !current
 
   async function updateMember(changes) {
     const { data, error } = await supabase
@@ -85,7 +90,7 @@ export function useMember(id) {
       .eq('id', id)
       .select()
       .single()
-    if (!error) setMember(data)
+    if (!error) setResult({ id, member: data, error: null })
     return { data, error }
   }
 
@@ -93,5 +98,5 @@ export function useMember(id) {
     return supabase.from('household_members').delete().eq('id', id)
   }
 
-  return { member, loading, error, updateMember, deleteMember }
+  return { member, loading, error: current ? result.error : null, updateMember, deleteMember }
 }

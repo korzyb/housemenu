@@ -21,35 +21,45 @@ function toggleMulti(arr, id) {
   return base.includes(id) ? base.filter(x => x !== id) : [...base, id]
 }
 
+// /settings/household/new — nowy domownik; /settings/household/:id/edit — edycja.
+// Przy edycji formularz pokazuje się dopiero z wczytanymi danymi (pola startują od nich, bez kopiowania w efekcie).
 export default function MemberWizard() {
   const { id } = useParams()
   const isEdit = !!id
-  const navigate = useNavigate()
   const goBack = useGoBack(isEdit ? `/settings/household/${id}` : '/settings/household')
-  const { addMember, updateMember, deleteMember } = useMembers()
   const { member, loading } = useMember(id)
 
+  if (isEdit && !member) {
+    if (!loading) {
+      return (
+        <div className={styles.page}>
+          <p className={styles.notFound}>Nie znaleziono domownika.</p>
+          <button className={styles.secondaryBtn} onClick={goBack}>Wróć</button>
+        </div>
+      )
+    }
+    return <div className={styles.page}><p className={styles.notFound}>Wczytywanie…</p></div>
+  }
+
+  return <MemberForm key={id ?? 'new'} id={id} member={member} goBack={goBack} />
+}
+
+function MemberForm({ id, member, goBack }) {
+  const isEdit = !!id
+  const navigate = useNavigate()
+  const { addMember, updateMember, deleteMember } = useMembers()
+
   const [step,     setStep]     = useState(0)
-  const [name,     setName]     = useState('')
-  const [emoji,    setEmoji]    = useState(MEMBER_EMOJIS[0])
-  const [profile,  setProfile]  = useState(emptyProfile())
+  const [name,     setName]     = useState(() => member?.name || '')
+  const [emoji,    setEmoji]    = useState(() => member?.emoji || MEMBER_EMOJIS[0])
+  const [profile,  setProfile]  = useState(() => (member ? mergeProfile(member.profile) : emptyProfile()))
   const [saving,   setSaving]   = useState(false)
-  const [hydrated, setHydrated] = useState(false)
 
   // Po zmianie kroku przewiń widok na górę (kontener przewijany to <main>)
   useEffect(() => {
     document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' })
     window.scrollTo({ top: 0 })
   }, [step])
-
-  useEffect(() => {
-    if (isEdit && member && !hydrated) {
-      setName(member.name || '')
-      setEmoji(member.emoji || MEMBER_EMOJIS[0])
-      setProfile(mergeProfile(member.profile))
-      setHydrated(true)
-    }
-  }, [isEdit, member, hydrated])
 
   function setField(pillarKey, fieldId, value) {
     setProfile(prev => ({
@@ -77,18 +87,6 @@ export default function MemberWizard() {
     // Lista ← profil ← edycja: wróć od razu do listy (profilu już nie ma)
     if (historyIndex() >= 2) navigate(-2)
     else navigate('/settings/household', { replace: true })
-  }
-
-  if (isEdit && !hydrated) {
-    if (!loading && !member) {
-      return (
-        <div className={styles.page}>
-          <p className={styles.notFound}>Nie znaleziono domownika.</p>
-          <button className={styles.secondaryBtn} onClick={goBack}>Wróć</button>
-        </div>
-      )
-    }
-    return <div className={styles.page}><p className={styles.notFound}>Wczytywanie…</p></div>
   }
 
   const isIdentity = step === 0

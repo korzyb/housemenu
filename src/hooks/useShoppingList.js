@@ -4,30 +4,28 @@ import { MEAL_TYPE_IDS } from '../lib/meals'
 import { guessCategory } from '../lib/shopping'
 import { addIngredientsToList, ingredientsFromMeals } from '../lib/shoppingActions'
 
+const loadItems = () => supabase.from('shopping_list').select('*').order('sort_order').order('created_at')
+
 export function useShoppingList() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // silent: odświeżenie po zmianie — bez szkieletu ładowania, żeby lista nie znikała i nie skakała na górę
-  const fetchItems = useCallback(async ({ silent = false } = {}) => {
-    if (!silent) setLoading(true)
-    setError(null)
-
-    const { data, error } = await supabase
-      .from('shopping_list')
-      .select('*')
-      .order('sort_order')
-      .order('created_at')
-
-    if (error) setError(error)
-    else setItems(data || [])
+  // Stan zmieniany dopiero po odpowiedzi z bazy — ponowne pobranie nie pokazuje szkieletu ładowania,
+  // więc lista nie znika i nie skacze na górę
+  const apply = useCallback(({ data, error }) => {
+    setError(error ?? null)
+    if (!error) setItems(data || [])
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    fetchItems()
-  }, [fetchItems])
+    let stale = false
+    loadItems().then(r => { if (!stale) apply(r) })
+    return () => { stale = true }
+  }, [apply])
+
+  const fetchItems = useCallback(async () => apply(await loadItems()), [apply])
 
   async function addItem({ name, amount = null, category = guessCategory(name) }) {
     const maxOrder = items.length > 0 ? Math.max(...items.map(i => i.sort_order)) + 1 : 0
@@ -38,7 +36,7 @@ export function useShoppingList() {
       .select()
       .single()
 
-    if (!error) fetchItems({ silent: true })
+    if (!error) fetchItems()
     return { data, error }
   }
 
@@ -53,7 +51,7 @@ export function useShoppingList() {
       .update({ is_checked: !item.is_checked })
       .eq('id', id)
 
-    fetchItems({ silent: true })
+    fetchItems()
     return { error }
   }
 
@@ -64,7 +62,7 @@ export function useShoppingList() {
       .delete()
       .eq('id', id)
 
-    fetchItems({ silent: true })
+    fetchItems()
     return { error }
   }
 
@@ -85,7 +83,7 @@ export function useShoppingList() {
       .delete()
       .eq('is_checked', true)
 
-    if (!error) fetchItems({ silent: true })
+    if (!error) fetchItems()
     return { error }
   }
 
@@ -122,7 +120,7 @@ export function useShoppingList() {
     stats.updated = res.updated ?? 0
     stats.aiUsed = res.aiUsed
 
-    fetchItems({ silent: true })
+    fetchItems()
     return { error: res.error, stats }
   }
 
