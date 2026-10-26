@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useRecipes, useRecipe } from '../../hooks/useRecipes'
 import { invokeAi } from '../../lib/ai'
-import { THERMOMIX_TAG } from '../../lib/recipes'
+import { THERMOMIX_TAG, isStoredPhoto, storeRecipePhoto } from '../../lib/recipes'
+import { supabase } from '../../lib/supabase'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -172,9 +173,12 @@ function RecipeForm({ recipe }) {
       })),
     }
     const { data, error } = isEdit ? await updateRecipe(recipe.id, payload) : await addRecipe(payload)
+    if (error) { setSaving(false); setSaveErr('Nie udało się zapisać przepisu. Spróbuj ponownie.'); return }
+    const id = data?.id ?? recipe?.id
+    // Zdjęcie z cudzej strony → kopia we własnym magazynie (nieudana kopia nie blokuje zapisu)
+    if (payload.photo_url && !isStoredPhoto(payload.photo_url)) await storeRecipePhoto(supabase, id)
     setSaving(false)
-    if (error) { setSaveErr('Nie udało się zapisać przepisu. Spróbuj ponownie.'); return }
-    navigate(`/recipes/${data?.id ?? recipe?.id}`, { replace: true })
+    navigate(`/recipes/${id}`, { replace: true })
   }
 
   return (
