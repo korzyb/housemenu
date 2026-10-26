@@ -4,6 +4,7 @@ import BottomSheet from '../BottomSheet/BottomSheet'
 import AddMealSheet from '../AddMealSheet/AddMealSheet'
 import AISuggestSheet from '../AISuggestSheet/AISuggestSheet'
 import { AUDIENCES, otherAudience, mealName } from '../../lib/meals'
+import { importRecipeFromUrl } from '../../lib/recipeImport'
 import styles from './MealSheets.module.css'
 
 const shortDate = d => new Date(`${d}T00:00:00`).toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -16,6 +17,7 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
   const [addSlot,     setAddSlot]     = useState(null)
   const [suggestSlot, setSuggestSlot] = useState(null)
   const [optionsSlot, setOptionsSlot] = useState(null)
+  const [webPick,     setWebPick]     = useState(null) // { slot, suggestion, busy?, error? }
 
   const title = (slot, prefix = '') => {
     const aud = slot.audience && slot.audience !== 'all' ? ` · ${AUDIENCES[slot.audience].emoji} ${AUDIENCES[slot.audience].label}` : ''
@@ -29,6 +31,24 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
   }
 
   const close = setter => () => setter(null)
+
+  // ── Propozycja z sieci: import do przepisów (albo sama nazwa w planie) ──
+  async function addWebPick(toRecipes) {
+    const { slot, suggestion } = webPick
+    if (!toRecipes) {
+      setWebPick(null)
+      await save(slot, { customName: suggestion.name })
+      return
+    }
+    setWebPick(p => ({ ...p, busy: true, error: null }))
+    const { recipe, error } = await importRecipeFromUrl(suggestion.url, { fallback: suggestion, mealType: slot.mealType.id })
+    if (error) {
+      setWebPick(p => ({ ...p, busy: false, error: `${error} Możesz dodać danie tylko do planu.` }))
+      return
+    }
+    setWebPick(null)
+    await save(slot, { recipeId: recipe.id })
+  }
 
   // ── Opcje ──
   function optionItems(slot) {
@@ -89,12 +109,42 @@ export function useMealSheets({ plan, shopping, showDate = false }) {
           mealTypeLabel={title(suggestSlot).replace(/^\S+\s/, '')}
           audience={suggestSlot.audience ?? 'all'}
           plannedToday={plan.meals.filter(m => m.date === suggestSlot.date && !m.skipped).map(mealName).filter(Boolean)}
-          onSelect={async ({ name, recipeId }) => {
-            await save(suggestSlot, { recipeId: recipeId ?? null, customName: recipeId ? null : name })
+          onSelect={async suggestion => {
+            const slot = suggestSlot
             setSuggestSlot(null)
+            // Danie z sieci (z linkiem) → najpierw pytanie, czy dodać do przepisów
+            if (suggestion.url && !suggestion.recipeId) { setWebPick({ slot, suggestion }); return }
+            await save(slot, { recipeId: suggestion.recipeId ?? null, customName: suggestion.recipeId ? null : suggestion.name })
           }}
         />
       )}
+
+      {/* Propozycja z sieci wybrana → dodać do moich przepisów? */}
+      <BottomSheet isOpen={!!webPick} onClose={() => !webPick?.busy && setWebPick(null)} title="Dodać do Twoich przepisów?">
+        {webPick && (
+          <div className={styles.webPick}>
+            <div className={styles.webDish}>
+              {webPick.suggestion.photo_url && <img src={webPick.suggestion.photo_url} alt="" className={styles.webPhoto} />}
+              <div>
+                <p className={styles.webName}>{webPick.suggestion.name}</p>
+                <p className={styles.webSource}>
+                  przepis z <a href={webPick.suggestion.url} target="_blank" rel="noreferrer">{webPick.suggestion.source}</a>
+                </p>
+              </div>
+            </div>
+            <p className={styles.webText}>
+              Dodam przepis ze składnikami, krokami i zdjęciem — będzie w bazie przepisów, na liście zakupów i w kolejnych propozycjach AI.
+            </p>
+            {webPick.error && <p className={styles.webError}>{webPick.error}</p>}
+            <button className="btn-primary" onClick={() => addWebPick(true)} disabled={webPick.busy} type="button">
+              {webPick.busy ? 'Pobieram przepis…' : 'Tak, dodaj do przepisów'}
+            </button>
+            <button className={`btn-glow ${styles.webSecondary}`} onClick={() => addWebPick(false)} disabled={webPick.busy} type="button">
+              Nie, tylko do planu
+            </button>
+          </div>
+        )}
+      </BottomSheet>
 
       <BottomSheet isOpen={!!optionsSlot} onClose={close(setOptionsSlot)} title={optionsSlot ? title(optionsSlot) : ''}>
         {optionsSlot && (

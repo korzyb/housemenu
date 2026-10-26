@@ -5,6 +5,7 @@
 // Kroki „atomowe” (styl Thermomix): jedna czynność / jeden dodawany składnik na krok.
 
 import { callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
+import { fullKwestiaPhoto } from '../_shared/webrecipe.ts'
 
 type Ingredient = { amount: string | null; unit: string | null; name: string }
 type Step = { order: number; text: string }
@@ -564,7 +565,8 @@ ${text}`,
       ...recipe,
       ingredients: normalizeIngredients(recipe.ingredients),
       steps: normalizeSteps(recipe.steps),
-      photo_url: absolute(ogRaw ?? null),
+      // Kwestia Smaku podaje w og:image miniaturę 250×250 — bierzemy pełne zdjęcie
+      photo_url: await fullKwestiaPhoto(absolute(ogRaw ?? null)),
       import_source: 'ai',
       steps_mode: 'atomic',
     })

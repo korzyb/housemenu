@@ -1,4 +1,7 @@
 import { callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
+import { findWebRecipes, orderOptions } from '../_shared/webrecipe.ts'
+
+type Suggestion = { name: string; from_db: boolean; emoji?: string; prep_time?: number | null; url?: string; photo_url?: string | null; source?: string }
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: 'śniadanie',
@@ -55,15 +58,15 @@ Deno.serve(async (req) => {
         ? '- To posiłek TYLKO dla dorosłych (dzieci jedzą osobno)\n'
         : ''
 
-    const prompt = `Zaproponuj 3 pomysły na ${mealLabel}${forWhom} po polsku.
+    const prompt = `Zaproponuj 3 pomysły na ${mealLabel}${forWhom} po polsku: dwa pierwsze z bazy użytkownika, trzeci — nowe danie spoza bazy.
 
 Przepisy w bazie użytkownika (najpierw te oznaczone jako ${mealLabel}): ${recipeNames}
 Już zaplanowane dzisiaj: ${plannedNames}
 ${householdSection}
 Zasady:
-${householdRules}${audienceRule}- Preferuj przepisy z bazy (użyj dokładnej nazwy, "from_db": true), ale tylko jeśli pasują
+${householdRules}${audienceRule}- Propozycje 1 i 2: przepisy Z BAZY (dokładna nazwa z bazy, "from_db": true), pasujące do domowników
 - Przepisy z bazy otagowane porami (śniadanie/obiad/kolacja) proponuj TYLKO na te pory
-- Jeśli proponujesz coś nowego: "from_db": false
+- Propozycja 3: NOWE danie spoza bazy ("from_db": false) — krótka, typowa nazwa, jaką wpisuje się w wyszukiwarkę przepisów
 - Unikaj powtórzeń z "już zaplanowane"
 - Odpowiedz TYLKO tablicą JSON (bez markdown, bez wyjaśnień):
 
@@ -83,7 +86,15 @@ ${householdRules}${audienceRule}- Preferuj przepisy z bazy (użyj dokładnej naz
     const all = (JSON.parse(raw) as { name: string; from_db?: boolean }[])
       .map(s => ({ ...s, from_db: known.has(key(s.name)) }))
     const fitting = all.filter(s => { const t = mealTags.get(key(s.name)); return !t?.length || t.includes(mealLabel) })
-    const suggestions = fitting.length ? fitting : all
+    const suggestions: Suggestion[] = orderOptions(fitting.length ? fitting : all)
+
+    // Nowe danie → prawdziwy przepis z sieci: nazwa ze strony, link i zdjęcie
+    const web = suggestions.filter(s => !s.from_db)
+    const found = await findWebRecipes(web.map(s => s.name))
+    for (const s of web) {
+      const w = found.get(s.name.trim())
+      if (w) Object.assign(s, { name: w.name, url: w.url, photo_url: w.photo_url, source: w.source })
+    }
 
     return jsonResponse({ suggestions })
   } catch (err) {

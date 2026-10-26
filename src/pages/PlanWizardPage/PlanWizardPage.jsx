@@ -7,6 +7,7 @@ import { useMealPlan } from '../../hooks/useMealPlan'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
 import { MEAL_TYPES, AUDIENCES, mealName } from '../../lib/meals'
 import { householdForAudience } from '../../lib/profile'
+import { importRecipeFromUrl } from '../../lib/recipeImport'
 import styles from './PlanWizardPage.module.css'
 
 const TOTAL_STEPS = 4
@@ -93,6 +94,8 @@ export default function PlanWizardPage() {
   const [aiError,     setAiError]     = useState(null)
   const [instruction, setInstruction] = useState('')
   const [saving,      setSaving]      = useState(false)
+  const [saveProgress, setSaveProgress] = useState(null)
+  const [webAsk,      setWebAsk]      = useState(null) // { [klucz slotu]: dodać do przepisów? } — pytanie przed zapisem
 
   // Kontekst dla AI: przepisy, domownicy, ostatnio jedzone
   const [context, setContext] = useState({ recipes: [], household: [], recentMeals: [] })
@@ -205,7 +208,12 @@ export default function PlanWizardPage() {
     const { data, error } = await invokeAi('plan-meals', requestBody({ currentPlan, instruction: text }))
     setCorrecting(false)
     if (error) { setAiError(error); return }
-    setProposal(data.plan.map(p => ({ ...p, idx: 0 })))
+    // Wybrane wcześniej danie zostaje wybrane, jeśli nadal jest wśród propozycji (np. to z sieci, na 3. miejscu)
+    const chosen = new Map(currentPlan.map(c => [slotKey(c), c.name.trim().toLowerCase()]))
+    setProposal(data.plan.map(p => {
+      const k = p.options.findIndex(o => o.name.trim().toLowerCase() === chosen.get(slotKey(p)))
+      return { ...p, idx: Math.max(0, k) }
+    }))
     if (data.tip) setTip(data.tip)
     setInstruction('')
   }
@@ -216,14 +224,36 @@ export default function PlanWizardPage() {
       : { ...p, idx: (p.idx + dir + p.options.length) % p.options.length }))
   }
 
-  async function save() {
+  // Wybrane dania z sieci (z linkiem do przepisu) — przed zapisem pytamy, które dodać do przepisów
+  const chosenWeb = proposal
+    .filter(p => p.options.length)
+    .map(p => ({ key: slotKey(p), mealType: p.mealType, opt: p.options[p.idx] }))
+    .filter(x => x.opt.url && !recipesByName.has(x.opt.name.trim().toLowerCase()))
+
+  function startSave() {
+    if (chosenWeb.length) setWebAsk(Object.fromEntries(chosenWeb.map(x => [x.key, true])))
+    else save()
+  }
+
+  async function save(addToRecipes = {}) {
     setSaving(true)
+    // Najpierw import wybranych dań z sieci do przepisów (po kolei — limit AI)
+    const imported = new Map() // klucz slotu → id przepisu
+    const toImport = chosenWeb.filter(x => addToRecipes[x.key])
+    for (const [n, x] of toImport.entries()) {
+      setSaveProgress(`Pobieram przepisy z sieci (${n + 1}/${toImport.length})…`)
+      const { recipe } = await importRecipeFromUrl(x.opt.url, { fallback: x.opt, mealType: x.mealType })
+      if (recipe) imported.set(x.key, recipe.id)
+    }
+    setSaveProgress(null)
+    const failed = toImport.length - imported.size
+
     const rows = proposal
       .filter(p => p.options.length)
       .map(p => {
         const opt = p.options[p.idx]
-        const recipe = recipesByName.get(opt.name.trim().toLowerCase())
-        return { date: p.date, mealType: p.mealType, audience: p.audience ?? 'all', recipeId: recipe?.id, customName: recipe ? null : opt.name }
+        const recipeId = imported.get(slotKey(p)) ?? recipesByName.get(opt.name.trim().toLowerCase())?.id
+        return { date: p.date, mealType: p.mealType, audience: p.audience ?? 'all', recipeId, customName: recipeId ? null : opt.name }
       })
     // „Tylko dzieci”: dorośli bez kolacji (chyba że mają już własną kolację, a nie zastępujemy)
     for (const r of rows.filter(r => r.audience === 'kids' && dinnerMode === 'kids')) {
@@ -232,7 +262,13 @@ export default function PlanWizardPage() {
     }
     const { error } = await addMeals(rows)
     setSaving(false)
+    setWebAsk(null)
     if (error) { setAiError('Nie udało się zapisać planu. Spróbuj ponownie.'); return }
+    if (failed) {
+      // Plan zapisany; nieudany import → danie w planie jako sama nazwa
+      setAiError(`Plan zapisany, ale ${failed === 1 ? 'jednego przepisu' : `${failed} przepisów`} nie udało się pobrać — ${failed === 1 ? 'jest' : 'są'} w planie jako sama nazwa.`)
+      return
+    }
     backToPlan() // plan przy powrocie wczyta się od nowa — z zapisanymi posiłkami
   }
 
@@ -478,6 +514,7 @@ export default function PlanWizardPage() {
                           <span className={styles.slotMeta}>
                             {opt?.prep_time ? `⏱ ${opt.prep_time} min` : ''}
                             {opt?.from_db && <span className={styles.badge}>z Twoich przepisów</span>}
+                            {opt && !opt.from_db && opt.url && <span className={`${styles.badge} ${styles.badgeWeb}`}>z sieci · {opt.source}</span>}
                           </span>
                           {item.options.length > 1 && (
                             <span className={styles.switcher}>
@@ -489,8 +526,8 @@ export default function PlanWizardPage() {
                             </span>
                           )}
                         </div>
-                        {recipe?.photo_url
-                          ? <img src={recipe.photo_url} alt="" className={styles.photoBg} />
+                        {(recipe?.photo_url || opt?.photo_url)
+                          ? <img src={recipe?.photo_url || opt.photo_url} alt="" className={styles.photoBg} />
                           : <span className={styles.emojiBg} aria-hidden="true">{opt?.emoji || mealEmoji(item.mealType)}</span>}
                       </div>
                     )
@@ -519,9 +556,37 @@ export default function PlanWizardPage() {
                     : <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10.2 15 12 3.4 13.8z" /></svg>}
                 </button>
               </div>
-              <button className={`btn-primary ${styles.saveBtn}`} onClick={save} disabled={saving || correcting} type="button">
-                {saving ? 'Zapisuję…' : `Dodaj do planu (${mealsCountLabel(proposal.filter(p => p.options.length).length)})`}
+              <button className={`btn-primary ${styles.saveBtn}`} onClick={startSave} disabled={saving || correcting} type="button">
+                {saving ? (saveProgress ?? 'Zapisuję…') : `Dodaj do planu (${mealsCountLabel(proposal.filter(p => p.options.length).length)})`}
               </button>
+            </div>
+          )}
+
+          {/* Przed zapisem: wybrane dania z sieci — które dodać do przepisów */}
+          {webAsk && (
+            <div className={styles.webAskBackdrop} onClick={() => !saving && setWebAsk(null)}>
+              <div className={`glass glow ${styles.webAsk}`} onClick={e => e.stopPropagation()}>
+                <h2 className={styles.webAskTitle}>Dodać do Twoich przepisów?</h2>
+                <p className={styles.muted}>Nowe dania z sieci — zaznaczone pobiorę ze składnikami, krokami i zdjęciem. Pozostałe trafią do planu jako sama nazwa.</p>
+                {chosenWeb.map(x => (
+                  <label key={x.key} className={styles.webAskRow}>
+                    <input
+                      type="checkbox"
+                      checked={!!webAsk[x.key]}
+                      onChange={e => setWebAsk(a => ({ ...a, [x.key]: e.target.checked }))}
+                      disabled={saving}
+                    />
+                    {x.opt.photo_url && <img src={x.opt.photo_url} alt="" />}
+                    <span>
+                      <span className={styles.webAskName}>{x.opt.name}</span>
+                      <span className={styles.webAskMeta}>{dayTitle(x.key.split('|')[0])} · {slotLabel(x.mealType, x.key.split('|')[2])} · {x.opt.source}</span>
+                    </span>
+                  </label>
+                ))}
+                <button className="btn-primary" onClick={() => save(webAsk)} disabled={saving} type="button">
+                  {saving ? (saveProgress ?? 'Zapisuję…') : 'Zapisz plan'}
+                </button>
+              </div>
             </div>
           )}
         </section>

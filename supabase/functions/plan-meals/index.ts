@@ -12,6 +12,7 @@
 // Wyjście: { plan: [{ date, mealType, audience, options: [{ name, emoji, prep_time, from_db }] }], tip }
 
 import { AiError, callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
+import { findWebRecipes, orderOptions } from '../_shared/webrecipe.ts'
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: 'śniadanie',
@@ -39,7 +40,8 @@ const SYSTEM_PROMPT = `Jesteś asystentem planowania domowych posiłków dla pol
 Układasz praktyczne, smaczne menu z uwzględnieniem profili domowników, ich czasu i preferencji.
 Zasady nadrzędne:
 - Alergie, nietolerancje i wykluczenia dietetyczne domowników to TWARDE WETO — żadna propozycja nie może ich łamać.
-- Priorytet mają przepisy z bazy użytkownika (podawaj wtedy DOKŁADNĄ nazwę z bazy), ale tylko gdy pasują.
+- Dla każdej pory 3 propozycje w stałym układzie: 1. i 2. — przepisy Z BAZY użytkownika (DOKŁADNA nazwa z bazy),
+  3. — NOWE danie spoza bazy (do znalezienia w sieci): krótka, typowa nazwa, jaką wpisuje się w wyszukiwarkę przepisów.
 - Unikaj powtarzania tych samych dań w planowanym okresie i dań jedzonych ostatnio.
 - Dbaj o różnorodność w tygodniu (białka, warzywa, rodzaje dań) i realny czas gotowania.
 - Nazwy dań po polsku, krótkie i konkretne (np. "Makaron z pesto i pomidorkami").
@@ -116,7 +118,7 @@ SKŁADNIKI DO WYKORZYSTANIA (co jest w domu): ${String(pantry).trim() || 'nie po
 PREFERENCJE: ${list(preferences as string[], 'brak szczególnych')}
 DODATKOWE WYMAGANIA: ${String(notes).trim() || 'brak'}
 ${correction}
-Dla KAŻDEJ pory z listy podaj dokładnie 3 różne propozycje (najlepsza jako pierwsza).
+Dla KAŻDEJ pory z listy podaj dokładnie 3 różne propozycje: dwie pierwsze z bazy ("from_db": true), trzecia — nowe danie spoza bazy ("from_db": false).
 Jeśli użyto składników z domu — rozłóż je sensownie na kilka posiłków.
 
 Zwróć WYŁĄCZNIE JSON:
@@ -159,19 +161,25 @@ Zwróć WYŁĄCZNIE JSON:
     const plan = (slots as Slot[]).map(s => {
       const raw = (byKey.get(`${s.date}|${s.mealType}|${aud(s.audience)}`)?.options ?? []).filter(o => o?.name)
       const fitting = raw.filter(o => fitsMeal(o.name, s.mealType))
-      const options = (fitting.length ? fitting : raw)
-        .slice(0, 3)
-        .map(o => ({
-          name: String(o.name).trim(),
-          emoji: o.emoji || '🍽',
-          prep_time: typeof o.prep_time === 'number' ? o.prep_time : null,
-          from_db: known.has(String(o.name).trim().toLowerCase()),
-        }))
-      return { date: s.date, mealType: s.mealType, audience: aud(s.audience), options }
+      const all = (fitting.length ? fitting : raw).map(o => ({
+        name: String(o.name).trim(),
+        emoji: o.emoji || '🍽',
+        prep_time: typeof o.prep_time === 'number' ? o.prep_time : null,
+        from_db: known.has(key(o.name)),
+      }))
+      return { date: s.date, mealType: s.mealType, audience: aud(s.audience), options: orderOptions(all) }
     })
 
     const missing = plan.filter(p => p.options.length === 0).length
     if (missing === plan.length) throw new AiError('AI nie zwróciło propozycji — spróbuj ponownie', 502)
+
+    // Nowe dania (spoza bazy) → prawdziwy przepis z sieci: nazwa ze strony, link i zdjęcie
+    const webOptions = plan.flatMap(p => p.options.filter(o => !o.from_db))
+    const found = await findWebRecipes(webOptions.map(o => o.name))
+    for (const o of webOptions) {
+      const w = found.get(o.name)
+      if (w) Object.assign(o, { name: w.name, url: w.url, photo_url: w.photo_url, source: w.source })
+    }
 
     return jsonResponse({ plan, tip: parsed.tip ?? '' })
   } catch (err) {

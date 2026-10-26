@@ -37,3 +37,57 @@
 .optionDanger {
   color: hsl(350, 85%, 70%);
 }
+
+/* ── Propozycja z sieci: dodać do przepisów? ── */
+
+.webPick {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 20px 8px;
+}
+
+.webDish {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.webPhoto {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.webName {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.webSource {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.webSource a {
+  color: var(--color-accent-light);
+}
+
+.webText {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.webError {
+  font-size: 13px;
+  color: hsl(38, 95%, 72%);
+}
+
+.webSecondary {
+  padding: 12px 16px;
+}
