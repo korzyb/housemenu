@@ -32,8 +32,16 @@ function initialOffset(param) {
 
 export default function PlanPage() {
   const navigate = useNavigate()
-  const [params] = useSearchParams()
-  const [weekOffset, setWeekOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
+  const [params, setParams] = useSearchParams()
+  const [weekOffset, setOffset] = useState(() => initialOffset(params.get('week')))   // -1 … +2
+  // Wybrany tydzień także w adresie — powrót „wstecz” (np. z kreatora AI) pokazuje ten sam tydzień
+  function setWeekOffset(update) {
+    const next = typeof update === 'function' ? update(weekOffset) : update
+    setOffset(next)
+    const start = new Date(BASE_WEEK_START)
+    start.setDate(BASE_WEEK_START.getDate() + next * 7)
+    setParams(next === 0 ? {} : { week: toDateString(start) }, { replace: true })
+  }
   const [daySheet, setDaySheet]       = useState(null) // { date, label } — zakupy na dzień
   const shopping = useAddToShopping()
   const touchStartX = useRef(null)

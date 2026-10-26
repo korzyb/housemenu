@@ -7,6 +7,7 @@ import { getWeekStart, toDateString } from '../../lib/dates'
 import BottomSheet from '../../components/BottomSheet/BottomSheet'
 import Toast from '../../components/Toast/Toast'
 import { isThermomix } from '../../lib/recipes'
+import { useGoBack } from '../../lib/nav'
 import { useAddToShopping } from '../../hooks/useAddToShopping'
 import styles from './RecipeDetailPage.module.css'
 
@@ -34,6 +35,7 @@ function scaleAmount(amount, factor) {
 export default function RecipeDetailPage() {
   const { id }   = useParams()
   const navigate = useNavigate()
+  const goBack = useGoBack('/recipes')
   const { recipe, loading, deleteRecipe } = useRecipe(id)
   const { addMeal } = useMealPlan(WEEK_START)
   const shopping = useAddToShopping()
@@ -65,7 +67,7 @@ export default function RecipeDetailPage() {
   async function handleDelete() {
     if (!window.confirm('Usunąć ten przepis?')) return
     await deleteRecipe()
-    navigate('/recipes')
+    goBack() // tam, skąd przyszliśmy (lista przepisów albo „Dziś”), bez dokładania historii
   }
 
   if (loading) return <div className={styles.loading}>…</div>
@@ -85,7 +87,7 @@ export default function RecipeDetailPage() {
           : <div className={styles.heroEmpty}>🍽</div>
         }
         <div className={styles.heroGradient} />
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>←</button>
+        <button className={styles.backBtn} onClick={goBack}>←</button>
         <div className={styles.heroActions}>
           <button className={styles.editBtn} onClick={() => navigate(`/recipes/${id}/edit`)} aria-label="Edytuj przepis">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>

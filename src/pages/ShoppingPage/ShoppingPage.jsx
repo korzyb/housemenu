@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useShoppingList } from '../../hooks/useShoppingList'
 import { getWeekStart, toDateString, getWeekRange } from '../../lib/dates'
 import { categoryEmoji, categoryOrder } from '../../lib/shopping'
+import { getShopListSize } from '../../lib/preferences'
 import styles from './ShoppingPage.module.css'
 
 // Zakres generowania: bieżący tydzień od dziś (nie kupujemy na miniony dzień) albo cały następny
@@ -101,9 +102,10 @@ export default function ShoppingPage() {
   // ─── Tryb sklepowy ─────────────────────────────────────
   if (shopMode) {
     const allDone = items.length > 0 && unchecked.length === 0
-    // Portal do <body>: pełny ekran ponad dolną nawigacją
+    // Portal do <body>: pełny ekran ponad dolną nawigacją; wielkość listy z Ustawień
+    const sizeClass = { xs: styles.sizeXs, s: styles.sizeS }[getShopListSize()] ?? ''
     return createPortal(
-      <div className={styles.shopOverlay}>
+      <div className={`${styles.shopOverlay} ${sizeClass}`}>
         <div className={styles.shopTop}>
           <button className={`glass ${styles.shopExitBtn}`} onClick={() => setShopMode(false)} type="button">
             ‹ Lista

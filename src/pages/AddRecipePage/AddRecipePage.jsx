@@ -4,6 +4,7 @@ import { useRecipes, useRecipe } from '../../hooks/useRecipes'
 import { invokeAi } from '../../lib/ai'
 import { THERMOMIX_TAG, isStoredPhoto, storeRecipePhoto } from '../../lib/recipes'
 import { supabase } from '../../lib/supabase'
+import { historyIndex, useGoBack } from '../../lib/nav'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -62,6 +63,7 @@ function RecipeForm({ recipe }) {
   const navigate = useNavigate()
   const { addRecipe, updateRecipe } = useRecipes()
   const isEdit = !!recipe
+  const goBack = useGoBack(isEdit ? `/recipes/${recipe.id}` : '/recipes')
   const [saving, setSaving] = useState(false)
   const [saveErr, setSaveErr] = useState(null)
 
@@ -178,13 +180,15 @@ function RecipeForm({ recipe }) {
     // Zdjęcie z cudzej strony → kopia we własnym magazynie (nieudana kopia nie blokuje zapisu)
     if (payload.photo_url && !isStoredPhoto(payload.photo_url)) await storeRecipePhoto(supabase, id)
     setSaving(false)
-    navigate(`/recipes/${id}`, { replace: true })
+    // Edycja: wróć do szczegółów, z których przyszliśmy; nowy przepis: formularz zastępuje szczegóły
+    if (isEdit && historyIndex() > 0) navigate(-1)
+    else navigate(`/recipes/${id}`, { replace: true })
   }
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>←</button>
+        <button className={styles.backBtn} onClick={goBack}>←</button>
         <h1 className={styles.title}>{isEdit ? 'Edytuj przepis' : 'Nowy przepis'}</h1>
         <button
           className={styles.saveBtn}

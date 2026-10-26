@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { useGoBack } from '../../lib/nav'
 import { supabase } from '../../lib/supabase'
 import { invokeAi } from '../../lib/ai'
 import { useMealPlan } from '../../hooks/useMealPlan'
@@ -59,10 +60,11 @@ function mealsCountLabel(n) {
 }
 
 export default function PlanWizardPage() {
-  const navigate = useNavigate()
   const [params] = useSearchParams()
   const weekStart = useMemo(() => getWeekStart(params.get('week') ? parseDay(params.get('week')) : new Date()), [params])
   const weekStartStr = toDateString(weekStart)
+  // Powrót do planu tym samym wpisem historii, z którego otwarto kreator (bez dokładania „Planu” do historii)
+  const backToPlan = useGoBack(`/plan?week=${weekStartStr}`)
   const { meals, addMeals } = useMealPlan(weekStart)
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => {
@@ -231,11 +233,11 @@ export default function PlanWizardPage() {
     const { error } = await addMeals(rows)
     setSaving(false)
     if (error) { setAiError('Nie udało się zapisać planu. Spróbuj ponownie.'); return }
-    navigate(`/plan?week=${weekStartStr}`)
+    backToPlan() // plan przy powrocie wczyta się od nowa — z zapisanymi posiłkami
   }
 
   function back() {
-    if (step === 1) navigate(`/plan?week=${weekStartStr}`)
+    if (step === 1) backToPlan()
     else setStep(step === 4 ? 3 : step - 1)
   }
 

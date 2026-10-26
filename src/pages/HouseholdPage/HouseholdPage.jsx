@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useMembers } from '../../hooks/useMembers'
+import { useGoBack } from '../../lib/nav'
 import { LIFE_PHASES, profileCompleteness } from '../../lib/profile'
 import styles from './HouseholdPage.module.css'
 
@@ -13,12 +14,13 @@ function roleLabel(member) {
 
 export default function HouseholdPage() {
   const navigate = useNavigate()
+  const goBack = useGoBack('/settings')
   const { members, loading } = useMembers()
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={`glass ${styles.backBtn}`} onClick={() => navigate('/settings')} aria-label="Wstecz">
+        <button className={`glass ${styles.backBtn}`} onClick={goBack} aria-label="Wstecz">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
         <h1 className={`page-title ${styles.title}`}>Gospodarstwo</h1>

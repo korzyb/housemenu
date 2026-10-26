@@ -84,3 +84,43 @@
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
+
+.row + .sectionLabel {
+  margin-top: 26px;
+}
+
+/* Ustawienie z wyborem (bez przejścia dalej) */
+.optionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+}
+
+.segment {
+  display: flex;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.segmentBtn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 6px;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.segmentOn {
+  color: var(--color-text);
+  background: hsla(265, 70%, 45%, 0.5);
+  box-shadow: 0 0 10px hsla(268, 95%, 65%, 0.3);
+}

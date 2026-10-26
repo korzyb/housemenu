@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { invokeAi } from '../../lib/ai'
 import { useMember } from '../../hooks/useMembers'
+import { useGoBack } from '../../lib/nav'
 import {
   LIFE_PHASES, profileCompleteness, profileToPromptText, parseProfileCard,
 } from '../../lib/profile'
@@ -15,6 +16,7 @@ function roleLabel(member) {
 export default function MemberProfilePage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const goBack = useGoBack('/settings/household')
   const { member, loading, updateMember } = useMember(id)
 
   const [genError, setGenError] = useState(null)
@@ -67,7 +69,7 @@ export default function MemberProfilePage() {
     return (
       <div className={styles.page}>
         <p className={styles.muted}>Nie znaleziono domownika.</p>
-        <button className="btn-glow" onClick={() => navigate('/settings/household')} type="button">Wróć</button>
+        <button className="btn-glow" onClick={goBack} type="button">Wróć</button>
       </div>
     )
   }
@@ -77,7 +79,7 @@ export default function MemberProfilePage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={`glass ${styles.backBtn}`} onClick={() => navigate('/settings/household')} aria-label="Wstecz">
+        <button className={`glass ${styles.backBtn}`} onClick={goBack} aria-label="Wstecz">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
         <button className={`btn-glow ${styles.editBtn}`} onClick={() => navigate(`/settings/household/${id}/edit`)} type="button">

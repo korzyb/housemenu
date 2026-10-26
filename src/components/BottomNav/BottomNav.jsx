@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useTabNavigation } from '../../lib/nav'
 import styles from './BottomNav.module.css'
 
 const svgProps = {
@@ -47,12 +48,16 @@ const tabs = [
 ]
 
 export default function BottomNav() {
+  // Zakładki nie dokładają historii — „wstecz” nie wędruje po wszystkich odwiedzonych zakładkach
+  const goTab = useTabNavigation()
+
   return (
     <nav className={`glass ${styles.nav}`}>
       {tabs.map(({ to, label, Icon }) => (
         <NavLink
           key={to}
           to={to}
+          onClick={e => { e.preventDefault(); goTab(to) }}
           className={({ isActive }) =>
             [styles.tab, isActive ? styles.active : ''].join(' ')
           }

@@ -9,8 +9,9 @@ export function useShoppingList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true)
+  // silent: odświeżenie po zmianie — bez szkieletu ładowania, żeby lista nie znikała i nie skakała na górę
+  const fetchItems = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true)
     setError(null)
 
     const { data, error } = await supabase
@@ -37,30 +38,33 @@ export function useShoppingList() {
       .select()
       .single()
 
-    if (!error) fetchItems()
+    if (!error) fetchItems({ silent: true })
     return { data, error }
   }
 
+  // Zmiany od razu na ekranie (bez czekania na bazę); przy błędzie — odświeżenie z bazy
   async function toggleItem(id) {
     const item = items.find(i => i.id === id)
     if (!item) return { error: new Error('Item not found') }
 
+    setItems(prev => prev.map(i => (i.id === id ? { ...i, is_checked: !i.is_checked } : i)))
     const { error } = await supabase
       .from('shopping_list')
       .update({ is_checked: !item.is_checked })
       .eq('id', id)
 
-    if (!error) fetchItems()
+    fetchItems({ silent: true })
     return { error }
   }
 
   async function removeItem(id) {
+    setItems(prev => prev.filter(i => i.id !== id))
     const { error } = await supabase
       .from('shopping_list')
       .delete()
       .eq('id', id)
 
-    if (!error) fetchItems()
+    fetchItems({ silent: true })
     return { error }
   }
 
@@ -81,7 +85,7 @@ export function useShoppingList() {
       .delete()
       .eq('is_checked', true)
 
-    if (!error) fetchItems()
+    if (!error) fetchItems({ silent: true })
     return { error }
   }
 
@@ -118,7 +122,7 @@ export function useShoppingList() {
     stats.updated = res.updated ?? 0
     stats.aiUsed = res.aiUsed
 
-    fetchItems()
+    fetchItems({ silent: true })
     return { error: res.error, stats }
   }
 
