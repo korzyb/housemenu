@@ -62,10 +62,38 @@
   font-size: 13px;
 }
 
-.bigInput {
+.pantryInput {
   resize: vertical;
-  min-height: 140px;
   line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.sectionGap {
+  margin-top: 18px;
+}
+
+/* „Doprecyzuj” w zakresie — wejście do składników i preferencji */
+.refineRow {
+  margin-top: 12px;
+}
+
+.refineIcon {
+  flex-shrink: 0;
+  font-size: 22px;
+}
+
+.refineSet {
+  color: var(--color-accent-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.refineArrow {
+  flex-shrink: 0;
+  font-size: 22px;
+  color: var(--color-text-muted);
 }
 
 .notesInput {

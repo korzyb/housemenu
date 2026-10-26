@@ -70,7 +70,13 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: 'Za dużo pór naraz (max 28 — jeden tydzień)' }, 400)
     }
 
+    // Dania z grilla nie trafiają do planu (grill to okazja, nie codzienny posiłek) — AI ich nie widzi
+    // …chyba że użytkownik sam o grill prosi (wymagania albo korekta czatem)
+    const allowGrill = /grill/i.test(`${notes} ${instruction}`)
+    const isGrill = (r: { tags?: string[] }) => !allowGrill && (r.tags ?? []).some(t => t.toLowerCase() === 'grill')
+    const grillNames = new Set((recipes as { name: string; tags?: string[] }[]).filter(isGrill).map(r => r.name.trim().toLowerCase()))
     const recipeLines = (recipes as { name: string; tags?: string[]; prep_time?: number }[])
+      .filter(r => !isGrill(r))
       .slice(0, 120)
       .map(r => `- ${r.name}${r.prep_time ? ` (${r.prep_time} min)` : ''}${r.tags?.length ? ` [${r.tags.join(', ')}]` : ''}`)
       .join('\n') || 'brak przepisów w bazie'
@@ -119,7 +125,7 @@ PREFERENCJE: ${list(preferences as string[], 'brak szczególnych')}
 DODATKOWE WYMAGANIA: ${String(notes).trim() || 'brak'}
 ${correction}
 Dla KAŻDEJ pory z listy podaj dokładnie 3 różne propozycje: dwie pierwsze z bazy ("from_db": true), trzecia — nowe danie spoza bazy ("from_db": false).
-Jeśli użyto składników z domu — rozłóż je sensownie na kilka posiłków.
+${allowGrill ? '' : 'Nie proponuj dań z grilla (grillowanych na ruszcie, szaszłyków itp.).\n'}Jeśli użyto składników z domu — rozłóż je sensownie na kilka posiłków.
 
 Zwróć WYŁĄCZNIE JSON:
 {
@@ -160,7 +166,7 @@ Zwróć WYŁĄCZNIE JSON:
     const byKey = new Map((parsed.plan ?? []).map(p => [`${p.date}|${p.mealType}|${aud(p.audience)}`, p]))
     const plan = (slots as Slot[]).map(s => {
       const raw = (byKey.get(`${s.date}|${s.mealType}|${aud(s.audience)}`)?.options ?? []).filter(o => o?.name)
-      const fitting = raw.filter(o => fitsMeal(o.name, s.mealType))
+      const fitting = raw.filter(o => fitsMeal(o.name, s.mealType) && !grillNames.has(key(o.name)))
       const all = (fitting.length ? fitting : raw).map(o => ({
         name: String(o.name).trim(),
         emoji: o.emoji || '🍽',

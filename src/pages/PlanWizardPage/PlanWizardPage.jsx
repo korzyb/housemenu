@@ -10,9 +10,10 @@ import { householdForAudience } from '../../lib/profile'
 import { importRecipeFromUrl } from '../../lib/recipeImport'
 import styles from './PlanWizardPage.module.css'
 
-const TOTAL_STEPS = 4
+// Kroki: 'scope' (start: zakres) → 'proposal' (propozycje AI).
+// 'refine' — opcjonalne „Doprecyzuj” z zakresu: co masz w domu + preferencje; „Gotowe” wraca do zakresu.
 
-// Krok 2 — preferencje (doc/design-guide.md → sekcja 9)
+// Preferencje (doc/design-guide.md → sekcja 9)
 const PREFERENCE_GROUPS = [
   { title: 'Dieta', options: ['Wegetariańskie', 'Wegańskie', 'Bez glutenu', 'Bez laktozy', 'Bez mięsa czerwonego', 'Bez ryb'] },
   { title: 'Czas', options: ['Błyskawiczne (do 15 min)', 'Szybkie (15–30 min)', 'Spokojne (ponad 30 min)', 'Bez gotowania'] },
@@ -75,8 +76,8 @@ export default function PlanWizardPage() {
   }), [weekStart])
   const futureDays = weekDays.filter(d => d >= TODAY_STR)
 
-  // Kroki 1–3
-  const [step,        setStep]        = useState(1)
+  // Zakres + doprecyzowanie
+  const [step,        setStep]        = useState('scope')
   const [pantry,      setPantry]      = useState('')
   const [prefs,       setPrefs]       = useState(() => new Set())
   const [notes,       setNotes]       = useState('')
@@ -86,8 +87,8 @@ export default function PlanWizardPage() {
   const [overwrite,   setOverwrite]   = useState(false)
   const [dinnerMode,  setDinnerMode]  = useState('all')
 
-  // Krok 4
-  const [proposal,    setProposal]    = useState([])   // [{ date, mealType, options, idx }]
+  // Propozycje
+  const [proposal,   setProposal]    = useState([])   // [{ date, mealType, options, idx }]
   const [tip,         setTip]         = useState('')
   const [generating,  setGenerating]  = useState(false)
   const [correcting,  setCorrecting]  = useState(false)
@@ -187,7 +188,7 @@ export default function PlanWizardPage() {
   }
 
   async function generate() {
-    setStep(4)
+    setStep('proposal')
     setGenerating(true)
     setAiError(null)
     const { data, error } = await invokeAi('plan-meals', requestBody())
@@ -273,9 +274,19 @@ export default function PlanWizardPage() {
   }
 
   function back() {
-    if (step === 1) backToPlan()
-    else setStep(step === 4 ? 3 : step - 1)
+    if (step === 'scope') backToPlan()
+    else setStep('scope')
   }
+
+  // Nowy krok zaczyna się od góry ekranu
+  useEffect(() => { window.scrollTo(0, 0) }, [step])
+
+  // Podsumowanie doprecyzowania na przycisku w zakresie
+  const refineSummary = [
+    pantry.trim() && `🧺 ${pantry.trim()}`,
+    prefs.size > 0 && [...prefs].join(', '),
+    notes.trim() && `„${notes.trim()}”`,
+  ].filter(Boolean).join(' · ')
 
   // Swipe na kafelku propozycji
   const touchX = useRef(null)
@@ -295,37 +306,29 @@ export default function PlanWizardPage() {
       <header className={styles.topBar}>
         <button className={styles.backLink} onClick={back} type="button">‹ Powrót</button>
         <span className={styles.topTitle}>Zaplanuj z AI</span>
-        <span className={styles.stepCount}>Krok {step}/{TOTAL_STEPS}</span>
+        <span className={styles.stepCount} />
       </header>
 
-      {/* ── Krok 1: składniki ─────────────────────── */}
-      {step === 1 && (
+      {/* ── Doprecyzuj (opcjonalnie): co masz w domu + preferencje ── */}
+      {step === 'refine' && (
         <section className={styles.body}>
-          <h1 className={styles.stepTitle}>Co masz w domu?</h1>
-          <p className={styles.stepSub}>Składniki, które chcesz wykorzystać — AI ułoży wokół nich posiłki. Możesz pominąć.</p>
+          <h1 className={styles.stepTitle}>Doprecyzuj</h1>
+          <p className={styles.stepSub}>
+            Wszystko tu jest opcjonalne. {context.household.length > 0
+              ? `Profile domowników (${context.household.map(h => h.name).join(', ')}) AI uwzględni automatycznie.`
+              : ''}
+          </p>
+
+          <p className={styles.groupLabel}>Co masz w domu?</p>
           <textarea
-            className={`glass-input ${styles.bigInput}`}
-            placeholder="np. jajka, makaron, pomidory, pół dyni…"
+            className={`glass-input ${styles.pantryInput}`}
+            placeholder="Składniki do wykorzystania, np. jajka, makaron, pół dyni…"
             value={pantry}
             onChange={e => setPantry(e.target.value)}
-            rows={5}
+            rows={2}
           />
-          <div className={styles.actions}>
-            <button className={`btn-glow ${styles.secondary}`} onClick={() => { setPantry(''); setStep(2) }} type="button">Pomiń</button>
-            <button className={`btn-primary ${styles.primary}`} onClick={() => setStep(2)} type="button">Dalej</button>
-          </div>
-        </section>
-      )}
 
-      {/* ── Krok 2: preferencje ───────────────────── */}
-      {step === 2 && (
-        <section className={styles.body}>
-          <h1 className={styles.stepTitle}>Preferencje</h1>
-          <p className={styles.stepSub}>
-            Zaznacz, na co masz ochotę. {context.household.length > 0
-              ? `Profile domowników (${context.household.map(h => h.name).join(', ')}) AI uwzględni automatycznie.`
-              : 'Możesz pominąć.'}
-          </p>
+          <p className={`${styles.groupLabel} ${styles.sectionGap}`}>Na co masz ochotę?</p>
           {PREFERENCE_GROUPS.map(g => (
             <div key={g.title} className={styles.prefGroup}>
               <p className={styles.groupLabel}>{g.title}</p>
@@ -349,15 +352,22 @@ export default function PlanWizardPage() {
             rows={2}
           />
           <div className={styles.actions}>
-            <button className={`btn-primary ${styles.primary}`} onClick={() => setStep(3)} type="button">Dalej</button>
+            {refineSummary && (
+              <button
+                className={`btn-glow ${styles.secondary}`}
+                onClick={() => { setPantry(''); setPrefs(new Set()); setNotes('') }}
+                type="button"
+              >Wyczyść</button>
+            )}
+            <button className={`btn-primary ${styles.primary}`} onClick={() => setStep('scope')} type="button">Gotowe</button>
           </div>
         </section>
       )}
 
-      {/* ── Krok 3: zakres ────────────────────────── */}
-      {step === 3 && (
+      {/* ── Zakres (start) ────────────────────────── */}
+      {step === 'scope' && (
         <section className={styles.body}>
-          <h1 className={styles.stepTitle}>Zakres</h1>
+          <h1 className={styles.stepTitle}>Co zaplanować?</h1>
           <p className={styles.stepSub}>Tydzień {getWeekRange(weekStart)}</p>
 
           <div className={styles.scopes}>
@@ -445,6 +455,18 @@ export default function PlanWizardPage() {
             <span className={`${styles.switch} ${overwrite ? styles.switchOn : ''}`}><span className={styles.knob} /></span>
           </button>
 
+          {/* Opcjonalnie: składniki z domu, preferencje, własne wymagania */}
+          <button className={`glass ${styles.toggleRow} ${styles.refineRow}`} onClick={() => setStep('refine')} type="button">
+            <span className={styles.refineIcon} aria-hidden="true">🎯</span>
+            <span className={styles.toggleText}>
+              <span className={styles.toggleTitle}>Doprecyzuj</span>
+              <span className={`${styles.toggleSub} ${refineSummary ? styles.refineSet : ''}`}>
+                {refineSummary || 'Co masz w domu, dieta, czas, kuchnia… (opcjonalnie)'}
+              </span>
+            </span>
+            <span className={styles.refineArrow} aria-hidden="true">›</span>
+          </button>
+
           {futureDays.length === 0 && (
             <p className={styles.warn}>Ten tydzień już minął — wybierz bieżący lub następny tydzień na ekranie Planu.</p>
           )}
@@ -463,7 +485,7 @@ export default function PlanWizardPage() {
       )}
 
       {/* ── Krok 4: propozycje ────────────────────── */}
-      {step === 4 && (
+      {step === 'proposal' && (
         <section className={`${styles.body} ${styles.proposalBody}`}>
           <h1 className={`${styles.stepTitle} ${styles.center}`}>Propozycje</h1>
 
