@@ -1,15 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useMembers } from '../../hooks/useMembers'
 import { useGoBack } from '../../lib/nav'
 import { membersLabel } from '../../lib/profile'
 import { SHOP_SIZES, getShopListSize, setShopListSize } from '../../lib/preferences'
+import { pushState, enablePush, disablePush } from '../../lib/push'
 import styles from './SettingsPage.module.css'
+
+// Opis pod przełącznikiem powiadomień wg stanu (lib/push.js → pushState)
+const PUSH_TEXT = {
+  on:          'Nowe przepisy i zmiany w planie z innych urządzeń',
+  off:         'Nowe przepisy i zmiany w planie z innych urządzeń',
+  denied:      'Zablokowane — zezwól na powiadomienia w ustawieniach przeglądarki dla tej strony',
+  unsupported: 'Niedostępne w tej przeglądarce. Na iPhonie: dodaj aplikację do ekranu głównego (iOS 16.4+)',
+  loading:     '…',
+}
 
 export default function SettingsPage() {
   const goBack = useGoBack('/today')
   const { members } = useMembers()
   const [shopSize, setShopSize] = useState(getShopListSize)
+  const [push,     setPush]     = useState({ state: 'loading', error: null, busy: false })
+
+  useEffect(() => {
+    pushState().then(state => setPush(p => ({ ...p, state })))
+  }, [])
+
+  async function togglePush() {
+    setPush(p => ({ ...p, busy: true, error: null }))
+    const result = push.state === 'on' ? await disablePush() : await enablePush()
+    setPush({ ...result, busy: false })
+  }
 
   function chooseShopSize(id) {
     setShopSize(id)
@@ -39,7 +60,26 @@ export default function SettingsPage() {
         <span className={styles.rowArrow}>›</span>
       </Link>
 
-      <div className={styles.sectionLabel}>Wygląd</div>
+      <div className={`${styles.sectionLabel} ${styles.sectionGap}`}>Powiadomienia</div>
+      <button
+        className={`glass glow ${styles.row} ${styles.toggleRow}`}
+        onClick={togglePush}
+        disabled={push.busy || push.state === 'unsupported' || push.state === 'denied' || push.state === 'loading'}
+        role="switch"
+        aria-checked={push.state === 'on'}
+        type="button"
+      >
+        <span className={styles.rowIcon}>🔔</span>
+        <span className={styles.rowText}>
+          <span className={styles.rowTitle}>Powiadomienia o zmianach</span>
+          <span className={styles.rowSub}>{push.error ?? PUSH_TEXT[push.state]}</span>
+        </span>
+        {(push.state === 'on' || push.state === 'off') && (
+          <span className={`${styles.switch} ${push.state === 'on' ? styles.switchOn : ''}`}><span className={styles.knob} /></span>
+        )}
+      </button>
+
+      <div className={`${styles.sectionLabel} ${styles.sectionGap}`}>Wygląd</div>
       <div className={`glass glow ${styles.optionCard}`}>
         <span className={styles.rowIcon}>🛒</span>
         <span className={styles.rowText}>

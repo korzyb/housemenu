@@ -48,3 +48,31 @@ self.addEventListener('fetch', event => {
     return res
   })())
 })
+
+// ── Powiadomienia push (Edge Function send-push): { title, body, url, tag } ──
+self.addEventListener('push', event => {
+  let msg = {}
+  try { msg = event.data?.json() ?? {} } catch { msg = { body: event.data?.text() } }
+  event.waitUntil(self.registration.showNotification(msg.title || 'mealplanner', {
+    body: msg.body || '',
+    tag: msg.tag,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    data: { url: msg.url || 'today' },
+  }))
+})
+
+// Kliknięcie → otwarta aplikacja przechodzi na wskazany ekran (albo otwiera się nowa)
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  const target = new URL(event.notification.data?.url || 'today', self.registration.scope).href
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    const open = windows.find(w => w.url.startsWith(self.registration.scope))
+    if (open) {
+      await open.focus()
+      return open.navigate(target)
+    }
+    return self.clients.openWindow(target)
+  })())
+})
