@@ -308,9 +308,18 @@ function normalizeIngredients(list: Json): Ingredient[] {
     }))
 }
 
+// AI czasem zwraca kroki jako obiekty z innym polem („step”, „instruction”…) — bierzemy pierwszy tekst
+function stepText(s: Json): string | null {
+  if (typeof s === 'string') return s
+  if (!s || typeof s !== 'object') return null
+  const v = s.text ?? s.step ?? s.instruction ?? s.description ?? s.content ??
+    Object.values(s).find((x: unknown) => typeof x === 'string' && x.trim().length > 3)
+  return typeof v === 'string' ? v : null
+}
+
 function normalizeSteps(list: Json): Step[] {
   return (Array.isArray(list) ? list : [])
-    .map((s: Json) => (typeof s === 'string' ? s : s?.text))
+    .map(stepText)
     .filter((t: unknown) => t && String(t).trim())
     .map((t: string, i: number) => ({ order: i + 1, text: String(t).trim() }))
 }
@@ -561,10 +570,35 @@ ${text}`,
     const recipe = JSON.parse(raw)
     if (recipe.error) return jsonResponse(recipe)
 
+    // Bez kroków (AI je pominęło) — drugie, krótsze zapytanie tylko o kroki
+    let steps = normalizeSteps(recipe.steps)
+    if (!steps.length) {
+      try {
+        const again = JSON.parse(await callGemini({
+          prompt: `Z poniższego tekstu strony wypisz kroki przygotowania dania "${recipe.name ?? ''}" (sekcja „Przygotowanie” / „Sposób przygotowania”).
+
+${STEP_RULES}
+
+Zwróć WYŁĄCZNIE JSON: {"steps": ["krok 1", "krok 2"]}
+
+TEKST STRONY:
+${text}`,
+          temperature: 0.2,
+          maxOutputTokens: 8192,
+          json: true,
+          timeoutMs: 60000,
+        }))
+        steps = normalizeSteps(again.steps)
+      } catch (err) {
+        console.warn('import-recipe: ponowne pobranie kroków nie powiodło się:', (err as Error).message)
+      }
+    }
+
     return jsonResponse({
       ...recipe,
       ingredients: normalizeIngredients(recipe.ingredients),
-      steps: normalizeSteps(recipe.steps),
+      steps,
+      ...(steps.length ? {} : { notes: [recipe.notes, 'Kroków nie udało się pobrać — uzupełnij je w edycji przepisu.'].filter(Boolean).join('\n') }),
       // Kwestia Smaku podaje w og:image miniaturę 250×250 — bierzemy pełne zdjęcie
       photo_url: await fullKwestiaPhoto(absolute(ogRaw ?? null)),
       import_source: 'ai',
