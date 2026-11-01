@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
 import BottomNav from './components/BottomNav/BottomNav'
 import TodayPage from './pages/TodayPage/TodayPage'
 import PlanPage from './pages/PlanPage/PlanPage'
@@ -13,6 +13,15 @@ import MemberWizard from './pages/MemberWizard/MemberWizard'
 import MemberProfilePage from './pages/MemberProfilePage/MemberProfilePage'
 import styles from './App.module.css'
 
+// Start aplikacji (/). „Udostępnij → mealplanner” z innej aplikacji (share_target w manifeście) otwiera
+// /?title=…&text=…&url=… — link do przepisu (w url albo w tekście, np. z Instagrama) → import przepisu.
+function Start() {
+  const [params] = useSearchParams()
+  const shared = ['url', 'text', 'title'].map(k => params.get(k) ?? '').join(' ')
+  const link = shared.match(/https?:\/\/[^\s"'<>]+/)?.[0]
+  return <Navigate to={link ? `/recipes/new?url=${encodeURIComponent(link)}` : '/today'} replace />
+}
+
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
@@ -20,7 +29,7 @@ export default function App() {
         <div className={styles.bgBlobs} aria-hidden="true" />
         <main className={styles.main}>
           <Routes>
-            <Route path="/" element={<Navigate to="/today" replace />} />
+            <Route path="/" element={<Start />} />
             <Route path="/today" element={<TodayPage />} />
             <Route path="/plan" element={<PlanPage />} />
             <Route path="/plan/ai" element={<PlanWizardPage />} />

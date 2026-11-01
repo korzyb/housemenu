@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useRecipes, useRecipe } from '../../hooks/useRecipes'
 import { invokeAi } from '../../lib/ai'
 import { THERMOMIX_TAG, isStoredPhoto, storeRecipePhoto } from '../../lib/recipes'
@@ -70,8 +70,10 @@ function RecipeForm({ recipe }) {
 
   const [form, setForm] = useState(() => recipe ? recipeToForm(recipe) : EMPTY_FORM)
   const isTm = form.tags.some(t => t.toLowerCase() === THERMOMIX_TAG)
-  const [importUrl,  setImportUrl]  = useState('')
-  const [importing,  setImporting]  = useState(false)
+  const [params] = useSearchParams()
+  const sharedUrl = isEdit ? null : params.get('url')
+  const [importUrl,  setImportUrl]  = useState(sharedUrl ?? '')
+  const [importing,  setImporting]  = useState(!!sharedUrl)
   const [importErr,  setImportErr]  = useState(null)
   const [importInfo, setImportInfo] = useState(null)
 
@@ -99,14 +101,22 @@ function RecipeForm({ recipe }) {
 
   // ─── Import z URL ──────────────────────────────────────
   async function handleImport() {
-    if (!importUrl.trim()) return
+    const url = importUrl.trim()
+    if (!url) return
     setImporting(true)
     setImportErr(null)
     setImportInfo(null)
-    const { data, error } = await invokeAi('import-recipe', { url: importUrl.trim() })
+    applyImport(await invokeAi('import-recipe', { url }), url)
+  }
+
+  function applyImport({ data, error }, url) {
     setImporting(false)
     if (error) {
       setImportErr(error)
+      return
+    }
+    if (data?.error) {
+      setImportErr(data.error)
       return
     }
     setForm(f => ({
@@ -114,7 +124,7 @@ function RecipeForm({ recipe }) {
       name:        data.name        ?? f.name,
       photo_url:   data.photo_url   ?? f.photo_url,
       source_type: 'url',
-      source_url:  importUrl.trim(),
+      source_url:  url,
       description: data.description ?? f.description,
       prep_time:   data.prep_time   ? String(data.prep_time) : f.prep_time,
       servings:    data.servings    ?? f.servings,
@@ -142,6 +152,14 @@ function RecipeForm({ recipe }) {
         : '✓ Przepis odczytany przez AI z treści strony (strona nie udostępnia danych schema.org). Sprawdź składniki.'
     )
   }
+
+  // Link udostępniony z innej aplikacji (/recipes/new?url=…) — import rusza sam przy otwarciu
+  useEffect(() => {
+    if (!sharedUrl) return
+    let stale = false
+    invokeAi('import-recipe', { url: sharedUrl }).then(res => { if (!stale) applyImport(res, sharedUrl) })
+    return () => { stale = true }
+  }, [sharedUrl])
 
   // ─── Tags (tylko ze wspólnej listy — lib/tags.js) ──────
   const hasTag = t => form.tags.some(x => x.toLowerCase() === t)
