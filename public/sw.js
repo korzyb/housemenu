@@ -56,8 +56,8 @@ self.addEventListener('push', event => {
   event.waitUntil(self.registration.showNotification(msg.title || 'mealplanner', {
     body: msg.body || '',
     tag: msg.tag,
-    icon: 'icon-192.png',
-    badge: 'icon-192.png',
+    icon: 'icon-v2-192.png',
+    badge: 'badge-96.png', // Android: tylko kształt (biały na przezroczystym)
     data: { url: msg.url || 'today' },
   }))
 })
