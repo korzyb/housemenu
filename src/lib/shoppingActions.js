@@ -15,18 +15,39 @@ function parseAmountText(text) {
   })
 }
 
-// Ujednolicenie nazw + kategorie dla listy surowych składników [{ amount, unit, name }]
-async function normalize(raw) {
-  const uniqueNames = [...new Set(raw.map(i => i.name.trim()))]
-  const { data, error } = await invokeAi('shopping-normalize', { names: uniqueNames, categories: CATEGORY_NAMES })
+// Ilości, których nie da się kupić („szczypta”, „do smaku”) — na liście sama nazwa (zapas, gdy AI niedostępne)
+const NO_AMOUNT = /szczypt|do smaku|odrobin|opcjonal|wg uznania|według uznania|na oko|trochę/i
+
+// Produkty do kupienia z surowych składników [{ amount, unit, name }]: AI łączy warianty tego samego produktu
+// (także z tym, co już jest na liście — existingNames), zamienia opisy na produkty, odrzuca bezsensowne ilości i wodę.
+async function normalize(raw, existingNames) {
+  const units = new Map()
+  for (const i of raw) {
+    const name = i.name.trim()
+    if (!units.has(name)) units.set(name, [])
+    if (i.unit) units.get(name).push(String(i.unit))
+  }
+  const { data, error } = await invokeAi('shopping-normalize', {
+    items: [...units].map(([name, u]) => ({ name, units: [...new Set(u)] })),
+    existing: existingNames,
+    categories: CATEGORY_NAMES,
+  })
   const map = new Map((error ? [] : data.items).map(i => [i.input, i]))
   return {
     aiUsed: !error,
-    items: raw.map(i => {
-      const n = map.get(i.name.trim())
-      const name = n?.name || i.name.trim()
-      return { ...i, displayName: name, category: n?.category || guessCategory(name) }
-    }),
+    items: raw
+      .filter(i => !map.get(i.name.trim())?.skip)
+      .map(i => {
+        const n = map.get(i.name.trim())
+        const name = n?.name || i.name.trim()
+        const noAmount = n?.dropAmount || NO_AMOUNT.test(`${i.amount ?? ''} ${i.unit ?? ''}`)
+        return {
+          ...i,
+          ...(noAmount ? { amount: null, unit: null } : {}),
+          displayName: name,
+          category: n?.category || guessCategory(name),
+        }
+      }),
   }
 }
 
@@ -42,15 +63,18 @@ export async function addIngredientsToList(raw, { mode = 'append' } = {}) {
   const clean = raw.filter(i => i?.name?.trim())
   if (!clean.length) return { error: null, added: 0, updated: 0, aiUsed: false }
 
-  const { items: normalized, aiUsed } = await normalize(clean)
+  const { data: before, error: curErr } = await supabase.from('shopping_list').select('*')
+  if (curErr) return { error: curErr }
+  // 'replace': pozycje z planu ('auto') znikną — zostaje to, co dopisano ręcznie
+  const current = mode === 'replace' ? before.filter(i => i.source !== 'auto') : before
+
+  const existingNames = current.filter(i => !i.is_checked).map(i => i.name)
+  const { items: normalized, aiUsed } = await normalize(clean, existingNames)
 
   if (mode === 'replace') {
     const { error: delErr } = await supabase.from('shopping_list').delete().eq('source', 'auto')
     if (delErr) return { error: delErr }
   }
-
-  const { data: current, error: curErr } = await supabase.from('shopping_list').select('*')
-  if (curErr) return { error: curErr }
 
   // Nieodhaczone pozycje, z którymi możemy łączyć (po nazwie)
   const open = new Map(current.filter(i => !i.is_checked).map(i => [nameKey(i.name), i]))
