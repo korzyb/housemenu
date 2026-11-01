@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0; /* przy otwartej klawiaturze kurczy się lista, nie reszta okna */
 }
 
 .customBtn {
@@ -25,7 +26,9 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 44vh;
+  height: 44vh; /* stała wysokość — okno nie skacze przy filtrowaniu */
+  min-height: 150px; /* przy klawiaturze zostają widoczne ok. 2 przepisy */
+  flex-shrink: 1;
   overflow-y: auto;
   padding: 2px 2px 4px;
   transition: opacity 0.2s ease;
@@ -186,5 +189,5 @@
 
 /* Karuzela AI zajmuje górę okna — lista krótsza, żeby całość zmieściła się na ekranie */
 .listShort {
-  max-height: 26vh;
+  height: 26vh;
 }
