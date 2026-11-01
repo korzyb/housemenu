@@ -31,7 +31,7 @@ export function useAddToShopping() {
       setToast({ message: 'Te posiłki nie mają przepisów ze składnikami — dodaj produkty ręcznie.', warn: true })
       return
     }
-    await addIngredients(ingredientsFromMeals(withRecipe), label)
+    await addIngredients(await ingredientsFromMeals(withRecipe), label)
   }
 
   return { busy, toast, clearToast, addIngredients, addMeals }

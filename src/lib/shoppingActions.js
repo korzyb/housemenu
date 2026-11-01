@@ -4,7 +4,8 @@
 
 import { supabase } from './supabase'
 import { invokeAi } from './ai'
-import { CATEGORY_NAMES, aggregateIngredients, categoryOrder, guessCategory, nameKey } from './shopping'
+import { CATEGORY_NAMES, aggregateIngredients, categoryOrder, guessCategory, nameKey, parseAmount } from './shopping'
+import { portionsFor } from './profile'
 
 // "825 g" | "3 łyżki + 50 ml" | "szczypta" → [{ amount, unit }]
 function parseAmountText(text) {
@@ -52,10 +53,21 @@ async function normalize(raw, existingNames) {
 }
 
 // Składniki z przepisów posiłków (meal_plans z recipe.ingredients)
-export function ingredientsFromMeals(meals) {
-  return meals
-    .flatMap(m => m.recipe?.ingredients || [])
-    .filter(i => i?.name?.trim())
+// Ilości przeliczone na tylu, ilu je: (porcje grupy posiłku / porcje przepisu). meals: meal_plans z audience
+// i recipe { ingredients, servings }. Przepis bez liczby porcji albo brak domowników — ilości jak w przepisie.
+export async function ingredientsFromMeals(meals) {
+  const { data: members } = await supabase.from('household_members').select('profile').eq('is_active', true)
+  return meals.flatMap(m => {
+    const servings = Number(m.recipe?.servings)
+    const portions = portionsFor(members ?? [], m.audience ?? 'all')
+    const factor = servings > 0 && portions ? portions / servings : 1
+    return (m.recipe?.ingredients || [])
+      .filter(i => i?.name?.trim())
+      .map(i => {
+        const n = parseAmount(i.amount)
+        return factor !== 1 && n != null ? { ...i, amount: String(Math.round(n * factor * 1000) / 1000) } : i
+      })
+  })
 }
 
 // mode: 'append' — dopisz i zsumuj z listą; 'replace' — usuń poprzednie pozycje z planu ('auto') i wstaw od nowa

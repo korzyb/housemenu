@@ -93,7 +93,7 @@ export function useShoppingList() {
   async function generateFromMealPlan({ from, to, mode = 'replace' }) {
     const { data: mealPlans, error: plansError } = await supabase
       .from('meal_plans')
-      .select('custom_name, recipe:recipes(name, ingredients)')
+      .select('custom_name, audience, recipe:recipes(name, ingredients, servings)')
       .gte('date', from)
       .lte('date', to)
       .eq('skipped', false)             // „bez kolacji” — nic do kupienia
@@ -103,7 +103,7 @@ export function useShoppingList() {
 
     const withRecipe = mealPlans.filter(mp => mp.recipe)
     const withoutRecipe = mealPlans.filter(mp => !mp.recipe && mp.custom_name)
-    const raw = ingredientsFromMeals(withRecipe)
+    const raw = await ingredientsFromMeals(withRecipe)
 
     const stats = {
       meals: mealPlans.length,

@@ -134,11 +134,21 @@ function pluralUnit(unit, n) {
   return d >= 2 && d <= 4 && (dd < 12 || dd > 14) ? forms[1] : forms[2]
 }
 
-function formatQuantity(family, base) {
+// Zaokrąglanie w górę do ilości, które da się kupić / odmierzyć (po przeliczeniu porcji wychodzą np. 333 g, 2,5 jajka)
+const COUNTABLE = new Set(['szt.', 'ząbek', 'puszka', 'opak.', 'pęczek', 'plaster', 'kromka'])
+const ceilTo = (n, step) => Math.ceil(n / step - 1e-9) * step
+function roundForShopping(family, base) {
+  if (family === 'mass' || family === 'volume') return ceilTo(base, base < 50 ? 5 : base < 500 ? 10 : 50)
+  if (COUNTABLE.has(family)) return ceilTo(base, 1)
+  if (family === 'łyżka' || family === 'łyżeczka' || family === 'szklanka') return ceilTo(base, 0.5)
+  return Math.round(base * 100) / 100
+}
+
+function formatQuantity(family, raw) {
+  const base = roundForShopping(family, raw)
   if (family === 'mass')   return base >= 1000 ? `${formatNumber(base / 1000)} kg` : `${formatNumber(base)} g`
   if (family === 'volume') return base >= 1000 ? `${formatNumber(base / 1000)} l` : `${formatNumber(base)} ml`
-  const n = Math.round(base * 100) / 100
-  return `${formatNumber(n)} ${pluralUnit(family, n)}`
+  return `${formatNumber(base)} ${pluralUnit(family, base)}`
 }
 
 // Sumowanie: [{ amount, unit, name, displayName?, category? }] → [{ name, amount (tekst), category }]

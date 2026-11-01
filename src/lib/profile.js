@@ -393,6 +393,20 @@ export function isChild(member) {
   return Array.isArray(phases) && phases.some(p => CHILD_PHASES.includes(p))
 }
 
+// Porcja domownika (do przeliczania ilości na liście zakupów): dorosły 1, małe dziecko ½, dziecko szkolne ¾
+const PHASE_PORTIONS = { toddler: 0.5, school_child: 0.75 }
+export function portionOf(member) {
+  const phases = member?.profile?.base?.life_phase
+  const child = Array.isArray(phases) ? phases.map(p => PHASE_PORTIONS[p]).find(Boolean) : null
+  return child ?? 1
+}
+
+// Ile porcji je dana grupa ('all' | 'kids' | 'adults'); null — brak domowników (bez przeliczania)
+export function portionsFor(members = [], audience = 'all') {
+  const group = members.filter(m => audience === 'all' || (audience === 'kids' ? isChild(m) : !isChild(m)))
+  return group.length ? group.reduce((sum, m) => sum + portionOf(m), 0) : null
+}
+
 // Domownicy dla AI wg grupy posiłku: 'all' | 'kids' | 'adults' → [{ name, brief, child }]
 export function householdForAudience(members = [], audience = 'all') {
   return members
