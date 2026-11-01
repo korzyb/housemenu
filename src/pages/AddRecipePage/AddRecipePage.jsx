@@ -5,6 +5,7 @@ import { invokeAi } from '../../lib/ai'
 import { THERMOMIX_TAG, isStoredPhoto, storeRecipePhoto } from '../../lib/recipes'
 import { supabase } from '../../lib/supabase'
 import { historyIndex, useGoBack } from '../../lib/nav'
+import { TAG_GROUPS, ALL_TAGS, cleanTags } from '../../lib/tags'
 import styles from './AddRecipePage.module.css'
 
 const EMPTY_INGREDIENT = { amount: '', unit: '', name: '' }
@@ -69,7 +70,6 @@ function RecipeForm({ recipe }) {
 
   const [form, setForm] = useState(() => recipe ? recipeToForm(recipe) : EMPTY_FORM)
   const isTm = form.tags.some(t => t.toLowerCase() === THERMOMIX_TAG)
-  const [tagInput,   setTagInput]   = useState('')
   const [importUrl,  setImportUrl]  = useState('')
   const [importing,  setImporting]  = useState(false)
   const [importErr,  setImportErr]  = useState(null)
@@ -120,7 +120,7 @@ function RecipeForm({ recipe }) {
       servings:    data.servings    ?? f.servings,
       difficulty:  data.difficulty  ?? f.difficulty,
       temperature: data.temperature ?? f.temperature,
-      tags:        data.tags?.length ? data.tags : f.tags,
+      tags:        data.tags?.length ? cleanTags(data.tags) : f.tags,
       notes:       data.notes ?? f.notes,
       ingredients: data.ingredients?.length
         ? data.ingredients.map(i => ({ amount: i.amount ?? '', unit: i.unit ?? '', name: i.name ?? '' }))
@@ -143,12 +143,11 @@ function RecipeForm({ recipe }) {
     )
   }
 
-  // ─── Tags ──────────────────────────────────────────────
-  function addTag() {
-    if (!tagInput.trim()) return
-    set('tags', [...form.tags, tagInput.trim()])
-    setTagInput('')
-  }
+  // ─── Tags (tylko ze wspólnej listy — lib/tags.js) ──────
+  const hasTag = t => form.tags.some(x => x.toLowerCase() === t)
+  const toggleTag = t => set('tags', hasTag(t) ? form.tags.filter(x => x.toLowerCase() !== t) : [...form.tags, t])
+  // Tagi spoza listy (stare przepisy) — do usunięcia
+  const otherTags = form.tags.filter(t => !ALL_TAGS.includes(t.toLowerCase()))
 
   // ─── Save ──────────────────────────────────────────────
   async function handleSave() {
@@ -320,22 +319,25 @@ function RecipeForm({ recipe }) {
         {/* Tagi */}
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Tagi</h2>
-          <div className={styles.tagRow}>
-            <input
-              className={styles.tagInput}
-              placeholder="np. wegetariańskie"
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addTag()}
-            />
-            <button className={styles.tagAddBtn} onClick={addTag} type="button">+</button>
-          </div>
-          {form.tags.length > 0 && (
+          {TAG_GROUPS.map(g => (
+            <div key={g.title} className={styles.chipGroup}>
+              <span className={styles.chipLabel}>{g.title}</span>
+              <div className={styles.chips}>
+                {g.tags.filter(t => t !== THERMOMIX_TAG).map(t => (
+                  <button key={t} type="button"
+                    className={[styles.chip, hasTag(t) ? styles.chipActive : ''].join(' ')}
+                    onClick={() => toggleTag(t)}
+                  >{t}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+          {otherTags.length > 0 && (
             <div className={styles.tagList}>
-              {form.tags.map((tag, i) => (
-                <span key={i} className={styles.tagBadge}>
+              {otherTags.map(tag => (
+                <span key={tag} className={styles.tagBadge}>
                   {tag}
-                  <button onClick={() => set('tags', form.tags.filter((_, j) => j !== i))} type="button">×</button>
+                  <button onClick={() => set('tags', form.tags.filter(t => t !== tag))} type="button" aria-label={`Usuń tag ${tag}`}>×</button>
                 </span>
               ))}
             </div>

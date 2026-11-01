@@ -6,6 +6,13 @@
 
 import { callGemini, corsHeaders, errorResponse, jsonResponse } from '../_shared/gemini.ts'
 import { fullKwestiaPhoto } from '../_shared/webrecipe.ts'
+import { ALL_TAGS, cleanTags } from '../_shared/tags.ts'
+
+// Tagi wybierane przez AI — tylko z naszej listy (patrz _shared/tags.ts)
+const TAGS_LINE = `TAGI — wybierz 2–5, które NAPRAWDĘ opisują danie, wyłącznie z tej listy: ${ALL_TAGS.join(', ')}.
+Pora: na które posiłki danie pasuje (zwykle 1–2). Rodzaj dania i główny składnik — jeśli jest na liście.
+"słodkie" tylko dla słodkich dań; "dla dzieci" tylko gdy przepis jest wyraźnie dla dzieci; "szybkie" gdy do ok. 30 min;
+"piekarnik" gdy danie głównie się piecze; "grill" tylko dla dań z grilla. Lepiej mniej tagów niż nietrafione.`
 
 type Ingredient = { amount: string | null; unit: string | null; name: string }
 type Step = { order: number; text: string }
@@ -96,12 +103,18 @@ function toServings(y: Json): number | null {
   return Number.isFinite(n) && n > 0 && n < 100 ? n : null
 }
 
+// Tagi z danych strony (słowa kluczowe, kategoria, kuchnia) → tylko tagi z naszej listy
 function toTags(r: Json): string[] {
-  const raw = [r.keywords, r.recipeCategory, r.recipeCuisine]
+  return cleanTags([r.keywords, r.recipeCategory, r.recipeCuisine]
     .flatMap(v => Array.isArray(v) ? v : String(v ?? '').split(','))
-    .map(t => clean(t).toLowerCase())
-    .filter(t => t && t.length <= 30)
-  return [...new Set(raw)].slice(0, 6)
+    .map(t => clean(t)))
+}
+
+// Tagi przepisu: z naszej listy; „szybkie” wynika z czasu (do 30 min), nie z oceny AI
+function finalTags(tags: unknown[], prepTime: unknown): string[] {
+  const minutes = Number(prepTime)
+  const quick = Number.isFinite(minutes) && minutes > 0 && minutes <= 30
+  return cleanTags([...tags.filter(t => String(t).toLowerCase() !== 'szybkie'), ...(quick ? ['szybkie'] : [])])
 }
 
 // recipeInstructions: string | [string | HowToStep | HowToSection]
@@ -342,7 +355,7 @@ async function importThermomix(schema: Json, html: string, url: string) {
     servings: toServings(schema.recipeYield),
     difficulty: difficultyPl ? DIFFICULTY[difficultyPl] : null,
     temperature: null as string | null,
-    tags: [...new Set(['thermomix', ...categories.map(c => c.toLowerCase())])].slice(0, 6),
+    tags: cleanTags(['thermomix', ...categories]),
     photo_url: firstImage(schema.image),
     notes: `Przepis Thermomix — gotuj według przepisu w urządzeniu / Cookidoo.${devices.length ? ` Urządzenia: ${devices.join(', ')}.` : ''}${clean(schema.recipeYield) ? ` Wydajność: ${clean(schema.recipeYield)}.` : ''}`,
     steps: [] as Step[],
@@ -471,6 +484,8 @@ ${INGREDIENT_RULES}
 
 ${STEP_RULES}
 
+${TAGS_LINE}
+
 Wszystko po polsku (przetłumacz, jeśli strona jest w innym języku; jednostki imperialne zamień na metryczne).
 Oceń też trudność ("easy" | "medium" | "hard") i czy danie podaje się na ciepło czy zimno ("hot" | "cold").
 
@@ -480,7 +495,7 @@ Zwróć WYŁĄCZNIE JSON:
  "ingredients": [{"amount": "string|null", "unit": "string|null", "name": "string"}],
  "steps": ["krok 1", "krok 2"],
  "notes": "string lub null",
- "tags": ["max 5 krótkich polskich tagów, np. śniadanie, szybkie, wegetariańskie"],
+ "tags": ["tagi TYLKO z listy TAGI niżej, 2–6 pasujących"],
  "difficulty": "easy|medium|hard|null",
  "temperature": "hot|cold|null",
  "servings": liczba_porcji_lub_null}
@@ -511,7 +526,7 @@ ${stepsText}`}`,
           ...base,
           name: ai.name ? String(ai.name).trim() : base.name,
           description: ai.description ?? base.description,
-          tags: Array.isArray(ai.tags) && ai.tags.length ? ai.tags.slice(0, 5) : base.tags,
+          tags: finalTags([...(Array.isArray(ai.tags) ? ai.tags : []), ...base.tags], base.prep_time),
           difficulty: ai.difficulty ?? null,
           temperature: ai.temperature ?? null,
           servings: base.servings ?? (Number(ai.servings) > 0 && Number(ai.servings) < 50 ? Math.round(Number(ai.servings)) : null),
@@ -544,6 +559,8 @@ ${INGREDIENT_RULES}
 
 ${STEP_RULES}
 
+${TAGS_LINE}
+
 Zwróć WYŁĄCZNIE JSON:
 {
   "name": "string",
@@ -552,7 +569,7 @@ Zwróć WYŁĄCZNIE JSON:
   "servings": liczba_lub_null,
   "difficulty": "easy" | "medium" | "hard" | null,
   "temperature": "hot" | "cold" | null,
-  "tags": ["max 5 krótkich tagów"],
+  "tags": ["tagi TYLKO z listy TAGI niżej, 2–6 pasujących"],
   "notes": "string lub null",
   "ingredients": [{"amount": "string|null", "unit": "string|null", "name": "string"}],
   "steps": ["krok 1", "krok 2"]
@@ -596,6 +613,7 @@ ${text}`,
 
     return jsonResponse({
       ...recipe,
+      tags: finalTags(recipe.tags ?? [], recipe.prep_time),
       ingredients: normalizeIngredients(recipe.ingredients),
       steps,
       ...(steps.length ? {} : { notes: [recipe.notes, 'Kroków nie udało się pobrać — uzupełnij je w edycji przepisu.'].filter(Boolean).join('\n') }),

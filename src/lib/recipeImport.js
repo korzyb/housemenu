@@ -3,6 +3,7 @@
 import { supabase } from './supabase'
 import { invokeAi } from './ai'
 import { storeRecipePhoto } from './recipes'
+import { cleanTags } from './tags'
 
 const MEAL_TAGS = { breakfast: 'śniadanie', lunch: 'obiad', dinner: 'kolacja' }
 
@@ -15,7 +16,7 @@ export async function importRecipeFromUrl(url, { fallback = {}, mealType } = {})
   if (data?.error) return { error: data.error }
 
   const mealTag = MEAL_TAGS[mealType]
-  const tags = [...new Set([...(mealTag ? [mealTag] : []), ...(data.tags ?? []).map(t => String(t).toLowerCase())])].slice(0, 8)
+  const tags = cleanTags([...(mealTag ? [mealTag] : []), ...(data.tags ?? [])])
 
   const payload = {
     name:        (data.name || fallback.name || 'Przepis').trim(),
